@@ -1,0 +1,16 @@
+.gradle
+.recommenders/
+build/
+bin/
+target/
+.project
+.classpath
+.settings
+.idea
+.DS_Store
+.metadata
+*.iml
+*.jtl
+parlayx-wsdl/generatedsources
+.eclipse-pmd
+netapi-schema/generatedsources

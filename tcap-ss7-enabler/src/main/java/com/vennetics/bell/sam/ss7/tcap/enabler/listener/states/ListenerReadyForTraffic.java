@@ -1,0 +1,190 @@
+package com.vennetics.bell.sam.ss7.tcap.enabler.listener.states;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ericsson.einss7.japi.VendorComponentIndEvent;
+import com.ericsson.einss7.japi.VendorDialogueIndEvent;
+import com.ericsson.einss7.japi.VendorIndEvent;
+import com.ericsson.einss7.jtcap.TcBindIndEvent;
+import com.ericsson.einss7.jtcap.TcDialoguesLostIndEvent;
+import com.ericsson.einss7.jtcap.TcStateIndEvent;
+import com.vennetics.bell.sam.ss7.tcap.enabler.exception.UnexpectedPrimitiveException;
+import com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.service.IListenerContext;
+
+import jain.protocol.ss7.tcap.ComponentIndEvent;
+import jain.protocol.ss7.tcap.DialogueIndEvent;
+import jain.protocol.ss7.tcap.ParameterNotSetException;
+import jain.protocol.ss7.tcap.TcapUserAddress;
+
+public class ListenerReadyForTraffic extends AbstractListenerState implements IListenerState {
+
+    private static final Logger logger = LoggerFactory.getLogger(ListenerReadyForTraffic.class);
+
+    public ListenerReadyForTraffic(final IListenerContext context) {
+        super(context);
+    }
+    
+    @Override
+    public void handleEvent(final ComponentIndEvent event) {
+        processComponentIndEvent(event);
+    }
+
+    @Override
+    public void handleEvent(final DialogueIndEvent event) {
+        processDialogueIndEvent(event);
+    }
+
+    @Override
+    public void handleEvent(final VendorIndEvent event) {
+        processVendorIndEvent(event);
+    }
+
+	protected void processComponentIndEvent(final ComponentIndEvent event) {
+		logger.debug("ComponentIndEvent event received in state ListenerReadyForTraffic");
+		IDialogue dialogue = getDialogue(event);
+		if (null != dialogue) {
+			dialogue.handleEvent(event);
+		}
+	}
+
+	private IDialogue getDialogue(final ComponentIndEvent event) {
+		int dialogueId = 0;
+		try {
+			dialogueId = event.getDialogueId();
+		} catch (ParameterNotSetException ex) {
+			logger.error("Could not extract dialogue Id");
+			return null;
+		}
+		IDialogue dialogue = context.getDialogue(dialogueId);
+		return dialogue;
+	}
+	
+	private IDialogue getDialogue(final DialogueIndEvent event) {
+		int dialogueId = 0;
+		try {
+			dialogueId = event.getDialogueId();
+		} catch (ParameterNotSetException ex) {
+			logger.error("Could not extract dialogue Id");
+			return null;
+		}
+		IDialogue dialogue = context.getDialogue(dialogueId);
+		return dialogue;
+	}
+    
+    /**
+     * Dialogue Events dispatching.
+     *
+     * @param event
+     */
+    protected void processDialogueIndEvent(final DialogueIndEvent event) {
+        logger.debug("DialogueIndEvent event received in state ListenerReadyForTraffic");
+		IDialogue dialogue = getDialogue(event);
+		if (null != dialogue) {
+			dialogue.handleEvent(event);
+		}
+    }
+
+    /**
+     * Receive a non-JAIN event (Ericsson Specific event).
+     * 
+     * @param event
+     */
+    protected void processVendorIndEvent(final VendorIndEvent event) {
+        final int eventType = event.getVendorEventType();
+        switch (eventType) {
+            case VendorIndEvent.VENDOR_EVENT_GENERAL_IND:
+                processVendorGeneralIndEvent(event);
+                break;
+            case VendorComponentIndEvent.VENDOR_EVENT_COMPONENT_IND:
+            case VendorDialogueIndEvent.VENDOR_EVENT_DIALOGUE_IND:
+            default:
+                logger.debug("VendorDialogueIndEvent event received in state ListenerUnbound");
+
+                final int primitive = event.getPrimitiveType();
+                throw new UnexpectedPrimitiveException(primitive);
+        }
+    }
+    
+    /**
+     * Process a non-JAIN event: VendorGeneralIndEvent.
+     * 
+     * @param event
+     *            The indication event that is going to be processed.
+     */
+    private void processVendorGeneralIndEvent(final VendorIndEvent event) {
+        logger.debug("processVendorGeneralIndEvent");
+
+        final int primitive = event.getPrimitiveType();
+        switch (primitive) {
+            case TcStateIndEvent.PRIMITIVE_TC_STATE_IND:            
+                processTcStateIndEvent((TcStateIndEvent) event);
+                break;
+            case TcBindIndEvent.PRIMITIVE_TC_BIND_IND:
+            case TcDialoguesLostIndEvent.PRIMITIVE_TC_DIALOGUES_LOST_IND:
+            default:
+                logger.debug("VendorDialogueIndEvent event received in state ListenerBound");
+                throw new UnexpectedPrimitiveException(primitive);
+        }
+    }
+    
+    /**
+     * Process a non-JAIN event:VendorGeneralIndEvent:TCStateIndEvent .
+     * 
+     * @param event
+     *    The indication event that is going to be processed.
+     */
+    private void processTcStateIndEvent(TcStateIndEvent event) {
+        if (!isReadyForTraffic(event, context.getDestinationAddress())) {
+            logger.debug("processTcStateIndEvent no longer rady for traffic " + event.getUserStatus());
+            context.setState(new ListenerBound(context));
+        } else {
+            logger.debug("processTcStateIndEvent HD in service: " + event.getUserStatus());
+
+        }
+    }
+    
+    /**
+     * Check if the event indicates that the addr is ready for traffic.
+     *
+     * @param event
+     * @param addr
+     * @return True if ready.
+     */
+    private boolean isReadyForTraffic(TcStateIndEvent event,
+                                      TcapUserAddress addr) {
+
+        //extract SPC and SSN from addr
+        byte[] addrSpc = null;
+        int addrSsn = -1;
+        try {
+            addrSpc = addr.getSignalingPointCode();
+            addrSsn = addr.getSubSystemNumber();
+        } catch (Exception ex) {
+            logger.error("Failed to extract SPC and/or SSN");
+            return false;
+        }
+
+        //check that SPC in addr is the same as affected SPC
+        byte[] affectedSpc = event.getAffectedSpc();
+
+        if (affectedSpc.length != addrSpc.length) {
+            return true;
+        }
+
+        for (int i=0; i<affectedSpc.length; i++) {
+            if (affectedSpc[i] != addrSpc[i]) {
+                return true;
+            }
+        }
+        
+		if (event.getUserStatus() == TcStateIndEvent.USER_UNAVAILABLE 
+		 && event.getAffectedSsn() == addrSsn) {
+			logger.debug("TcStateIndEvent.USER_UNAVAILABLE");
+			return false;
+		}
+
+        return true;
+    }
+}
