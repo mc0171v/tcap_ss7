@@ -1,9 +1,11 @@
 package com.vennetics.bell.sam.ss7.tcap.enabler.service;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Matchers.eq;
 import jain.protocol.ss7.tcap.JainTcapProvider;
 import jain.protocol.ss7.tcap.TcapUserAddress;
+import jain.protocol.ss7.tcap.component.InvokeIndEvent;
+import jain.protocol.ss7.tcap.component.Operation;
+import jain.protocol.ss7.tcap.dialogue.BeginIndEvent;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,9 +13,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.ericsson.einss7.jtcap.TcAddressIndEvent;
-import com.ericsson.einss7.jtcap.TcDialogRelayIndEvent;
-import com.vennetics.bell.sam.ss7.tcap.enabler.exception.UnexpectedPrimitiveException;
+import com.ericsson.einss7.jtcap.TcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.DialogueStart;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DialogueTest {
@@ -22,31 +23,38 @@ public class DialogueTest {
     private static final short SSN = 8;
 
     @Mock
-    private BellSamTcapListener mockListener;
+    private IDialogueContext mockListener;
+    @Mock
+    private TcapEventListener mockTcapListener;
     @Mock
     private JainTcapProvider mockProvider;
+    @Mock
+    private DialogueStart mockState;
 
-    private Dialogue objectToTest;
+    private IDialogue objectToTest;
 
     @Before
     public void setup() {
-        objectToTest = new Dialogue(mockListener, DIALOGUE_ID, SSN, mockProvider);
+        objectToTest = new Dialogue(mockListener, mockProvider);
+        objectToTest.setState(mockState);
     }
 
+	@Test
+	public void shouldHandleDialogueIndEvent() throws Exception {
+		byte[] byteString = "address".getBytes("UTF-8");
+		TcapUserAddress sourceAddress = new TcapUserAddress(byteString, SSN);
+		TcapUserAddress destAddress = new TcapUserAddress(byteString, SSN);
+		BeginIndEvent event = new BeginIndEvent(mockTcapListener, DIALOGUE_ID, sourceAddress, destAddress, true);
+		objectToTest.handleEvent(event);
+		verify(mockState).handleEvent(event);
+	}
+    
     @Test
-    public void shouldHandleVendorDialogueIndEvent() throws Exception {
-        byte[] byteString = "address".getBytes("UTF-8");
-        TcapUserAddress address = new TcapUserAddress(byteString, SSN);
-        TcAddressIndEvent addessEvent = new TcAddressIndEvent("indEvent");
-        addessEvent.setAddress(address);
-        objectToTest.handleVendorDialogueIndEvent(addessEvent);
-        verify(mockListener).setDestinationAddress(eq(address));
+    public void shouldHandleComponentIndEvent() throws Exception {
+        final Operation operation = new Operation();
+        InvokeIndEvent event = new InvokeIndEvent(mockTcapListener, operation, true);
+        event.setDialogueId(DIALOGUE_ID);
+        objectToTest.handleEvent(event);
+        verify(mockState).handleEvent(event);
     }
-
-    @Test(expected = UnexpectedPrimitiveException.class)
-    public void shouldThrowExceptionIfNotTcAddressIndEvent() throws Exception {
-        TcDialogRelayIndEvent addessEvent = new TcDialogRelayIndEvent("indEvent");
-        objectToTest.handleVendorDialogueIndEvent(addessEvent);
-    }
-
 }

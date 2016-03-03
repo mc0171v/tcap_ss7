@@ -22,8 +22,11 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
 
     private static final Logger logger = LoggerFactory.getLogger(ListenerReadyForTraffic.class);
 
+    private static String STATE_NAME = "ListenerReadyForTraffic";
+    
     public ListenerReadyForTraffic(final IListenerContext context) {
         super(context);
+        logger.debug("Changing state to {}", getStateName());
     }
     
     @Override
@@ -42,7 +45,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
     }
 
 	protected void processComponentIndEvent(final ComponentIndEvent event) {
-		logger.debug("ComponentIndEvent event received in state ListenerReadyForTraffic");
+        logger.debug("ComponentIndEvent event received in state {}", getStateName());
 		IDialogue dialogue = getDialogue(event);
 		if (null != dialogue) {
 			dialogue.handleEvent(event);
@@ -53,11 +56,13 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
 		int dialogueId = 0;
 		try {
 			dialogueId = event.getDialogueId();
+			logger.debug("Retrieved dialogId {}", dialogueId);
 		} catch (ParameterNotSetException ex) {
 			logger.error("Could not extract dialogue Id");
 			return null;
 		}
 		IDialogue dialogue = context.getDialogue(dialogueId);
+		logger.debug("Retrieved dialogue {} for dialogId {}",dialogue, dialogueId);
 		return dialogue;
 	}
 	
@@ -65,11 +70,13 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
 		int dialogueId = 0;
 		try {
 			dialogueId = event.getDialogueId();
+			logger.debug("Retrieved dialogId {}", dialogueId);
 		} catch (ParameterNotSetException ex) {
 			logger.error("Could not extract dialogue Id");
 			return null;
 		}
 		IDialogue dialogue = context.getDialogue(dialogueId);
+		logger.debug("Retrieved dialogue {} for dialogId {}",dialogue, dialogueId);
 		return dialogue;
 	}
     
@@ -79,8 +86,8 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
      * @param event
      */
     protected void processDialogueIndEvent(final DialogueIndEvent event) {
-        logger.debug("DialogueIndEvent event received in state ListenerReadyForTraffic");
-		IDialogue dialogue = getDialogue(event);
+        logger.debug("DialogueIndEvent event received in state {}", getStateName());
+        IDialogue dialogue = getDialogue(event);
 		if (null != dialogue) {
 			dialogue.handleEvent(event);
 		}
@@ -93,6 +100,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
      */
     protected void processVendorIndEvent(final VendorIndEvent event) {
         final int eventType = event.getVendorEventType();
+        logger.debug("VendorIndEvent event {} received in state {}", eventType, getStateName());
         switch (eventType) {
             case VendorIndEvent.VENDOR_EVENT_GENERAL_IND:
                 processVendorGeneralIndEvent(event);
@@ -100,8 +108,6 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
             case VendorComponentIndEvent.VENDOR_EVENT_COMPONENT_IND:
             case VendorDialogueIndEvent.VENDOR_EVENT_DIALOGUE_IND:
             default:
-                logger.debug("VendorDialogueIndEvent event received in state ListenerUnbound");
-
                 final int primitive = event.getPrimitiveType();
                 throw new UnexpectedPrimitiveException(primitive);
         }
@@ -114,9 +120,8 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
      *            The indication event that is going to be processed.
      */
     private void processVendorGeneralIndEvent(final VendorIndEvent event) {
-        logger.debug("processVendorGeneralIndEvent");
-
         final int primitive = event.getPrimitiveType();
+        logger.debug("processVendorGeneralIndEvent primitive {} received in state {}", primitive, getStateName());
         switch (primitive) {
             case TcStateIndEvent.PRIMITIVE_TC_STATE_IND:            
                 processTcStateIndEvent((TcStateIndEvent) event);
@@ -124,7 +129,6 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
             case TcBindIndEvent.PRIMITIVE_TC_BIND_IND:
             case TcDialoguesLostIndEvent.PRIMITIVE_TC_DIALOGUES_LOST_IND:
             default:
-                logger.debug("VendorDialogueIndEvent event received in state ListenerBound");
                 throw new UnexpectedPrimitiveException(primitive);
         }
     }
@@ -137,7 +141,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
      */
     private void processTcStateIndEvent(TcStateIndEvent event) {
         if (!isReadyForTraffic(event, context.getDestinationAddress())) {
-            logger.debug("processTcStateIndEvent no longer rady for traffic " + event.getUserStatus());
+            logger.debug("Changing state from {}", getStateName());            
             context.setState(new ListenerBound(context));
         } else {
             logger.debug("processTcStateIndEvent HD in service: " + event.getUserStatus());
@@ -186,5 +190,9 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
 		}
 
         return true;
+    }
+     
+    protected String getStateName() {
+    	return STATE_NAME;
     }
 }

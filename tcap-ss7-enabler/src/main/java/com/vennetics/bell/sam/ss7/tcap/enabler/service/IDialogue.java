@@ -14,13 +14,15 @@ public interface IDialogue {
 
     IDialogueState getState();
 
-    void setState(final IDialogueState state);
-
-    boolean isEndReceived();
-
-    void setEndReceived(final boolean val);
+    void setState(IDialogueState state);
+    
+    void setDialogueId(int dialogueId);
         
     void handleEvent(ComponentIndEvent event);
 
     void handleEvent(DialogueIndEvent event);
+    
+    void activate();
+    
+    String getStateName();
 }

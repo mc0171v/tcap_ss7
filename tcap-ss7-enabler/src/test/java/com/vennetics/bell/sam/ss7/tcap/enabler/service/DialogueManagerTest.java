@@ -3,6 +3,7 @@ package com.vennetics.bell.sam.ss7.tcap.enabler.service;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 import jain.protocol.ss7.tcap.JainTcapProvider;
 
 import org.junit.Before;
@@ -21,12 +22,16 @@ public class DialogueManagerTest {
 
     private static final int DIALOGUE_ID = 1111;
     private static final int DIALOGUE_ID2 = 1112;
-    private static final int SSN = 8;
+    //private static final int SSN = 8;
 
     @Mock
     private BellSamTcapListener mockListener;
     @Mock
     private JainTcapProvider mockProvider;
+    @Mock
+    private IDialogue mockDialogue;
+    @Mock
+    private IDialogue mockDialogue2;
 
     @Before
     public void setup() {
@@ -35,28 +40,28 @@ public class DialogueManagerTest {
 
     @Test
     public void shouldActivateDialogue() throws Exception {
-        final Dialogue dialogue = newDialogue(DIALOGUE_ID);
-        objectToTest.activate(dialogue);
-        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID), sameInstance(dialogue));
+        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+        objectToTest.activate(mockDialogue);
+        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID), sameInstance(mockDialogue));
     }
 
     @Test
     public void shouldDeActivateDialogue() throws Exception {
-        final Dialogue dialogue = newDialogue(DIALOGUE_ID);
-        objectToTest.activate(dialogue);
-        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID), sameInstance(dialogue));
-        objectToTest.deactivate(dialogue);
+    	when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+        objectToTest.activate(mockDialogue);
+        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID), sameInstance(mockDialogue));
+        objectToTest.deactivate(mockDialogue);
         assertTrue(!objectToTest.isDialogueLeft());
     }
 
     @Test
     public void shouldClearAllDialogue() throws Exception {
-        final Dialogue dialogue = newDialogue(DIALOGUE_ID);
-        objectToTest.activate(dialogue);
-        final Dialogue dialogue2 = newDialogue(DIALOGUE_ID2);
-        objectToTest.activate(dialogue2);
-        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID), sameInstance(dialogue));
-        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID2), sameInstance(dialogue2));
+    	when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+        objectToTest.activate(mockDialogue);
+        when(mockDialogue2.getDialogueId()).thenReturn(DIALOGUE_ID2);
+        objectToTest.activate(mockDialogue2);
+        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID), sameInstance(mockDialogue));
+        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID2), sameInstance(mockDialogue2));
         assertTrue(objectToTest.isDialogueLeft());
         objectToTest.clearAllDialogs();
         assertTrue(!objectToTest.isDialogueLeft());
@@ -64,19 +69,16 @@ public class DialogueManagerTest {
 
     @Test(expected = DialogueExistsException.class)
     public void shouldThrowExceptionIfDialogueExists() throws Exception {
-        final Dialogue dialogue = newDialogue(DIALOGUE_ID);
-        objectToTest.activate(dialogue);
-        objectToTest.activate(dialogue);
+    	when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+    	when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+    	objectToTest.activate(mockDialogue);
+        objectToTest.activate(mockDialogue);
+
     }
 
     @Test(expected = NoDialogueExistsException.class)
     public void shouldThrowExceptionIfNoDialogueExists() throws Exception {
-        final Dialogue dialogue = newDialogue(DIALOGUE_ID);
-        objectToTest.deactivate(dialogue);
+        objectToTest.deactivate(mockDialogue);
     }
 
-    private Dialogue newDialogue(final int dialogueId) {
-        Dialogue dialogue = new Dialogue(mockListener, dialogueId, SSN, mockProvider);
-        return dialogue;
-    }
 }

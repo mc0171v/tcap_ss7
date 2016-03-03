@@ -8,74 +8,139 @@ import org.slf4j.LoggerFactory;
 import com.ericsson.einss7.japi.OutOfServiceException;
 import com.ericsson.einss7.japi.VendorException;
 import com.ericsson.einss7.japi.WouldBlockException;
-import com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogueContext;
 
 import ericsson.ein.ss7.commonparts.util.Tools;
 import jain.protocol.ss7.SS7Exception;
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
 import jain.protocol.ss7.tcap.JainTcapProvider;
+import jain.protocol.ss7.tcap.JainTcapStack;
 import jain.protocol.ss7.tcap.component.ComponentConstants;
 import jain.protocol.ss7.tcap.component.InvokeReqEvent;
 import jain.protocol.ss7.tcap.component.Operation;
 import jain.protocol.ss7.tcap.component.Parameters;
 import jain.protocol.ss7.tcap.component.ResultIndEvent;
-import jain.protocol.ss7.tcap.dialogue.BeginReqEvent;
+import jain.protocol.ss7.tcap.dialogue.ContinueIndEvent;
+import jain.protocol.ss7.tcap.dialogue.ContinueReqEvent;
 import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
 import jain.protocol.ss7.tcap.dialogue.DialoguePortion;
 
-
-public class DialogueStarted extends AbstractDialogueState implements IDialogueState {
-
-    private static final Logger logger = LoggerFactory.getLogger(DialogueStarted.class);
+public class DialogueAnswer extends AbstractDialogueState implements IDialogueState {
     
-    private static final int PARAM_LEN = Integer.parseInt(System.getProperty("PARAM_LEN", "30"));
-    private static final long BB_TEST_INVOKE_TIMEOUT = 5000;
-    private static final byte[] OPERATION_CONTINUE_DIALOGUE =  { 0x01};
+    private static final Logger logger = LoggerFactory.getLogger(DialogueAnswer.class);
 
-    public DialogueStarted(final IDialogueContext context) {
-        super(context);
-        startDialogue();
+    private static final int PARAM_LEN = Integer.parseInt(System.getProperty("PARAM_LEN", "30"));
+    private static final byte[] OPERATION_CONTINUE_DIALOGUE =  { 0x01};
+    private static final long BB_TEST_INVOKE_TIMEOUT = 5000;
+
+    private static String STATE_NAME = "DialogueAnswer";
+    
+    public DialogueAnswer(final IDialogueContext context, IDialogue dialogue) {
+        super(context, dialogue);
+        logger.debug("Changing state to {}", getStateName());
+    }
+    
+    public void activate() {
+        sendInvokeAndContinue(dialogue.getDialogueId());    
     }
 
     @Override
     public void handleEvent(final ComponentIndEvent event) {
-        logger.debug("Handling ComponentIndEvent in state DialogueStarted");
+        logger.debug("ComponentIndEvent event received in state {}", getStateName());
         processComponentIndEvent(event);
     }
 
     @Override
     public void handleEvent(final DialogueIndEvent event) {
-        logger.debug("Handling DialogueIndEvent in state DialogueStarted");
+        logger.debug("DialogueIndEvent event received in state {}", getStateName());
         processDialogueIndEvent(event);
     }
     
-    public void startDialogue() {
-        EventObject currentReq = null;
+    /**
+    *
+    * @param event
+    *
+    * @exception SS7Exception
+    */
+    @Override
+	public void processResultIndEvent(ResultIndEvent event) throws SS7Exception {
+
+        logger.debug("ResultIndEvent event received in state {}", getStateName());
+		final JainTcapProvider provider = context.getProvider();
+		final JainTcapStack stack = context.getStack();
+		switch (stack.getProtocolVersion()) {
+		case DialogueConstants.PROTOCOL_VERSION_ANSI_96:
+			provider.releaseInvokeId(event.getLinkId(), event.getDialogueId());
+			break;
+		case DialogueConstants.PROTOCOL_VERSION_ITU_97:
+			provider.releaseInvokeId(event.getInvokeId(), event.getDialogueId());
+			break;
+		default:
+			throw new RuntimeException("Wrong protocol version:\n");
+		}
+		IDialogue dialogue = context.getDialogue(event.getDialogueId());
+		if (dialogue == null) {
+			logger.error("No dialogue found");
+			return;
+		}
+        logger.debug("Changing state from {}", getStateName());
+		dialogue.setState(new DialogueEnd(context, dialogue));
+		dialogue.activate();
+	}
+    
+    /**
+     * Dialogue event.
+     */
+    public void processContinueIndEvent(ContinueIndEvent event)
+    throws SS7Exception {
+  	  logger.debug("Expected Continue IndEvent received.");    
+  	  }
+
+    public ContinueReqEvent createContinueReq (java.lang.Object source,
+                                               int dialogueId ) {
+
+        ContinueReqEvent endReq = new ContinueReqEvent(source,0);
+        endReq.setDialogueId(dialogueId);
+        endReq.setQualityOfService((byte)2); //FIX: constant for qos in JAIN
+        endReq.setDialoguePortion(new DialoguePortion());
+        return endReq;
+    }
+    
+    /**
+     * Build an invoke and continue request, then send them.
+     *
+     * @param dialogueId The dialogue to continue with.
+     */
+    private void sendInvokeAndContinue(int dialogueId) {
         InvokeReqEvent invokeReq = null;
-        BeginReqEvent beginReq = null;
-        int dialogueId = -1;
+        ContinueReqEvent continueReq = null;
+        EventObject currentReq = null;
         try {
-        	JainTcapProvider provider = context.getProvider();
-            dialogueId = provider.getNewDialogueId(context.getSsn());
-            int invokeId = provider.getNewInvokeId(dialogueId);
-            logger.debug("Starting dialogue with dialogueId:{} and invokeId:{}",dialogueId,invokeId);
-            invokeReq = createInvokeReq(this,
-                                        invokeId,
-                                        OPERATION_CONTINUE_DIALOGUE,
-                                        true);
-            currentReq = invokeReq;
+            int invokeId=context.getProvider().getNewInvokeId(dialogueId);
+            currentReq = invokeReq =
+                createInvokeReq(context.getTcapEventListener(),
+                                invokeId,
+                                OPERATION_CONTINUE_DIALOGUE,
+                                true); //with paramters
+
             invokeReq.setDialogueId(dialogueId);
             invokeReq.setTimeOut(BB_TEST_INVOKE_TIMEOUT);
-            // set class 1 operation (report failure or success)
+            //set class 1 operation (report failure or success)
             invokeReq.setClassType(ComponentConstants.CLASS_1);
-            provider.sendComponentReqEventNB(invokeReq);
+            logger.debug("Sending invoke with invokeID: "
+                        + invokeId + "  ...");
 
-            // ----- Build begin request:
-            beginReq = createBeginReq(this, dialogueId);
-            currentReq = beginReq;
-            provider.sendDialogueReqEventNB(beginReq);
+            context.getProvider().sendComponentReqEventNB(invokeReq);
+
+
+            //----- Build begin request:
+
+            currentReq = continueReq = createContinueReq(context.getTcapEventListener(),
+                                                         dialogueId);
+            logger.debug("Sending continue...");
+            context.getProvider().sendDialogueReqEventNB(continueReq);
         } catch (SS7Exception ex) {
             ex.printStackTrace();
         } catch (WouldBlockException vbEx) {
@@ -85,7 +150,8 @@ public class DialogueStarted extends AbstractDialogueState implements IDialogueS
         } catch (VendorException vEx) {
             vEx.printStackTrace();
         }
-    }    
+
+    }
     
     public InvokeReqEvent createInvokeReq(final java.lang.Object source, final int invokeId, final byte[] opData) {
         return createInvokeReq(source, invokeId, opData, false);
@@ -161,44 +227,8 @@ public class DialogueStarted extends AbstractDialogueState implements IDialogueS
         }
         return currentPos;
     }
-
-
-    public BeginReqEvent createBeginReq(final java.lang.Object source,
-                                        final int dialogueId) {
-
-        final BeginReqEvent beginReq = new BeginReqEvent(source, dialogueId, context.getOrigAddr(), context.getDestAddr());
-        beginReq.setQualityOfService((byte) 2); // FIX: constant for qos in JAIN
-        beginReq.setOriginatingAddress(context.getOrigAddr());
-        beginReq.setDestinationAddress(context.getDestAddr());
-        beginReq.setDialoguePortion(new DialoguePortion());
-        return beginReq;
-    }
     
-    /**
-    *
-    * @param event
-    *
-    * @exception SS7Exception
-    */
-    @Override
-	public void processResultIndEvent(ResultIndEvent event) throws SS7Exception {
-
-		logger.debug("ResultIndEvent received.");
-		switch (context.getStack().getProtocolVersion()) {
-		case DialogueConstants.PROTOCOL_VERSION_ANSI_96:
-			context.getProvider().releaseInvokeId(event.getLinkId(), event.getDialogueId());
-			break;
-		case DialogueConstants.PROTOCOL_VERSION_ITU_97:
-			context.getProvider().releaseInvokeId(event.getInvokeId(), event.getDialogueId());
-			break;
-		default:
-			throw new RuntimeException("Wrong protocol version:\n");
-		}
-		IDialogue dialogue = context.getDialogueManager().lookUpDialogue(event.getDialogueId());
-		if (dialogue == null) {
-			logger.error("No dialogue found");
-			return;
-		}
-		dialogue.setState(new DialogueAnswered(context));
-	}
+    public String getStateName() {
+    	return STATE_NAME;
+    }
 }

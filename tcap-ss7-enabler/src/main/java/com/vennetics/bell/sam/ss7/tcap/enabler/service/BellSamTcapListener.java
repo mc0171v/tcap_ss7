@@ -14,6 +14,7 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.exception.TcapErrorException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.TcapUserInitialisationException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.IListenerState;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerBound;
+import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerReadyForTraffic;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerUnbound;
 
 import jain.protocol.ss7.JainSS7Factory;
@@ -36,8 +37,6 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
     private TcapUserAddress destAddr;
     private final IDialogueManager dialogueMgr;
     private JainTcapStack stack;
-
-
 	private JainTcapProvider provider;
 
 	private static final String BELL_SAM_TCAP = "Bell SAM Project: TCAP statck";
@@ -69,6 +68,11 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
         logger.debug("initAppl called, isFirst: " + isFirst);
         try {
             stack = createJainTcapStack();
+            Vector<JainTcapProvider> providers = stack.getProviderList();
+            for (JainTcapProvider provider: providers) {
+            	stack.detach(provider);
+            	stack.deleteProvider(provider);
+            }
             logger.debug("Attaching provider to new JainTcapStack");
             provider = stack.createAttachedProvider();
             logger.debug("Attached provider to new JainTcapStack");
@@ -156,8 +160,10 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
         // not used by the Ericsson implementation.
     }
 
-    public void startDialogue() {
-            dialogueMgr.activate(new Dialogue(this, provider));
+    public IDialogue startDialogue() {
+    	final IDialogue dialogue = new Dialogue(this, provider);
+        dialogue.activate();
+        return dialogue;
     }
 
 
@@ -233,6 +239,13 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
         }
         return false;
     }
+    
+    public boolean isReady() {
+        if (this.state instanceof ListenerReadyForTraffic) {
+            return true;
+        }
+        return false;
+    }
 
     public IDialogueManager getDialogueManager() {
         return this.dialogueMgr;
@@ -242,12 +255,20 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
         return dialogueMgr.lookUpDialogue(dialogueId);
     }
     
+    public void deactivateDialogue(final IDialogue dialogue) {
+    	dialogueMgr.deactivate(dialogue);
+    }
+    
     public int getSsn() {
 		try {
 			return origAddr.getSubSystemNumber();
 		} catch (ParameterNotSetException ex) {
 			return 0;
 		}
+    }
+    
+    public TcapEventListener getTcapEventListener() {
+    	return this;
     }
 
 	public TcapUserAddress getDestAddr() {

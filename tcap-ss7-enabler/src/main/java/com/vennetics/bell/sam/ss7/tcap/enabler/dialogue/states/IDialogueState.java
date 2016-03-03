@@ -8,5 +8,8 @@ public interface IDialogueState {
     void handleEvent(ComponentIndEvent event);
 
     void handleEvent(DialogueIndEvent event);
-
+    
+    void activate();
+    
+    String getStateName();
 }

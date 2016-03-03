@@ -18,8 +18,11 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
 
     private static final Logger logger = LoggerFactory.getLogger(ListenerBound.class);
 
+    private static String STATE_NAME = "ListenerBound";
+    
     public ListenerBound(final IListenerContext context) {
         super(context);
+        logger.debug("Changing state to {}", getStateName());
     }
 
     /**
@@ -29,6 +32,7 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
      */
     protected void processVendorIndEvent(final VendorIndEvent event) {
         final int eventType = event.getVendorEventType();
+        logger.debug("VendorIndEvent event {} received in state {}", eventType, getStateName());
         switch (eventType) {
             case VendorIndEvent.VENDOR_EVENT_GENERAL_IND:
                 processVendorGeneralIndEvent(event);
@@ -36,8 +40,6 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
             case VendorComponentIndEvent.VENDOR_EVENT_COMPONENT_IND:
             case VendorDialogueIndEvent.VENDOR_EVENT_DIALOGUE_IND:
             default:
-                logger.debug("VendorDialogueIndEvent event received in state ListenerUnbound");
-
                 final int primitive = event.getPrimitiveType();
                 throw new UnexpectedPrimitiveException(primitive);
         }
@@ -50,9 +52,8 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
      *            The indication event that is going to be processed.
      */
     private void processVendorGeneralIndEvent(final VendorIndEvent event) {
-        logger.debug("processVendorGeneralIndEvent");
-
         final int primitive = event.getPrimitiveType();
+        logger.debug("processVendorGeneralIndEvent primitive {} received in state {}", primitive, getStateName());
         switch (primitive) {
             case TcStateIndEvent.PRIMITIVE_TC_STATE_IND:            
                 processTcStateIndEvent((TcStateIndEvent) event);
@@ -77,7 +78,7 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
             // @todo handle congestion...
 
         } else {
-            logger.debug("processTcStateIndEvent HD in service: " + event.getUserStatus());
+            logger.debug("Changing state from {}", getStateName());
             context.setState(new ListenerReadyForTraffic(context));
         }
     }
@@ -107,15 +108,20 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
             logger.error("Failed to extract SPC and/or SSN");
             return false;
         }
+        logger.debug("", addrSsn);
 
         //check that SPC in addr is the same as affected SPC
         byte[] affectedSpc = event.getAffectedSpc();
+        logger.debug("Our SSN {} Affected SSN {}",addrSsn,event.getAffectedSsn());
 
         if (affectedSpc.length != addrSpc.length) {
             return false;
         }
-
         for (int i=0; i<affectedSpc.length; i++) {
+        	logger.debug("{}: Our SPC {} Affected SPC {}",i,addrSpc[i],affectedSpc[i]);
+        }
+        for (int i=0; i<affectedSpc.length; i++) {
+        	logger.debug("{}: Our SPC {} Affected SPC {}",i,addrSpc[i],affectedSpc[i]);
             if (affectedSpc[i] != addrSpc[i]) {
                 return false;
             }
@@ -123,5 +129,9 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
 
         //if SSN also matches then ready for traffic
         return event.getAffectedSsn() == addrSsn;
+    }
+    
+    protected String getStateName() {
+    	return STATE_NAME;
     }
 }

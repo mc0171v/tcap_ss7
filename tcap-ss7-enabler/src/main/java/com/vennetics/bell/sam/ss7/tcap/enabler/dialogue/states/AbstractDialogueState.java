@@ -39,8 +39,12 @@ public abstract class AbstractDialogueState {
 
     protected IDialogueContext context;
     
-	public AbstractDialogueState(final IDialogueContext context) {
+    protected IDialogue dialogue;
+    
+	public AbstractDialogueState(final IDialogueContext context,
+			                     final IDialogue dialogue) {
         this.context = context;
+        this.dialogue = dialogue;
     }
 
     public abstract void handleEvent(final ComponentIndEvent event);
@@ -162,7 +166,6 @@ public abstract class AbstractDialogueState {
    */
   public void processContinueIndEvent(ContinueIndEvent event)
   throws SS7Exception {
-
 	  logger.debug("Continue IndEvent received.");
 	  throw new UnexpectedPrimitiveException(event.getPrimitiveType());
   }
@@ -227,8 +230,7 @@ public abstract class AbstractDialogueState {
                                          event);
           }
       } catch (Exception ex) {
-          ex.printStackTrace();
-          System.exit(1);
+    	  throw new UnexpectedPrimitiveException(event.getPrimitiveType());
       }
   }
   

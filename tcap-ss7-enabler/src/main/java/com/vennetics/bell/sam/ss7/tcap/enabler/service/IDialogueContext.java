@@ -1,5 +1,7 @@
 package com.vennetics.bell.sam.ss7.tcap.enabler.service;
 
+import com.ericsson.einss7.jtcap.TcapEventListener;
+
 import jain.protocol.ss7.tcap.JainTcapProvider;
 import jain.protocol.ss7.tcap.JainTcapStack;
 import jain.protocol.ss7.tcap.TcapUserAddress;
@@ -16,7 +18,13 @@ public interface IDialogueContext {
     
     JainTcapProvider getProvider();
     
-    void startDialogue();
-    
     JainTcapStack getStack();
+    
+    TcapEventListener getTcapEventListener();
+    
+    IDialogue getDialogue(int dialogueId);
+    
+    void deactivateDialogue(IDialogue dialogueId);
+    
+    IDialogue startDialogue();
 }
