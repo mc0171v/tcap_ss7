@@ -2,6 +2,7 @@ package com.vennetics.bell.sam.ss7.tcap.enabler.listener.states;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.ericsson.einss7.japi.VendorComponentIndEvent;
 import com.ericsson.einss7.japi.VendorDialogueIndEvent;
@@ -12,14 +13,20 @@ import com.ericsson.einss7.jtcap.TcStateIndEvent;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.UnexpectedPrimitiveException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.service.IListenerContext;
 
-public class ListenerUnbound extends AbstractListenerState implements IListenerState  {
+@Component
+public class ListenerUnbound extends AbstractListenerState implements IListenerState {
 
     private static final Logger logger = LoggerFactory.getLogger(ListenerUnbound.class);
 
-    private static String STATE_NAME = "ListenerUnbound";
-    
+    private static String stateName = "ListenerUnbound";
+
     public ListenerUnbound(final IListenerContext context) {
         super(context);
+        logger.debug("Changing state to {}", getStateName());
+    }
+    
+    public ListenerUnbound() {
+        super();
         logger.debug("Changing state to {}", getStateName());
     }
 
@@ -30,7 +37,9 @@ public class ListenerUnbound extends AbstractListenerState implements IListenerS
      */
     protected void processVendorIndEvent(final VendorIndEvent event) {
         final int eventType = event.getVendorEventType();
-        logger.debug("VendorDialogueIndEvent event {} received in state {}", eventType, getStateName());
+        logger.debug("VendorDialogueIndEvent event {} received in state {}",
+                     eventType,
+                     getStateName());
         switch (eventType) {
             case VendorIndEvent.VENDOR_EVENT_GENERAL_IND:
                 processVendorGeneralIndEvent(event);
@@ -42,7 +51,7 @@ public class ListenerUnbound extends AbstractListenerState implements IListenerS
                 throw new UnexpectedPrimitiveException(primitive);
         }
     }
-    
+
     /**
      * Process a non-JAIN event: VendorGeneralIndEvent.
      * 
@@ -51,7 +60,9 @@ public class ListenerUnbound extends AbstractListenerState implements IListenerS
      */
     private void processVendorGeneralIndEvent(final VendorIndEvent event) {
         final int primitive = event.getPrimitiveType();
-        logger.debug("processVendorGeneralIndEvent primitive {} received in state {}", primitive, getStateName());
+        logger.debug("processVendorGeneralIndEvent primitive {} received in state {}",
+                     primitive,
+                     getStateName());
         switch (primitive) {
             case TcBindIndEvent.PRIMITIVE_TC_BIND_IND:
                 processTcBindIndEvent();
@@ -63,17 +74,17 @@ public class ListenerUnbound extends AbstractListenerState implements IListenerS
                 throw new UnexpectedPrimitiveException(primitive);
         }
     }
-    
+
     /**
      * Process a non-JAIN event:VendorGeneralIndEvent:TCBindIndEvent .
      */
     private void processTcBindIndEvent() {
         logger.debug("TcapBindIndEvent event received in state {}", getStateName());
         logger.debug("Changing state from {}", getStateName());
-        context.setState(new ListenerBound(context));
+        getContext().setState(new ListenerBound(getContext()));
     }
-    
+
     protected String getStateName() {
-    	return STATE_NAME;
+        return stateName;
     }
 }

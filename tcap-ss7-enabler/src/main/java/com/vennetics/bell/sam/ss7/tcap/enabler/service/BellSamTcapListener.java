@@ -2,20 +2,33 @@ package com.vennetics.bell.sam.ss7.tcap.enabler.service;
 
 import java.util.Vector;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import com.ericsson.einss7.japi.VendorException;
 import com.ericsson.einss7.japi.VendorIndEvent;
 import com.ericsson.einss7.jtcap.TcapEventListener;
 import com.ericsson.jain.protocol.ss7.tcap.JainTcapConfig;
+import com.vennetics.bell.sam.ss7.tcap.enabler.component.requests.IComponentRequestBuilder;
+import com.vennetics.bell.sam.ss7.tcap.enabler.config.Ss7ConfigurationProperties;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.Dialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.DialogueManager;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueManager;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.requests.IDialogueRequestBuilder;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.IDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.SS7ConfigException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.TcapErrorException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.TcapUserInitialisationException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.IListenerState;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerBound;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerReadyForTraffic;
-import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerUnbound;
 
 import jain.protocol.ss7.JainSS7Factory;
 import jain.protocol.ss7.SS7Exception;
@@ -26,35 +39,61 @@ import jain.protocol.ss7.tcap.JainTcapStack;
 import jain.protocol.ss7.tcap.ParameterNotSetException;
 import jain.protocol.ss7.tcap.TcapErrorEvent;
 import jain.protocol.ss7.tcap.TcapUserAddress;
-import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
 
-public class BellSamTcapListener implements TcapEventListener, IListenerContext, IDialogueContext {
+@Component
+public class BellSamTcapListener implements IBellSamTcapEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(BellSamTcapListener.class);
 
+    private Ss7ConfigurationProperties configProperties;
+        
+    private IDialogueState initialDialogueState;
+
+    private IDialogueRequestBuilder dialogueRequestBuilder;
+    
+    private IComponentRequestBuilder componentRequestBuilder;
+    
     private IListenerState state;
-	private final TcapUserAddress origAddr;
+    private final TcapUserAddress origAddr;
     private TcapUserAddress destAddr;
     private final IDialogueManager dialogueMgr;
     private JainTcapStack stack;
-	private JainTcapProvider provider;
+    private JainTcapProvider provider;
 
-	private static final String BELL_SAM_TCAP = "Bell SAM Project: TCAP statck";
-
-
-    private static final int STD = DialogueConstants.PROTOCOL_VERSION_ITU_97;
+    private static final String BELL_SAM_TCAP = "Bell SAM Project: TCAP statck";
     private final int std;
 
     private Vector<TcapUserAddress> addressVector;
-
-    public BellSamTcapListener(final TcapUserAddress origAddr, final TcapUserAddress destAddr) {
-        this.origAddr = origAddr;
-        this.destAddr = destAddr;
-        this.dialogueMgr = new DialogueManager();
-        this.state = new ListenerUnbound(this);
-        std = STD;
+    
+    @PostConstruct
+    public void init() {
         setConfiguration();
         initialise(true);
+    }
+    
+    @PreDestroy
+    public void destroy() {
+        cleanup();
+    }
+
+    @Autowired
+    BellSamTcapListener(final Ss7ConfigurationProperties configProperties,
+                        @Qualifier("listenerUnbound") final IListenerState initialListenerState,
+                        final IDialogueRequestBuilder dialogueRequestBuilder,
+                        final IComponentRequestBuilder componentRequestBuilder,
+                        @Qualifier("dialogueStart") final IDialogueState initialDialogueState) {
+        this.configProperties = configProperties;
+        this.origAddr = new TcapUserAddress(configProperties.getOrigAddress().getsPC(),
+                                            configProperties.getOrigAddress().getsSn());
+        this.destAddr = new TcapUserAddress(configProperties.getDestAddress().getsPC(),
+                                            configProperties.getDestAddress().getsSn());
+        this.dialogueMgr = new DialogueManager();
+        this.state = initialListenerState;
+        std = configProperties.getsTD();
+        this.componentRequestBuilder = componentRequestBuilder;
+        this.dialogueRequestBuilder = dialogueRequestBuilder;
+        this.initialDialogueState = initialDialogueState;
+        initialListenerState.setContext(this);
     }
 
     /**
@@ -68,11 +107,6 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
         logger.debug("initAppl called, isFirst: " + isFirst);
         try {
             stack = createJainTcapStack();
-            Vector<JainTcapProvider> providers = stack.getProviderList();
-            for (JainTcapProvider provider: providers) {
-            	stack.detach(provider);
-            	stack.deleteProvider(provider);
-            }
             logger.debug("Attaching provider to new JainTcapStack");
             provider = stack.createAttachedProvider();
             logger.debug("Attached provider to new JainTcapStack");
@@ -89,11 +123,10 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
             throw new TcapUserInitialisationException(ex.getMessage());
         }
     }
-    
+
     @SuppressWarnings(value = "deprecation")
-    private JainTcapStack createJainTcapStack()
-                    throws jain.protocol.ss7.SS7PeerUnavailableException,
-                           jain.protocol.ss7.tcap.TcapException {
+    private JainTcapStack createJainTcapStack() throws jain.protocol.ss7.SS7PeerUnavailableException,
+                                                jain.protocol.ss7.tcap.TcapException {
         JainSS7Factory.getInstance().setPathName("com.ericsson");
         logger.debug("Creating new JainTcapStack");
         final JainTcapStack newStack = (JainTcapStack) JainSS7Factory.getInstance()
@@ -105,7 +138,7 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
         return newStack;
     }
 
-    private void setConfiguration() {
+    public void setConfiguration() {
 
         try {
             // NOTE: a real application would NOT hard code the
@@ -148,7 +181,7 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
     public synchronized void setDestinationAddress(final TcapUserAddress addr) {
         destAddr = addr;
     }
-    
+
     public TcapUserAddress getDestinationAddress() {
         return destAddr;
     }
@@ -160,12 +193,16 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
         // not used by the Ericsson implementation.
     }
 
-    public IDialogue startDialogue() {
-    	final IDialogue dialogue = new Dialogue(this, provider);
+    public IDialogue startDialogue(final Object request) {
+        final IDialogue dialogue = new Dialogue(this, provider, request);
+        dialogue.setDialogueRequestBuilder(dialogueRequestBuilder);
+        dialogue.setComponentRequestBuilder(componentRequestBuilder);
+        initialDialogueState.setContext(this);
+        initialDialogueState.setDialogue(dialogue);
+        dialogue.setState(initialDialogueState);
         dialogue.activate();
         return dialogue;
     }
-
 
     /**
      * General purpose cleanup method.
@@ -182,7 +219,6 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
                 return;
             }
             try {
-
                 provider.removeTcapEventListener(this);
                 logger.debug("Removed JainTcapListener");
             } catch (jain.protocol.ss7.SS7ListenerNotRegisteredException ex) {
@@ -234,12 +270,13 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
     }
 
     public boolean isBound() {
-        if (this.state instanceof ListenerBound) {
+        if (this.state instanceof ListenerBound
+         || this.state instanceof ListenerReadyForTraffic) {
             return true;
         }
         return false;
     }
-    
+
     public boolean isReady() {
         if (this.state instanceof ListenerReadyForTraffic) {
             return true;
@@ -250,40 +287,64 @@ public class BellSamTcapListener implements TcapEventListener, IListenerContext,
     public IDialogueManager getDialogueManager() {
         return this.dialogueMgr;
     }
-    
+
     public IDialogue getDialogue(final int dialogueId) {
         return dialogueMgr.lookUpDialogue(dialogueId);
     }
-    
+
     public void deactivateDialogue(final IDialogue dialogue) {
-    	dialogueMgr.deactivate(dialogue);
+        dialogueMgr.deactivate(dialogue);
     }
-    
+
     public int getSsn() {
-		try {
-			return origAddr.getSubSystemNumber();
-		} catch (ParameterNotSetException ex) {
-			return 0;
-		}
+        try {
+            return origAddr.getSubSystemNumber();
+        } catch (ParameterNotSetException ex) {
+            return 0;
+        }
+    }
+
+    public TcapEventListener getTcapEventListener() {
+        return this;
+    }
+
+    public TcapUserAddress getDestAddr() {
+        return destAddr;
+    }
+
+    public TcapUserAddress getOrigAddr() {
+        return origAddr;
+    }
+
+    public JainTcapProvider getProvider() {
+        return provider;
+    }
+
+    public JainTcapStack getStack() {
+        return stack;
     }
     
-    public TcapEventListener getTcapEventListener() {
-    	return this;
+    public void setConfigProperties(final Ss7ConfigurationProperties configProperties) {
+        this.configProperties = configProperties;
     }
 
-	public TcapUserAddress getDestAddr() {
-		return destAddr;
-	}
+    public Ss7ConfigurationProperties getConfigProperties() {
+         return configProperties;
+    }
+    
+    public void setInitialDialogueState(final IDialogueState initialDialogueState) {
+        logger.debug("setInitialDialogueState");
+        this.initialDialogueState = initialDialogueState;
+    }
 
-	public TcapUserAddress getOrigAddr() {
-		return origAddr;
-	}
+    public void setDialogueRequestBuilder(final IDialogueRequestBuilder dialogueRequestBuilder) {
+        logger.debug("setDialogueRequestBuilder");
+        this.dialogueRequestBuilder = dialogueRequestBuilder;
+    }
 
-	public JainTcapProvider getProvider() {
-		return provider;
-	}
-	
-    public JainTcapStack getStack() {
-		return stack;
-	}
+    public void setComponentRequestBuilder(final IComponentRequestBuilder componentRequestBuilder) {
+        logger.debug("setComponentRequestBuilder");
+        this.componentRequestBuilder = componentRequestBuilder;
+    }
+
 }

@@ -18,8 +18,8 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
 
     private static final Logger logger = LoggerFactory.getLogger(ListenerBound.class);
 
-    private static String STATE_NAME = "ListenerBound";
-    
+    private static String statename = "ListenerBound";
+
     public ListenerBound(final IListenerContext context) {
         super(context);
         logger.debug("Changing state to {}", getStateName());
@@ -44,7 +44,7 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
                 throw new UnexpectedPrimitiveException(primitive);
         }
     }
-    
+
     /**
      * Process a non-JAIN event: VendorGeneralIndEvent.
      * 
@@ -53,9 +53,11 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
      */
     private void processVendorGeneralIndEvent(final VendorIndEvent event) {
         final int primitive = event.getPrimitiveType();
-        logger.debug("processVendorGeneralIndEvent primitive {} received in state {}", primitive, getStateName());
+        logger.debug("processVendorGeneralIndEvent primitive {} received in state {}",
+                     primitive,
+                     getStateName());
         switch (primitive) {
-            case TcStateIndEvent.PRIMITIVE_TC_STATE_IND:            
+            case TcStateIndEvent.PRIMITIVE_TC_STATE_IND:
                 processTcStateIndEvent((TcStateIndEvent) event);
                 break;
             case TcBindIndEvent.PRIMITIVE_TC_BIND_IND:
@@ -65,24 +67,24 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
                 throw new UnexpectedPrimitiveException(primitive);
         }
     }
-    
+
     /**
      * Process a non-JAIN event:VendorGeneralIndEvent:TCStateIndEvent .
      * 
      * @param event
-     *    The indication event that is going to be processed.
+     *            The indication event that is going to be processed.
      */
-    private void processTcStateIndEvent(TcStateIndEvent event) {
-        if (!isReadyForTraffic(event, context.getDestinationAddress())) {
+    private void processTcStateIndEvent(final TcStateIndEvent event) {
+        if (!isReadyForTraffic(event, getContext().getDestinationAddress())) {
             logger.debug("processTcStateIndEvent congestion: " + event.getUserStatus());
             // @todo handle congestion...
 
         } else {
             logger.debug("Changing state from {}", getStateName());
-            context.setState(new ListenerReadyForTraffic(context));
+            getContext().setState(new ListenerReadyForTraffic(getContext()));
         }
     }
-    
+
     /**
      * Check if the event indicates that the addr is ready for traffic.
      *
@@ -90,15 +92,13 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
      * @param addr
      * @return True if ready.
      */
-    private boolean isReadyForTraffic(TcStateIndEvent event,
-                                      TcapUserAddress addr) {
-        if (event.getUserStatus() ==
-            TcStateIndEvent.USER_UNAVAILABLE) {
+    private boolean isReadyForTraffic(final TcStateIndEvent event, final TcapUserAddress addr) {
+        if (event.getUserStatus() == TcStateIndEvent.USER_UNAVAILABLE) {
             logger.debug("TcStateIndEvent.USER_UNAVAILABLE");
             return false;
         }
 
-        //extract SPC and SSN from addr
+        // extract SPC and SSN from addr
         byte[] addrSpc = null;
         int addrSsn = -1;
         try {
@@ -110,28 +110,27 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
         }
         logger.debug("", addrSsn);
 
-        //check that SPC in addr is the same as affected SPC
+        // check that SPC in addr is the same as affected SPC
         byte[] affectedSpc = event.getAffectedSpc();
-        logger.debug("Our SSN {} Affected SSN {}",addrSsn,event.getAffectedSsn());
+        logger.debug("Our SSN {} Affected SSN {}", addrSsn, event.getAffectedSsn());
 
         if (affectedSpc.length != addrSpc.length) {
             return false;
         }
-        for (int i=0; i<affectedSpc.length; i++) {
-        	logger.debug("{}: Our SPC {} Affected SPC {}",i,addrSpc[i],affectedSpc[i]);
+        for (int i = 0; i < affectedSpc.length; i++) {
+            logger.debug("{}: Our SPC {} Affected SPC {}", i, addrSpc[i], affectedSpc[i]);
         }
-        for (int i=0; i<affectedSpc.length; i++) {
-        	logger.debug("{}: Our SPC {} Affected SPC {}",i,addrSpc[i],affectedSpc[i]);
+        for (int i = 0; i < affectedSpc.length; i++) {
             if (affectedSpc[i] != addrSpc[i]) {
                 return false;
             }
         }
 
-        //if SSN also matches then ready for traffic
+        // if SSN also matches then ready for traffic
         return event.getAffectedSsn() == addrSsn;
     }
-    
+
     protected String getStateName() {
-    	return STATE_NAME;
+        return statename;
     }
 }

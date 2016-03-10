@@ -15,10 +15,13 @@ public abstract class AbstractListenerState implements IListenerState {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractListenerState.class);
 
-    protected final IListenerContext context;
+    private IListenerContext context;
 
     public AbstractListenerState(final IListenerContext context) {
         this.context = context;
+    }
+    
+    public AbstractListenerState() {
     }
 
     @Override
@@ -49,7 +52,7 @@ public abstract class AbstractListenerState implements IListenerState {
     }
 
     /**
-     * A fatal error has occurred in the API implementation. 
+     * A fatal error has occurred in the API implementation.
      * Clean up and re-create all JTCAP objects.
      * 
      * @param tcapError
@@ -98,5 +101,13 @@ public abstract class AbstractListenerState implements IListenerState {
 
         final int primitive = event.getPrimitiveType();
         throw new UnexpectedPrimitiveException(primitive);
+    }
+    
+    public IListenerContext getContext() {
+        return context;
+    }
+    
+    public void setContext(final IListenerContext context) {
+        this.context = context;
     }
 }

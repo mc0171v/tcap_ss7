@@ -1,5 +1,7 @@
-package com.vennetics.bell.sam.ss7.tcap.enabler.service;
+package com.vennetics.bell.sam.ss7.tcap.enabler.dialogue;
 
+import com.vennetics.bell.sam.ss7.tcap.enabler.component.requests.IComponentRequestBuilder;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.IDialogueState;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
@@ -25,4 +27,14 @@ public interface IDialogue {
     void activate();
     
     String getStateName();
+    
+    Object getRequest();
+
+    void setDialogueRequestBuilder(IDialogueRequestBuilder dialogueRequestBuilder);
+
+    void setComponentRequestBuilder(IComponentRequestBuilder componentRequestBuilder);
+
+    IDialogueRequestBuilder getDialogueRequestBuilder();
+
+    IComponentRequestBuilder getComponentRequestBuilder();
 }

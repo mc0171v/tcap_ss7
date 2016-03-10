@@ -14,7 +14,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.ericsson.einss7.jtcap.TcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.Dialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.DialogueStart;
+import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DialogueTest {
@@ -35,20 +39,24 @@ public class DialogueTest {
 
     @Before
     public void setup() {
-        objectToTest = new Dialogue(mockListener, mockProvider);
+        objectToTest = new Dialogue(mockListener, mockProvider, getRequestObject());
         objectToTest.setState(mockState);
     }
 
-	@Test
-	public void shouldHandleDialogueIndEvent() throws Exception {
-		byte[] byteString = "address".getBytes("UTF-8");
-		TcapUserAddress sourceAddress = new TcapUserAddress(byteString, SSN);
-		TcapUserAddress destAddress = new TcapUserAddress(byteString, SSN);
-		BeginIndEvent event = new BeginIndEvent(mockTcapListener, DIALOGUE_ID, sourceAddress, destAddress, true);
-		objectToTest.handleEvent(event);
-		verify(mockState).handleEvent(event);
-	}
-    
+    @Test
+    public void shouldHandleDialogueIndEvent() throws Exception {
+        byte[] byteString = "address".getBytes("UTF-8");
+        TcapUserAddress sourceAddress = new TcapUserAddress(byteString, SSN);
+        TcapUserAddress destAddress = new TcapUserAddress(byteString, SSN);
+        BeginIndEvent event = new BeginIndEvent(mockTcapListener,
+                                                DIALOGUE_ID,
+                                                sourceAddress,
+                                                destAddress,
+                                                true);
+        objectToTest.handleEvent(event);
+        verify(mockState).handleEvent(event);
+    }
+
     @Test
     public void shouldHandleComponentIndEvent() throws Exception {
         final Operation operation = new Operation();
@@ -56,5 +64,9 @@ public class DialogueTest {
         event.setDialogueId(DIALOGUE_ID);
         objectToTest.handleEvent(event);
         verify(mockState).handleEvent(event);
+    }
+    
+    private OutboundATIMessage getRequestObject() {
+        return new OutboundATIMessage();
     }
 }

@@ -15,3 +15,4 @@ public class HelloSS7Application {
         SpringApplication.run(HelloSS7Application.class, args);
     }
 }
+

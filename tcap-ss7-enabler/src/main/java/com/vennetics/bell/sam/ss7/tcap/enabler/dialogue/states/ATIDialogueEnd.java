@@ -16,13 +16,13 @@ import jain.protocol.ss7.tcap.component.ResultIndEvent;
 import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
 import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
 
-public class DialogueEnd extends AbstractDialogueState implements IDialogueState {
+public class ATIDialogueEnd extends AbstractDialogueState implements IDialogueState {
 
-    private static final Logger logger = LoggerFactory.getLogger(DialogueEnd.class);
+    private static final Logger logger = LoggerFactory.getLogger(ATIDialogueEnd.class);
 
     private static String stateName = "DialogueEnd";
 
-    public DialogueEnd(final IDialogueContext context, final IDialogue dialogue) {
+    public ATIDialogueEnd(final IDialogueContext context, final IDialogue dialogue) {
         super(context, dialogue);
         logger.debug("Changing state to {}", getStateName());
     }

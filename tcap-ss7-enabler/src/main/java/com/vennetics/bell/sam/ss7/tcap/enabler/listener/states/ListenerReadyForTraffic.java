@@ -9,8 +9,8 @@ import com.ericsson.einss7.japi.VendorIndEvent;
 import com.ericsson.einss7.jtcap.TcBindIndEvent;
 import com.ericsson.einss7.jtcap.TcDialoguesLostIndEvent;
 import com.ericsson.einss7.jtcap.TcStateIndEvent;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.UnexpectedPrimitiveException;
-import com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.service.IListenerContext;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
@@ -22,13 +22,13 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
 
     private static final Logger logger = LoggerFactory.getLogger(ListenerReadyForTraffic.class);
 
-    private static String STATE_NAME = "ListenerReadyForTraffic";
-    
+    private static String stateName = "ListenerReadyForTraffic";
+
     public ListenerReadyForTraffic(final IListenerContext context) {
         super(context);
         logger.debug("Changing state to {}", getStateName());
     }
-    
+
     @Override
     public void handleEvent(final ComponentIndEvent event) {
         processComponentIndEvent(event);
@@ -44,42 +44,42 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
         processVendorIndEvent(event);
     }
 
-	protected void processComponentIndEvent(final ComponentIndEvent event) {
+    protected void processComponentIndEvent(final ComponentIndEvent event) {
         logger.debug("ComponentIndEvent event received in state {}", getStateName());
-		IDialogue dialogue = getDialogue(event);
-		if (null != dialogue) {
-			dialogue.handleEvent(event);
-		}
-	}
+        IDialogue dialogue = getDialogue(event);
+        if (null != dialogue) {
+            dialogue.handleEvent(event);
+        }
+    }
 
-	private IDialogue getDialogue(final ComponentIndEvent event) {
-		int dialogueId = 0;
-		try {
-			dialogueId = event.getDialogueId();
-			logger.debug("Retrieved dialogId {}", dialogueId);
-		} catch (ParameterNotSetException ex) {
-			logger.error("Could not extract dialogue Id");
-			return null;
-		}
-		IDialogue dialogue = context.getDialogue(dialogueId);
-		logger.debug("Retrieved dialogue {} for dialogId {}",dialogue, dialogueId);
-		return dialogue;
-	}
-	
-	private IDialogue getDialogue(final DialogueIndEvent event) {
-		int dialogueId = 0;
-		try {
-			dialogueId = event.getDialogueId();
-			logger.debug("Retrieved dialogId {}", dialogueId);
-		} catch (ParameterNotSetException ex) {
-			logger.error("Could not extract dialogue Id");
-			return null;
-		}
-		IDialogue dialogue = context.getDialogue(dialogueId);
-		logger.debug("Retrieved dialogue {} for dialogId {}",dialogue, dialogueId);
-		return dialogue;
-	}
-    
+    private IDialogue getDialogue(final ComponentIndEvent event) {
+        int dialogueId = 0;
+        try {
+            dialogueId = event.getDialogueId();
+            logger.debug("Retrieved dialogId {}", dialogueId);
+        } catch (ParameterNotSetException ex) {
+            logger.error("Could not extract dialogue Id");
+            return null;
+        }
+        IDialogue dialogue = getContext().getDialogue(dialogueId);
+        logger.debug("Retrieved dialogue {} for dialogId {}", dialogue, dialogueId);
+        return dialogue;
+    }
+
+    private IDialogue getDialogue(final DialogueIndEvent event) {
+        int dialogueId = 0;
+        try {
+            dialogueId = event.getDialogueId();
+            logger.debug("Retrieved dialogId {}", dialogueId);
+        } catch (ParameterNotSetException ex) {
+            logger.error("Could not extract dialogue Id");
+            return null;
+        }
+        IDialogue dialogue = getContext().getDialogue(dialogueId);
+        logger.debug("Retrieved dialogue {} for dialogId {}", dialogue, dialogueId);
+        return dialogue;
+    }
+
     /**
      * Dialogue Events dispatching.
      *
@@ -88,9 +88,9 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
     protected void processDialogueIndEvent(final DialogueIndEvent event) {
         logger.debug("DialogueIndEvent event received in state {}", getStateName());
         IDialogue dialogue = getDialogue(event);
-		if (null != dialogue) {
-			dialogue.handleEvent(event);
-		}
+        if (null != dialogue) {
+            dialogue.handleEvent(event);
+        }
     }
 
     /**
@@ -112,7 +112,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
                 throw new UnexpectedPrimitiveException(primitive);
         }
     }
-    
+
     /**
      * Process a non-JAIN event: VendorGeneralIndEvent.
      * 
@@ -121,9 +121,11 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
      */
     private void processVendorGeneralIndEvent(final VendorIndEvent event) {
         final int primitive = event.getPrimitiveType();
-        logger.debug("processVendorGeneralIndEvent primitive {} received in state {}", primitive, getStateName());
+        logger.debug("processVendorGeneralIndEvent primitive {} received in state {}",
+                     primitive,
+                     getStateName());
         switch (primitive) {
-            case TcStateIndEvent.PRIMITIVE_TC_STATE_IND:            
+            case TcStateIndEvent.PRIMITIVE_TC_STATE_IND:
                 processTcStateIndEvent((TcStateIndEvent) event);
                 break;
             case TcBindIndEvent.PRIMITIVE_TC_BIND_IND:
@@ -132,23 +134,23 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
                 throw new UnexpectedPrimitiveException(primitive);
         }
     }
-    
+
     /**
      * Process a non-JAIN event:VendorGeneralIndEvent:TCStateIndEvent .
      * 
      * @param event
-     *    The indication event that is going to be processed.
+     *            The indication event that is going to be processed.
      */
-    private void processTcStateIndEvent(TcStateIndEvent event) {
-        if (!isReadyForTraffic(event, context.getDestinationAddress())) {
-            logger.debug("Changing state from {}", getStateName());            
-            context.setState(new ListenerBound(context));
+    private void processTcStateIndEvent(final TcStateIndEvent event) {
+        if (!isReadyForTraffic(event, getContext().getDestinationAddress())) {
+            logger.debug("Changing state from {}", getStateName());
+            getContext().setState(new ListenerBound(getContext()));
         } else {
             logger.debug("processTcStateIndEvent HD in service: " + event.getUserStatus());
 
         }
     }
-    
+
     /**
      * Check if the event indicates that the addr is ready for traffic.
      *
@@ -156,10 +158,9 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
      * @param addr
      * @return True if ready.
      */
-    private boolean isReadyForTraffic(TcStateIndEvent event,
-                                      TcapUserAddress addr) {
+    private boolean isReadyForTraffic(final TcStateIndEvent event, final TcapUserAddress addr) {
 
-        //extract SPC and SSN from addr
+        // extract SPC and SSN from addr
         byte[] addrSpc = null;
         int addrSsn = -1;
         try {
@@ -170,29 +171,29 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
             return false;
         }
 
-        //check that SPC in addr is the same as affected SPC
+        // check that SPC in addr is the same as affected SPC
         byte[] affectedSpc = event.getAffectedSpc();
 
         if (affectedSpc.length != addrSpc.length) {
             return true;
         }
 
-        for (int i=0; i<affectedSpc.length; i++) {
+        for (int i = 0; i < affectedSpc.length; i++) {
             if (affectedSpc[i] != addrSpc[i]) {
                 return true;
             }
         }
-        
-		if (event.getUserStatus() == TcStateIndEvent.USER_UNAVAILABLE 
-		 && event.getAffectedSsn() == addrSsn) {
-			logger.debug("TcStateIndEvent.USER_UNAVAILABLE");
-			return false;
-		}
+
+        if (event.getUserStatus() == TcStateIndEvent.USER_UNAVAILABLE
+                        && event.getAffectedSsn() == addrSsn) {
+            logger.debug("TcStateIndEvent.USER_UNAVAILABLE");
+            return false;
+        }
 
         return true;
     }
-     
+
     protected String getStateName() {
-    	return STATE_NAME;
+        return stateName;
     }
 }

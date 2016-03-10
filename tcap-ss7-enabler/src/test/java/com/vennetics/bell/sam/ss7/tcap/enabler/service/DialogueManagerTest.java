@@ -12,6 +12,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.DialogueManager;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.DialogueExistsException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.NoDialogueExistsException;
 
@@ -22,7 +25,7 @@ public class DialogueManagerTest {
 
     private static final int DIALOGUE_ID = 1111;
     private static final int DIALOGUE_ID2 = 1112;
-    //private static final int SSN = 8;
+    // private static final int SSN = 8;
 
     @Mock
     private BellSamTcapListener mockListener;
@@ -47,7 +50,7 @@ public class DialogueManagerTest {
 
     @Test
     public void shouldDeActivateDialogue() throws Exception {
-    	when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
         objectToTest.activate(mockDialogue);
         assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID), sameInstance(mockDialogue));
         objectToTest.deactivate(mockDialogue);
@@ -56,7 +59,7 @@ public class DialogueManagerTest {
 
     @Test
     public void shouldClearAllDialogue() throws Exception {
-    	when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
         objectToTest.activate(mockDialogue);
         when(mockDialogue2.getDialogueId()).thenReturn(DIALOGUE_ID2);
         objectToTest.activate(mockDialogue2);
@@ -69,9 +72,9 @@ public class DialogueManagerTest {
 
     @Test(expected = DialogueExistsException.class)
     public void shouldThrowExceptionIfDialogueExists() throws Exception {
-    	when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
-    	when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
-    	objectToTest.activate(mockDialogue);
+        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+        objectToTest.activate(mockDialogue);
         objectToTest.activate(mockDialogue);
 
     }

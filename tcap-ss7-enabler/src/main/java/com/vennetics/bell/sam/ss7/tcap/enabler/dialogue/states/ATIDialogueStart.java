@@ -26,20 +26,20 @@ import jain.protocol.ss7.tcap.dialogue.ContinueIndEvent;
 import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
 
 @Component
-public class DialogueStart extends AbstractDialogueState implements IDialogueState {
+public class ATIDialogueStart extends AbstractDialogueState implements IDialogueState {
 
-    private static final Logger logger = LoggerFactory.getLogger(DialogueStart.class);
+    private static final Logger logger = LoggerFactory.getLogger(ATIDialogueStart.class);
 
     private static final long BB_TEST_INVOKE_TIMEOUT = 5000;
 
     private static String stateName = "DialogueStart";
 
-    public DialogueStart(final IDialogueContext context, final IDialogue dialogue) {
+    public ATIDialogueStart(final IDialogueContext context, final IDialogue dialogue) {
         super(context, dialogue);
         logger.debug("Changing state to {}", getStateName());
     }
     
-    public DialogueStart() {
+    public ATIDialogueStart() {
         super();
         logger.debug("Changing state to {}", getStateName());
     }
@@ -121,7 +121,7 @@ public class DialogueStart extends AbstractDialogueState implements IDialogueSta
                 throw new BadProtocolException("Wrong protocol version" + stack.getProtocolVersion());
         }
         logger.debug("Changing state from {}", getStateName());
-        getDialogue().setState(new DialogueAnswer(getContext(), getDialogue()));
+        getDialogue().setState(new ATIDialogueEnd(getContext(), getDialogue()));
         getDialogue().activate();
     }
 
