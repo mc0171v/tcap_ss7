@@ -29,6 +29,7 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.exception.TcapUserInitialisationE
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.IListenerState;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerBound;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerReadyForTraffic;
+import com.vennetics.bell.sam.ss7.tcap.enabler.utils.IResultListener;
 
 import jain.protocol.ss7.JainSS7Factory;
 import jain.protocol.ss7.SS7Exception;
@@ -193,8 +194,8 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
         // not used by the Ericsson implementation.
     }
 
-    public IDialogue startDialogue(final Object request) {
-        final IDialogue dialogue = new Dialogue(this, provider, request);
+    public IDialogue startDialogue(final Object request, final IResultListener resultListener) {
+        final IDialogue dialogue = new Dialogue(this, provider, request, resultListener);
         dialogue.setDialogueRequestBuilder(dialogueRequestBuilder);
         dialogue.setComponentRequestBuilder(componentRequestBuilder);
         initialDialogueState.setContext(this);

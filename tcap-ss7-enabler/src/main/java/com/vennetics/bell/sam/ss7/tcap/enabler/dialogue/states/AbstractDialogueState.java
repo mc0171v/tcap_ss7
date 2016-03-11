@@ -81,7 +81,7 @@ public abstract class AbstractDialogueState {
         // release dialogueId
         context.getProvider().releaseDialogueId(dialogueId);
 
-        context.startDialogue(dialogue.getRequest());
+        context.startDialogue(dialogue.getRequest(), dialogue.getResultListener());
     }
 
     /**

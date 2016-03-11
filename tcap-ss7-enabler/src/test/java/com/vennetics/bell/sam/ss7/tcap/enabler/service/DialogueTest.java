@@ -19,6 +19,9 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.DialogueStart;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
+import com.vennetics.bell.sam.ss7.tcap.enabler.utils.IResultListener;
+
+import ericsson.ein.ss7.commonparts.util.Tools;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DialogueTest {
@@ -34,12 +37,14 @@ public class DialogueTest {
     private JainTcapProvider mockProvider;
     @Mock
     private DialogueStart mockState;
+    @Mock
+    private IResultListener mockResultListener;
 
     private IDialogue objectToTest;
 
     @Before
     public void setup() {
-        objectToTest = new Dialogue(mockListener, mockProvider, getRequestObject());
+        objectToTest = new Dialogue(mockListener, mockProvider, getRequestObject(), mockResultListener);
         objectToTest.setState(mockState);
     }
 
@@ -65,8 +70,9 @@ public class DialogueTest {
         objectToTest.handleEvent(event);
         verify(mockState).handleEvent(event);
     }
-    
+       
     private OutboundATIMessage getRequestObject() {
         return new OutboundATIMessage();
     }
+
 }

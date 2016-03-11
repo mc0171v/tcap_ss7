@@ -6,13 +6,13 @@ import org.slf4j.LoggerFactory;
 import com.vennetics.bell.sam.ss7.tcap.enabler.component.requests.IComponentRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.IDialogueState;
+import com.vennetics.bell.sam.ss7.tcap.enabler.utils.IResultListener;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
 import jain.protocol.ss7.tcap.JainTcapProvider;
 
-public class Dialogue implements IDialogue, Observable {
-
+public class Dialogue implements IDialogue {
     private static final Logger logger = LoggerFactory.getLogger(Dialogue.class);
 
     private final IDialogueContext context;
@@ -23,6 +23,8 @@ public class Dialogue implements IDialogue, Observable {
     private IDialogueRequestBuilder dialogueRequestBuilder;
     private IComponentRequestBuilder componentRequestBuilder;
     private Object request;
+    private IResultListener resultListener;
+
 
     /**
      * Dialogue constructor.
@@ -30,10 +32,14 @@ public class Dialogue implements IDialogue, Observable {
      * @param context
      * @param provider
      */
-    public Dialogue(final IDialogueContext context, final JainTcapProvider provider, final Object request) {
+    public Dialogue(final IDialogueContext context,
+                    final JainTcapProvider provider,
+                    final Object request,
+                    final IResultListener resultListener) {
         this.request = request;
         this.context = context;
         this.provider = provider;
+        this.resultListener = resultListener;
         logger.debug("Started new Dialogue");
     }
 
@@ -106,4 +112,12 @@ public class Dialogue implements IDialogue, Observable {
         this.request = request;
     }
 
+
+    public IResultListener getResultListener() {
+        return resultListener;
+    }
+
+    public void setResultListener(final IResultListener resultListener) {
+        this.resultListener = resultListener;
+    }
 }

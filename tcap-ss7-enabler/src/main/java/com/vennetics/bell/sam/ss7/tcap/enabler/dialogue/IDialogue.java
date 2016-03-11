@@ -3,6 +3,7 @@ package com.vennetics.bell.sam.ss7.tcap.enabler.dialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.component.requests.IComponentRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.IDialogueState;
+import com.vennetics.bell.sam.ss7.tcap.enabler.utils.IResultListener;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
@@ -37,4 +38,6 @@ public interface IDialogue {
     IDialogueRequestBuilder getDialogueRequestBuilder();
 
     IComponentRequestBuilder getComponentRequestBuilder();
+    
+    IResultListener getResultListener();
 }
