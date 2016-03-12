@@ -6,12 +6,14 @@ import org.slf4j.LoggerFactory;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.BadProtocolException;
+import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 import jain.protocol.ss7.SS7Exception;
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
 import jain.protocol.ss7.tcap.JainTcapProvider;
 import jain.protocol.ss7.tcap.JainTcapStack;
+import jain.protocol.ss7.tcap.component.Parameters;
 import jain.protocol.ss7.tcap.component.ResultIndEvent;
 import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
 import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
@@ -52,6 +54,9 @@ public class ATIDialogueEnd extends AbstractDialogueState implements IDialogueSt
     public void processResultIndEvent(final ResultIndEvent event) throws SS7Exception {
 
         logger.debug("ResultIndEvent event received in state {}", getStateName());
+        Parameters params = event.getParameters();
+        final byte[] returnedBytes = params.getParameter();
+        processReturnedBytes(returnedBytes);
         final JainTcapProvider provider = getContext().getProvider();
         final JainTcapStack stack = getContext().getStack();
         switch (stack.getProtocolVersion()) {
@@ -69,6 +74,12 @@ public class ATIDialogueEnd extends AbstractDialogueState implements IDialogueSt
             return;
         }
         getContext().deactivateDialogue(dialogue);
+    }
+
+    private void processReturnedBytes(final byte[] returnedBytes) {
+        OutboundATIMessage obm = (OutboundATIMessage) getDialogue().getRequest();
+        obm.setStatus(99);
+        getDialogue().getResultListener().handleEvent(obm);
     }
 
     /**

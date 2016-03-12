@@ -18,12 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.vennetics.bell.sam.ss7.tcap.enabler.common.ServiceConstants;
-import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.enabler.service.IAtiService;
-import com.vennetics.bell.sam.ss7.tcap.enabler.service.IBellSamTcapEventListener;
 
-import generated.oma.xml.rest.netapi.sms._1.OutboundSMSMessageRequest;
 import rx.Observable;
 
 
@@ -44,6 +41,12 @@ public class HelloSS7Controller {
 
     @RequestMapping("/helloss7")
     public String message() {
+        logger.debug("Hello SS7");
+        OutboundATIMessage obm = new OutboundATIMessage();
+        obm.setMsisdn("12345678");
+        obm.setRequestInfoSubscriberState(true);
+        UUID uuid = UUID.randomUUID();
+        atiService.sendAtiMessage(uuid, obm);
         return "Started Dialogue";
 
     }

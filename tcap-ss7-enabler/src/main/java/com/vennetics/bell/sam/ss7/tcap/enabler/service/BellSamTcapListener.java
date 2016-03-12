@@ -16,7 +16,6 @@ import com.ericsson.einss7.japi.VendorIndEvent;
 import com.ericsson.einss7.jtcap.TcapEventListener;
 import com.ericsson.jain.protocol.ss7.tcap.JainTcapConfig;
 import com.vennetics.bell.sam.ss7.tcap.enabler.component.requests.IComponentRequestBuilder;
-import com.vennetics.bell.sam.ss7.tcap.enabler.config.Ss7ConfigurationProperties;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.Dialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.DialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
@@ -29,6 +28,7 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.exception.TcapUserInitialisationE
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.IListenerState;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerBound;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerReadyForTraffic;
+import com.vennetics.bell.sam.ss7.tcap.enabler.support.autoconfig.Ss7ConfigurationProperties;
 import com.vennetics.bell.sam.ss7.tcap.enabler.utils.IResultListener;
 
 import jain.protocol.ss7.JainSS7Factory;
@@ -80,9 +80,9 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
     @Autowired
     BellSamTcapListener(final Ss7ConfigurationProperties configProperties,
                         @Qualifier("listenerUnbound") final IListenerState initialListenerState,
-                        final IDialogueRequestBuilder dialogueRequestBuilder,
-                        final IComponentRequestBuilder componentRequestBuilder,
-                        @Qualifier("dialogueStart") final IDialogueState initialDialogueState) {
+                        @Qualifier("dialogueRequestBuilder") final IDialogueRequestBuilder dialogueRequestBuilder,
+                        @Qualifier("aTIComponentRequestBuilder") final IComponentRequestBuilder componentRequestBuilder,
+                        @Qualifier("aTIDialogueStart") final IDialogueState initialDialogueState) {
         this.configProperties = configProperties;
         this.origAddr = new TcapUserAddress(configProperties.getOrigAddress().getsPC(),
                                             configProperties.getOrigAddress().getsSn());

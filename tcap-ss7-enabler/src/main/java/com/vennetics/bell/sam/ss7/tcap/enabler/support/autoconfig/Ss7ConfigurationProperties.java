@@ -1,11 +1,11 @@
-package com.vennetics.bell.sam.ss7.tcap.enabler.config;
+package com.vennetics.bell.sam.ss7.tcap.enabler.support.autoconfig;
 
-import org.springframework.stereotype.Component;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import ericsson.ein.ss7.commonparts.util.Tools;
 import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
 
-@Component
+@ConfigurationProperties(prefix = "ss7")
 public class Ss7ConfigurationProperties {
 
     private Ss7Address origAddress;
