@@ -1,12 +1,14 @@
 package com.vennetics.bell.sam.ss7.tcap.enabler.dialogue;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vennetics.bell.sam.ss7.tcap.enabler.component.requests.IComponentRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.IDialogueState;
-import com.vennetics.bell.sam.ss7.tcap.enabler.utils.IResultListener;
+import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
@@ -17,13 +19,15 @@ public class Dialogue implements IDialogue {
 
     private final IDialogueContext context;
     private int dialogueId;
+    private CountDownLatch latch;
+
 
     private final JainTcapProvider provider;
     private IDialogueState state;
     private IDialogueRequestBuilder dialogueRequestBuilder;
     private IComponentRequestBuilder componentRequestBuilder;
     private Object request;
-    private IResultListener resultListener;
+    private OutboundATIMessage result;
 
 
     /**
@@ -34,12 +38,10 @@ public class Dialogue implements IDialogue {
      */
     public Dialogue(final IDialogueContext context,
                     final JainTcapProvider provider,
-                    final Object request,
-                    final IResultListener resultListener) {
+                    final Object request) {
         this.request = request;
         this.context = context;
         this.provider = provider;
-        this.resultListener = resultListener;
         logger.debug("Started new Dialogue");
     }
 
@@ -113,11 +115,20 @@ public class Dialogue implements IDialogue {
     }
 
 
-    public IResultListener getResultListener() {
-        return resultListener;
+    public OutboundATIMessage getResult() {
+        return result;
     }
 
-    public void setResultListener(final IResultListener resultListener) {
-        this.resultListener = resultListener;
+    public void setResult(final OutboundATIMessage result) {
+        this.result = result;
+    }
+    
+
+    public CountDownLatch getLatch() {
+        return latch;
+    }
+
+    public void setLatch(final CountDownLatch latch) {
+        this.latch = latch;
     }
 }

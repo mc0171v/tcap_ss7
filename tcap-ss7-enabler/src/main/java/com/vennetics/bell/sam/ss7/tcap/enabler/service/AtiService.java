@@ -35,6 +35,7 @@ public class AtiService implements IAtiService {
                                                          final OutboundATIMessage atiMessageRequest) {
         logger.debug(">>> sendAtiMessage({}, {})" + atiMessageRequest,
                      atiMessageRequest.getDestination());
+        OutboundATIMessage result = null;
         if (checkAndWaitForListener()) {
             Address normalizedDestination = null;
             if (null != atiMessageRequest.getMsisdn()) {
@@ -42,15 +43,15 @@ public class AtiService implements IAtiService {
                 atiMessageRequest.setMsisdn(normalizedDestination.getE164Address());
             }
             if (atiMessageRequest.getDestination() != null) {
-                final Observable<OutboundATIMessage> observable = new SendAtiCommand(listener,
-                                                                                     atiMessageRequest).observe();
-                observable.subscribe();
-
+                 result = new SendAtiCommand(listener,
+                                             atiMessageRequest).execute();
+                logger.debug("ATI Service Constructed ATI Command");
             }
         } else {
-            atiMessageRequest.setStatus(99); //Unknown
+            atiMessageRequest.setStatus(99);
+            return Observable.just(atiMessageRequest); //Unknown
         }
-        return Observable.just(atiMessageRequest);
+        return Observable.just(result);
     }
     
     private Address normalizeAddress(final String suppliedAddress) {

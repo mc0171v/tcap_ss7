@@ -1,7 +1,8 @@
 package com.vennetics.bell.sam.ss7.tcap.enabler.dialogue;
 
+import java.util.concurrent.CountDownLatch;
+
 import com.ericsson.einss7.jtcap.TcapEventListener;
-import com.vennetics.bell.sam.ss7.tcap.enabler.utils.IResultListener;
 
 import jain.protocol.ss7.tcap.JainTcapProvider;
 import jain.protocol.ss7.tcap.JainTcapStack;
@@ -27,5 +28,5 @@ public interface IDialogueContext {
 
     void deactivateDialogue(IDialogue dialogueId);
 
-    IDialogue startDialogue(Object request, IResultListener resultListener);
+    IDialogue startDialogue(Object request, CountDownLatch latch);
 }

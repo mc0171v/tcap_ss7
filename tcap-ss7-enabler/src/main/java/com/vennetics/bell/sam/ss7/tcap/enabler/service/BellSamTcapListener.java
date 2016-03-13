@@ -1,6 +1,7 @@
 package com.vennetics.bell.sam.ss7.tcap.enabler.service;
 
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -29,7 +30,6 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.IListenerState;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerBound;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerReadyForTraffic;
 import com.vennetics.bell.sam.ss7.tcap.enabler.support.autoconfig.Ss7ConfigurationProperties;
-import com.vennetics.bell.sam.ss7.tcap.enabler.utils.IResultListener;
 
 import jain.protocol.ss7.JainSS7Factory;
 import jain.protocol.ss7.SS7Exception;
@@ -81,8 +81,8 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
     BellSamTcapListener(final Ss7ConfigurationProperties configProperties,
                         @Qualifier("listenerUnbound") final IListenerState initialListenerState,
                         @Qualifier("dialogueRequestBuilder") final IDialogueRequestBuilder dialogueRequestBuilder,
-                        @Qualifier("aTIComponentRequestBuilder") final IComponentRequestBuilder componentRequestBuilder,
-                        @Qualifier("aTIDialogueStart") final IDialogueState initialDialogueState) {
+                        @Qualifier("ATIComponentRequestBuilder") final IComponentRequestBuilder componentRequestBuilder,
+                        @Qualifier("ATIDialogueStart") final IDialogueState initialDialogueState) {
         this.configProperties = configProperties;
         this.origAddr = new TcapUserAddress(configProperties.getOrigAddress().getsPC(),
                                             configProperties.getOrigAddress().getsSn());
@@ -194,10 +194,12 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
         // not used by the Ericsson implementation.
     }
 
-    public IDialogue startDialogue(final Object request, final IResultListener resultListener) {
-        final IDialogue dialogue = new Dialogue(this, provider, request, resultListener);
+    public IDialogue startDialogue(final Object request,
+                                   final CountDownLatch cDl) {
+        final IDialogue dialogue = new Dialogue(this, provider, request);
         dialogue.setDialogueRequestBuilder(dialogueRequestBuilder);
         dialogue.setComponentRequestBuilder(componentRequestBuilder);
+        dialogue.setLatch(cDl);
         initialDialogueState.setContext(this);
         initialDialogueState.setDialogue(dialogue);
         dialogue.setState(initialDialogueState);

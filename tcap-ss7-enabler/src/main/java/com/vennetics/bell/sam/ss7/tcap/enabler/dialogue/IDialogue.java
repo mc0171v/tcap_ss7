@@ -1,9 +1,11 @@
 package com.vennetics.bell.sam.ss7.tcap.enabler.dialogue;
 
+import java.util.concurrent.CountDownLatch;
+
 import com.vennetics.bell.sam.ss7.tcap.enabler.component.requests.IComponentRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.IDialogueState;
-import com.vennetics.bell.sam.ss7.tcap.enabler.utils.IResultListener;
+import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
@@ -39,5 +41,11 @@ public interface IDialogue {
 
     IComponentRequestBuilder getComponentRequestBuilder();
     
-    IResultListener getResultListener();
+    OutboundATIMessage getResult();
+    
+    void setResult(OutboundATIMessage result);
+
+    void setLatch(CountDownLatch cDl);
+    
+    CountDownLatch getLatch();
 }

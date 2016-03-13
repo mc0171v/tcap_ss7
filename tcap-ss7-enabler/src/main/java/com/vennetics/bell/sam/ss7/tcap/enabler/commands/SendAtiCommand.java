@@ -2,9 +2,12 @@ package com.vennetics.bell.sam.ss7.tcap.enabler.commands;
 
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.enabler.service.IBellSamTcapEventListener;
-import com.vennetics.bell.sam.ss7.tcap.enabler.utils.Callback;
+
+
+import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SendAtiCommand.class);
+    private static final Logger logger = LoggerFactory.getLogger(SendAtiCommand.class);
 
     private IBellSamTcapEventListener listener;
     private OutboundATIMessage request;
@@ -31,6 +34,7 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
         super(HystrixCommandGroupKey.Factory.asKey("SS7ATI"));
         this.listener = listener;
         this.request = request;
+        logger.debug("Constructed ATI Command");
     }
 
     /**
@@ -38,23 +42,15 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
      */
     @Override
     protected OutboundATIMessage run() {
-        LOG.debug("Running Hystrix wrapped send ATI command to return a location or status");
-        final Callback callback = new Callback();
-        listener.startDialogue(request, callback.getListener());
-        final MessageWrapper mw = new MessageWrapper();
-        callback.getObservable().subscribe(outbound -> { mw.setOutbound(outbound); });
-        return mw.getOutbound();
-    }
-    
-    private class MessageWrapper {
-        private OutboundATIMessage outbound;
-
-        public OutboundATIMessage getOutbound() {
-            return outbound;
+        logger.debug("Running Hystrix wrapped send ATI command to return a location or status");
+        CountDownLatch cDl = new CountDownLatch(1);
+        final IDialogue dialogue = listener.startDialogue(request, cDl);
+        try {
+            cDl.await();
+        } catch (InterruptedException ex) {
+            logger.error("Caught InterruptedException");
         }
 
-        public void setOutbound(final OutboundATIMessage outbound) {
-            this.outbound = outbound;
-        }
+        return dialogue.getResult();
     }
 }

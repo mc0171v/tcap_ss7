@@ -79,7 +79,7 @@ public class ATIDialogueEnd extends AbstractDialogueState implements IDialogueSt
     private void processReturnedBytes(final byte[] returnedBytes) {
         OutboundATIMessage obm = (OutboundATIMessage) getDialogue().getRequest();
         obm.setStatus(99);
-        getDialogue().getResultListener().handleEvent(obm);
+        getDialogue().setResult(obm);
     }
 
     /**

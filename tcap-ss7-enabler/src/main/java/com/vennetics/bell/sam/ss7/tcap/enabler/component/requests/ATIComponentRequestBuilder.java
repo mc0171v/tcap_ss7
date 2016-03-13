@@ -22,7 +22,7 @@ public class ATIComponentRequestBuilder implements IComponentRequestBuilder {
     private static final String GSMSCF_ADDRESS = "12344321";
 
     ATIComponentRequestBuilder() {
-        logger.debug("Constructed ComponentRequestBuilder");
+        logger.debug("Constructed ATIComponentRequestBuilder");
     }
     
     public InvokeReqEvent createInvokeReq(final java.lang.Object source,

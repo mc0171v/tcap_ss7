@@ -1,9 +1,10 @@
 package com.vennetics.bell.sam.ss7.tcap.enabler.service;
 
+import java.util.concurrent.CountDownLatch;
+
 import com.ericsson.einss7.jtcap.TcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueContext;
-import com.vennetics.bell.sam.ss7.tcap.enabler.utils.IResultListener;
 
 public interface IBellSamTcapEventListener extends TcapEventListener, IListenerContext,
                                            IDialogueContext {
@@ -14,7 +15,7 @@ public interface IBellSamTcapEventListener extends TcapEventListener, IListenerC
     
     void initialise(final boolean bool);
     
-    IDialogue startDialogue(Object request, IResultListener resultListener);
+    IDialogue startDialogue(Object request, CountDownLatch cDl);
     
     void cleanup();
     

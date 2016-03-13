@@ -1,10 +1,16 @@
 package com.vennetics.bell.sam.ss7.tcap.enabler.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vennetics.bell.sam.ss7.tcap.enabler.commands.SendAtiCommand;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 import rx.subjects.PublishSubject;
 
 public class ResultListener implements IResultListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(ResultListener.class);
 
     private PublishSubject<OutboundATIMessage> subject;
 
@@ -14,6 +20,7 @@ public class ResultListener implements IResultListener {
     }
     
     public void handleEvent(final OutboundATIMessage message) {
+        logger.debug("Handling result {}", message);
         subject.onNext(message);
     }
     

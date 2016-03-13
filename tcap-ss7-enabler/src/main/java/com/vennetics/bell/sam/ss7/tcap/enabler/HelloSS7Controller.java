@@ -8,14 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import com.vennetics.bell.sam.ss7.tcap.enabler.common.ServiceConstants;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
@@ -23,9 +18,11 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.service.IAtiService;
 
 import rx.Observable;
 
+//import rx.Observable;
+
 
 @RestController
-@RequestMapping(HelloSS7Controller.REST_SS7_ATI_URL)
+//@RequestMapping(HelloSS7Controller.REST_SS7_ATI_URL)
 @RefreshScope
 @EnableAutoConfiguration
 public class HelloSS7Controller {
@@ -43,26 +40,13 @@ public class HelloSS7Controller {
     public String message() {
         logger.debug("Hello SS7");
         OutboundATIMessage obm = new OutboundATIMessage();
-        obm.setMsisdn("12345678");
+        obm.setImsi("12345678");
         obm.setRequestInfoSubscriberState(true);
         UUID uuid = UUID.randomUUID();
-        atiService.sendAtiMessage(uuid, obm);
+        Observable<OutboundATIMessage> observer = atiService.sendAtiMessage(uuid, obm);
+        observer.subscribe(outboundATIMessage -> { logger.debug("Controller received {}", outboundATIMessage); });
         return "Started Dialogue";
 
-    }
-    
-    @RequestMapping(method = RequestMethod.POST, value = "/outbound/requests")
-    public  DeferredResult<ResponseEntity<OutboundATIMessage>> ati(@PathVariable final String serviceIdentifier,
-                      @RequestBody final OutboundATIMessage message) {
-
-        final UUID externalRequestId = UUID.randomUUID();
-        final Observable<OutboundATIMessage> observable = atiService.sendAtiMessage(externalRequestId, message);
-        final DeferredResult<ResponseEntity<OutboundATIMessage>> deferred = new DeferredResult<>();
-        observable.subscribe(outBoundMessage -> {
-            deferred.setResult(new ResponseEntity<OutboundATIMessage>(outBoundMessage,
-                                                                      HttpStatus.CREATED));
-        });
-        return deferred;
     }
 
     public void setAtiService(final IAtiService atiService) {
