@@ -5,7 +5,6 @@ import java.util.concurrent.CountDownLatch;
 import com.vennetics.bell.sam.ss7.tcap.enabler.component.requests.IComponentRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.IDialogueState;
-import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
@@ -30,8 +29,6 @@ public interface IDialogue {
     void activate();
     
     String getStateName();
-    
-    Object getRequest();
 
     void setDialogueRequestBuilder(IDialogueRequestBuilder dialogueRequestBuilder);
 
@@ -41,9 +38,11 @@ public interface IDialogue {
 
     IComponentRequestBuilder getComponentRequestBuilder();
     
-    OutboundATIMessage getResult();
+    void setResult(Object result);
     
-    void setResult(OutboundATIMessage result);
+    Object getRequest();
+    
+    Object getResult();
 
     void setLatch(CountDownLatch cDl);
     

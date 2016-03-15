@@ -19,14 +19,16 @@ public class AtiService implements IAtiService {
 
     private static final Logger logger = LoggerFactory.getLogger(AtiService.class);
 
+    private static final int MAX_RETRIES = 5;
+    
     private IBellSamTcapEventListener listener;
 
     private IAddressNormalizer addressNormalizer;
 
     @Autowired
-    public AtiService(final IBellSamTcapEventListener smppAdapter,
+    public AtiService(final IBellSamTcapEventListener listener,
                       final IAddressNormalizer addressNormalizer) {
-        this.listener = smppAdapter;
+        this.listener = listener;
         this.addressNormalizer = addressNormalizer;
     }
 
@@ -62,7 +64,7 @@ public class AtiService implements IAtiService {
     
     private boolean checkAndWaitForListener() {
         int retry = 0;
-        while (!listener.isBound() && retry < 6) {
+        while (!listener.isBound() && retry < MAX_RETRIES) {
             logger.debug("Waiting for bind {}", retry);
             retry++;
             try {
@@ -78,7 +80,7 @@ public class AtiService implements IAtiService {
         }
         logger.debug("User bound");
         retry = 0;
-        while (!listener.isReady() && retry < 6) {
+        while (!listener.isReady() && retry < MAX_RETRIES) {
             logger.debug("Waiting for ready {}", retry);
             retry++;
             try {

@@ -17,6 +17,7 @@ public enum ServiceErrorMessageType {
                                      UNEXPECTED_PRIMITIVE,
                                      TCAP_ERROR_EXCEPTION,
                                      BAD_SS7_CONFIG,
+                                     BAD_TBCD,
                                      BAD_SS7_SAP;
 
 }

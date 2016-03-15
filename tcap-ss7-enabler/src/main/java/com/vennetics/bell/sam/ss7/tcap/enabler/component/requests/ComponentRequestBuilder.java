@@ -11,7 +11,7 @@ import jain.protocol.ss7.tcap.component.Operation;
 import jain.protocol.ss7.tcap.component.Parameters;
 
 @Component
-public class ComponentRequestBuilder implements IComponentRequestBuilder {
+public class ComponentRequestBuilder extends AbstractComponentRequestBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(ComponentRequestBuilder.class);
     private static final int PARAM_LEN = Integer.parseInt(System.getProperty("PARAM_LEN", "30"));

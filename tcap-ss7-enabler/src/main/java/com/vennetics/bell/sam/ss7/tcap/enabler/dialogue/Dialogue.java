@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import com.vennetics.bell.sam.ss7.tcap.enabler.component.requests.IComponentRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.IDialogueState;
-import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
@@ -19,16 +18,18 @@ public class Dialogue implements IDialogue {
 
     private final IDialogueContext context;
     private int dialogueId;
-    private CountDownLatch latch;
-
 
     private final JainTcapProvider provider;
+    
     private IDialogueState state;
+
+    private Object request;
+    
+    private Object result;
+    private CountDownLatch latch;
+
     private IDialogueRequestBuilder dialogueRequestBuilder;
     private IComponentRequestBuilder componentRequestBuilder;
-    private Object request;
-    private OutboundATIMessage result;
-
 
     /**
      * Dialogue constructor.
@@ -52,6 +53,7 @@ public class Dialogue implements IDialogue {
     public void setDialogueId(final int dialogueId) {
         this.dialogueId = dialogueId;
         context.getDialogueManager().activate(this);
+        logger.debug("Activated Dialogue with ID {}", dialogueId);
     }
 
     public JainTcapProvider getJainTcapProvider() {
@@ -115,12 +117,13 @@ public class Dialogue implements IDialogue {
     }
 
 
-    public OutboundATIMessage getResult() {
+    public Object getResult() {
         return result;
     }
 
-    public void setResult(final OutboundATIMessage result) {
+    public void setResult(final Object result) {
         this.result = result;
+        latch.countDown(); //Inform command that result is now available.
     }
     
 

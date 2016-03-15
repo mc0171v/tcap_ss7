@@ -130,6 +130,7 @@ public abstract class AbstractDialogueState {
     public void processDialogueIndEvent(final DialogueIndEvent event) {
         try {
             int primitive = event.getPrimitiveType();
+            logger.debug("Received primitive {}", primitive);
             switch (primitive) {
                 case TcapConstants.PRIMITIVE_BEGIN:
                     processBeginIndEvent((BeginIndEvent) event);
@@ -208,6 +209,7 @@ public abstract class AbstractDialogueState {
 
         try {
             int primitive = event.getPrimitiveType();
+            logger.debug("Received primitive {}", primitive);
             switch (primitive) {
                 case TcapConstants.PRIMITIVE_INVOKE:
                     processInvokeIndEvent((InvokeIndEvent) event);
@@ -233,35 +235,35 @@ public abstract class AbstractDialogueState {
 
     protected void processInvokeIndEvent(final InvokeIndEvent event) throws SS7Exception,
                                                                      VendorException {
-        logger.debug("InvokeIndEvent event received in state ListenerUnbound");
+        logger.debug("InvokeIndEvent event received");
 
         final int primitive = event.getPrimitiveType();
         throw new UnexpectedPrimitiveException(primitive);
     }
 
     protected void processResultIndEvent(final ResultIndEvent event) throws SS7Exception {
-        logger.debug("InvokeIndEvent event received in state ListenerUnbound");
+        logger.debug("ResultIndEvent event received");
 
         final int primitive = event.getPrimitiveType();
         throw new UnexpectedPrimitiveException(primitive);
     }
 
     protected void processErrorIndEvent(final ErrorIndEvent event) {
-        logger.debug("InvokeIndEvent event received in state ListenerUnbound");
+        logger.debug("ErrorIndEvent event received");
 
         final int primitive = event.getPrimitiveType();
         throw new UnexpectedPrimitiveException(primitive);
     }
 
     protected void processLocalCancelIndEvent(final LocalCancelIndEvent event) {
-        logger.debug("InvokeIndEvent event received in state ListenerUnbound");
+        logger.debug("LocalCancelIndEvent event received in state ListenerUnbound");
 
         final int primitive = event.getPrimitiveType();
         throw new UnexpectedPrimitiveException(primitive);
     }
 
     protected void processRejectIndEvent(final RejectIndEvent event) {
-        logger.debug("InvokeIndEvent event received in state ListenerUnbound");
+        logger.debug("RejectIndEvent event received in state ListenerUnbound");
 
         final int primitive = event.getPrimitiveType();
         throw new UnexpectedPrimitiveException(primitive);

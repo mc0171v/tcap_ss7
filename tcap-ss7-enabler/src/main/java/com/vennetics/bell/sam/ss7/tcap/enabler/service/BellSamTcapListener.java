@@ -153,7 +153,8 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
             "-DEINSS7_ASYNCH_BEHAVIOUR_ON=true " + "-DEINSS7_DID_SLICING_ID=1 "
                             + "-DEINSS7_DID_NUM_OF_SLICES=1 " + "-DEINSS7_JDID_SUPPORT_ON=true"
                             + "-DEIN_HD_USER_INSTANCE=1"
-                            + "-DEIN_JCP_CPMANAGER_ADDRESS=10.87.79.209:6669"
+//                            + "-DEIN_JCP_CPMANAGER_ADDRESS=10.87.79.209:6669"
+                            + "-DEIN_JCP_CPMANAGER_ADDRESS=10.87.79.81:6669"
                             + "-DEIN_HD_ATTACH_INSTANCES=1";
 
             JainTcapConfig.getInstance().setConfigString(configString);

@@ -12,6 +12,7 @@ import com.ericsson.einss7.japi.WouldBlockException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.BadProtocolException;
+import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 import jain.protocol.ss7.SS7Exception;
 import jain.protocol.ss7.tcap.ComponentIndEvent;
@@ -20,26 +21,27 @@ import jain.protocol.ss7.tcap.JainTcapProvider;
 import jain.protocol.ss7.tcap.JainTcapStack;
 import jain.protocol.ss7.tcap.component.ComponentConstants;
 import jain.protocol.ss7.tcap.component.InvokeReqEvent;
+import jain.protocol.ss7.tcap.component.Parameters;
 import jain.protocol.ss7.tcap.component.ResultIndEvent;
 import jain.protocol.ss7.tcap.dialogue.BeginReqEvent;
-import jain.protocol.ss7.tcap.dialogue.ContinueIndEvent;
 import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
+import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
 
 @Component
-public class ATIDialogueStart extends AbstractDialogueState implements IDialogueState {
+public class AtiDialogueStart extends AbstractDialogueState implements IDialogueState {
 
-    private static final Logger logger = LoggerFactory.getLogger(ATIDialogueStart.class);
+    private static final Logger logger = LoggerFactory.getLogger(AtiDialogueStart.class);
 
     private static final long BB_TEST_INVOKE_TIMEOUT = 5000;
 
-    private static String stateName = "DialogueStart";
+    private static String stateName = "AtiDialogueStart";
 
-    public ATIDialogueStart(final IDialogueContext context, final IDialogue dialogue) {
+    public AtiDialogueStart(final IDialogueContext context, final IDialogue dialogue) {
         super(context, dialogue);
         logger.debug("Changing state to {}", getStateName());
     }
     
-    public ATIDialogueStart() {
+    public AtiDialogueStart() {
         super();
         logger.debug("Changing state to {}", getStateName());
     }
@@ -108,6 +110,15 @@ public class ATIDialogueStart extends AbstractDialogueState implements IDialogue
     @Override
     public void processResultIndEvent(final ResultIndEvent event) throws SS7Exception {
         logger.debug("ResultIndEvent event received in state {}", getStateName());
+        if (event.isParametersPresent()) {
+            Parameters params = event.getParameters();
+            final byte[] returnedBytes = params.getParameter();
+            processReturnedBytes(returnedBytes);
+        } else {
+            OutboundATIMessage obm = (OutboundATIMessage) getDialogue().getRequest();
+            obm.setStatus(99);
+            getDialogue().setResult(obm);
+        }
         final JainTcapProvider provider = getContext().getProvider();
         final JainTcapStack stack = getContext().getStack();
         switch (stack.getProtocolVersion()) {
@@ -121,15 +132,19 @@ public class ATIDialogueStart extends AbstractDialogueState implements IDialogue
                 throw new BadProtocolException("Wrong protocol version" + stack.getProtocolVersion());
         }
         logger.debug("Changing state from {}", getStateName());
-        getDialogue().setState(new ATIDialogueEnd(getContext(), getDialogue()));
+        getDialogue().setState(new AtiDialogueEnd(getContext(), getDialogue()));
         getDialogue().activate();
     }
 
+    private void processReturnedBytes(final byte[] returnedBytes) {
+        logger.debug("processing returned bytes {}", returnedBytes);
+    }
+    
     /**
      * Dialogue event.
      */
-    public void processContinueIndEvent(final ContinueIndEvent event) throws SS7Exception {
-        logger.debug("Expected Continue IndEvent received.");
+    public void processEndIndEvent(final EndIndEvent event) throws SS7Exception {
+        logger.debug("Expected EndIndEvent received.");
     }
 
     public String getStateName() {

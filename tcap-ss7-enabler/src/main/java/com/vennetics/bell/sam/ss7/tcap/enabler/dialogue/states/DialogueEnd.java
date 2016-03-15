@@ -14,7 +14,6 @@ import jain.protocol.ss7.tcap.JainTcapProvider;
 import jain.protocol.ss7.tcap.JainTcapStack;
 import jain.protocol.ss7.tcap.component.ResultIndEvent;
 import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
-import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
 
 public class DialogueEnd extends AbstractDialogueState implements IDialogueState {
 
@@ -69,13 +68,6 @@ public class DialogueEnd extends AbstractDialogueState implements IDialogueState
             return;
         }
         getContext().deactivateDialogue(dialogue);
-    }
-
-    /**
-     * Dialogue event.
-     */
-    public void processEndIndEvent(final EndIndEvent event) throws SS7Exception {
-        logger.debug("Expected EndIndEvent received.");
     }
 
     public String getStateName() {

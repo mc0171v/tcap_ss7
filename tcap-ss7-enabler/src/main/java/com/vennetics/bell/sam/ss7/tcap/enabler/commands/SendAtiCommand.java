@@ -8,6 +8,7 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.service.IBellSamTcapEventListener
 
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,17 +22,17 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
 
     private IBellSamTcapEventListener listener;
     private OutboundATIMessage request;
+    
+    private static final long LATCH_TIMEOUT = 5000; //TODO config
 
     /**
-     * GetSubscriberProfileCommand constructor
-     *
-     * @param searchFilter
-     * @param filterValue
-     * @param attributes
+     * Send an anyTimeInterrogationReq
+     * @param listener
+     * @param request
      */
     public SendAtiCommand(final IBellSamTcapEventListener listener,
                           final OutboundATIMessage request) {
-        super(HystrixCommandGroupKey.Factory.asKey("SS7ATI"));
+        super(HystrixCommandGroupKey.Factory.asKey("SS7ATI"), 10000);
         this.listener = listener;
         this.request = request;
         logger.debug("Constructed ATI Command");
@@ -46,11 +47,13 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
         CountDownLatch cDl = new CountDownLatch(1);
         final IDialogue dialogue = listener.startDialogue(request, cDl);
         try {
-            cDl.await();
+            cDl.await(LATCH_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
-            logger.error("Caught InterruptedException");
+            logger.error("Caught Exception {} waiting for result", ex);
         }
-
-        return dialogue.getResult();
+        if (dialogue.getResult() != null) {
+            return (OutboundATIMessage) dialogue.getResult();
+        }
+        return request; //TODO Add an error
     }
 }

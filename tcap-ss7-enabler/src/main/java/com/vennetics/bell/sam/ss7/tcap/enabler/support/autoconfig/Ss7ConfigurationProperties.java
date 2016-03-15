@@ -10,7 +10,9 @@ public class Ss7ConfigurationProperties {
 
     private Ss7Address origAddress;
     private Ss7Address destAddress;
-    private int sTD;
+    private String gsmScfAddress;
+    private int sTd;
+    private long invokeTimeout;
 
     Ss7ConfigurationProperties() {
         final byte[] spcA = { // signaling point 2143
@@ -18,7 +20,9 @@ public class Ss7ConfigurationProperties {
                 3, 0 };
         this.origAddress = new Ss7Address(spcA, (short) 99);
         this.destAddress = new Ss7Address(spcA, (short) 98);
-        this.sTD = DialogueConstants.PROTOCOL_VERSION_ITU_97;
+        this.sTd = DialogueConstants.PROTOCOL_VERSION_ITU_97;
+        this.gsmScfAddress = "12344321";
+        this.invokeTimeout = 10000;
     }
     
     public Ss7Address getOrigAddress() {
@@ -38,11 +42,11 @@ public class Ss7ConfigurationProperties {
     }
     
     public int getsTD() {
-        return sTD;
+        return sTd;
     }
 
     public void setsTD(final int sTD) {
-        this.sTD = sTD;
+        this.sTd = sTD;
     }
 
 
@@ -70,5 +74,30 @@ public class Ss7ConfigurationProperties {
         public void setsPC(final byte[] sPC) {
             this.sPC = sPC;
         }
+    }
+    
+
+    public String getGsmScfAddress() {
+        return gsmScfAddress;
+    }
+
+    public void setGsmScfAddress(final String gsmScfAddress) {
+        this.gsmScfAddress = gsmScfAddress;
+    }
+    
+    public int getsTd() {
+        return sTd;
+    }
+
+    public void setsTd(final int sTd) {
+        this.sTd = sTd;
+    }
+
+    public long getInvokeTimeout() {
+        return invokeTimeout;
+    }
+
+    public void setInvokeTimeout(final long invokeTimeout) {
+        this.invokeTimeout = invokeTimeout;
     }
 }

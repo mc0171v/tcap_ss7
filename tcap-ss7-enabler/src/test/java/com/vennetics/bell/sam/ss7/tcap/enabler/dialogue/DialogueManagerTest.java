@@ -1,4 +1,4 @@
-package com.vennetics.bell.sam.ss7.tcap.enabler.service;
+package com.vennetics.bell.sam.ss7.tcap.enabler.dialogue;
 
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -17,6 +17,7 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.DialogueExistsException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.NoDialogueExistsException;
+import com.vennetics.bell.sam.ss7.tcap.enabler.service.BellSamTcapListener;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DialogueManagerTest {
