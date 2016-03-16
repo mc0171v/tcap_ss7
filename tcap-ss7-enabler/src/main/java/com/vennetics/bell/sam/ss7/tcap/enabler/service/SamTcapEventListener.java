@@ -42,9 +42,9 @@ import jain.protocol.ss7.tcap.TcapErrorEvent;
 import jain.protocol.ss7.tcap.TcapUserAddress;
 
 @Component
-public class BellSamTcapListener implements IBellSamTcapEventListener {
+public class SamTcapEventListener implements ISamTcapEventListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(BellSamTcapListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(SamTcapEventListener.class);
 
     private Ss7ConfigurationProperties configProperties;
         
@@ -57,11 +57,12 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
     private IListenerState state;
     private final TcapUserAddress origAddr;
     private TcapUserAddress destAddr;
-    private final IDialogueManager dialogueMgr;
+    private IDialogueManager dialogueMgr;
+
     private JainTcapStack stack;
     private JainTcapProvider provider;
 
-    private static final String BELL_SAM_TCAP = "Bell SAM Project: TCAP statck";
+    private static final String SAM_TCAP = "SAM Project: TCAP statck";
     private final int std;
 
     private Vector<TcapUserAddress> addressVector;
@@ -78,11 +79,11 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
     }
 
     @Autowired
-    BellSamTcapListener(final Ss7ConfigurationProperties configProperties,
-                        @Qualifier("listenerUnbound") final IListenerState initialListenerState,
-                        @Qualifier("dialogueRequestBuilder") final IDialogueRequestBuilder dialogueRequestBuilder,
-                        @Qualifier("ATIComponentRequestBuilder") final IComponentRequestBuilder componentRequestBuilder,
-                        @Qualifier("ATIDialogueStart") final IDialogueState initialDialogueState) {
+    SamTcapEventListener(final Ss7ConfigurationProperties configProperties,
+                         @Qualifier("listenerUnbound") final IListenerState initialListenerState,
+                         @Qualifier("dialogueRequestBuilder") final IDialogueRequestBuilder dialogueRequestBuilder,
+                         @Qualifier("ATIComponentRequestBuilder") final IComponentRequestBuilder componentRequestBuilder,
+                         @Qualifier("ATIDialogueStart") final IDialogueState initialDialogueState) {
         this.configProperties = configProperties;
         this.origAddr = new TcapUserAddress(configProperties.getOrigAddress().getsPC(),
                                             configProperties.getOrigAddress().getsSn());
@@ -134,7 +135,7 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
                                                                      .createSS7Object("jain.protocol.ss7.tcap.JainTcapStackImpl");
         newStack.setProtocolVersion(std);
 
-        newStack.setStackName(BELL_SAM_TCAP);
+        newStack.setStackName(SAM_TCAP);
         logger.debug("Created new JainTcapStack");
         return newStack;
     }
@@ -292,6 +293,10 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
         return this.dialogueMgr;
     }
 
+    public void setDialogueManager(final IDialogueManager manager) {
+        this.dialogueMgr = manager;
+    }
+    
     public IDialogue getDialogue(final int dialogueId) {
         return dialogueMgr.lookUpDialogue(dialogueId);
     }
@@ -323,6 +328,14 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
     public JainTcapProvider getProvider() {
         return provider;
     }
+    
+    public void setStack(final JainTcapStack stack) {
+        this.stack = stack;
+    }
+
+    public void setProvider(final JainTcapProvider provider) {
+        this.provider = provider;
+    }
 
     public JainTcapStack getStack() {
         return stack;
@@ -337,17 +350,14 @@ public class BellSamTcapListener implements IBellSamTcapEventListener {
     }
     
     public void setInitialDialogueState(final IDialogueState initialDialogueState) {
-        logger.debug("setInitialDialogueState");
         this.initialDialogueState = initialDialogueState;
     }
 
     public void setDialogueRequestBuilder(final IDialogueRequestBuilder dialogueRequestBuilder) {
-        logger.debug("setDialogueRequestBuilder");
         this.dialogueRequestBuilder = dialogueRequestBuilder;
     }
 
     public void setComponentRequestBuilder(final IComponentRequestBuilder componentRequestBuilder) {
-        logger.debug("setComponentRequestBuilder");
         this.componentRequestBuilder = componentRequestBuilder;
     }
 

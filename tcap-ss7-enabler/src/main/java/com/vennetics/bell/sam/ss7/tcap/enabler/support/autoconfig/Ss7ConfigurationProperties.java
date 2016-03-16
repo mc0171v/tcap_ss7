@@ -14,10 +14,11 @@ public class Ss7ConfigurationProperties {
     private int sTd;
     private long invokeTimeout;
 
-    Ss7ConfigurationProperties() {
-        final byte[] spcA = { // signaling point 2143
+    public Ss7ConfigurationProperties() {
+        final byte[] spcA = {
                 Tools.getLoByteOf2(231), // zone
-                3, 0 };
+                3,
+                0 };
         this.origAddress = new Ss7Address(spcA, (short) 99);
         this.destAddress = new Ss7Address(spcA, (short) 98);
         this.sTd = DialogueConstants.PROTOCOL_VERSION_ITU_97;

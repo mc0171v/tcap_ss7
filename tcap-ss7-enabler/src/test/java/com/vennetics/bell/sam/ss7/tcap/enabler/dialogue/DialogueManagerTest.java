@@ -17,7 +17,7 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.DialogueExistsException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.NoDialogueExistsException;
-import com.vennetics.bell.sam.ss7.tcap.enabler.service.BellSamTcapListener;
+import com.vennetics.bell.sam.ss7.tcap.enabler.service.SamTcapEventListener;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DialogueManagerTest {
@@ -29,7 +29,7 @@ public class DialogueManagerTest {
     // private static final int SSN = 8;
 
     @Mock
-    private BellSamTcapListener mockListener;
+    private SamTcapEventListener mockListener;
     @Mock
     private JainTcapProvider mockProvider;
     @Mock

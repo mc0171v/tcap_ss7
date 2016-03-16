@@ -10,9 +10,11 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerBound;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
-import com.vennetics.bell.sam.ss7.tcap.enabler.service.BellSamTcapListener;
+import com.vennetics.bell.sam.ss7.tcap.enabler.service.SamTcapEventListener;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -22,17 +24,28 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class SendAtiCommandTest {
 
     @Mock
-    private BellSamTcapListener mockListener;
+    private SamTcapEventListener mockListener;
     
     @Mock
     private IDialogue mockDialogue;
+    
+    private CountDownLatch latch;
+    
+    @Before
+    public void setup() throws Exception {
+    }
+    
 
     @Test
     public void shouldSendAti() throws Exception {
         final Object oBAtiMessage = getRequestObject();
-        when(mockListener.startDialogue(eq(oBAtiMessage), isA(CountDownLatch.class))).thenReturn(mockDialogue);
+        latch = new CountDownLatch(1);
+        when(mockListener.startDialogue(eq(oBAtiMessage), eq(latch))).thenReturn(mockDialogue);
+        latch.countDown();
         when(mockDialogue.getResult()).thenReturn(null);
-        final SendAtiCommand command = new SendAtiCommand(mockListener, (OutboundATIMessage) oBAtiMessage);
+        final SendAtiCommand command = new SendAtiCommand(mockListener,
+                                                          (OutboundATIMessage) oBAtiMessage,
+                                                          latch);
         assertThat(command.execute(), sameInstance(oBAtiMessage));
     }
     

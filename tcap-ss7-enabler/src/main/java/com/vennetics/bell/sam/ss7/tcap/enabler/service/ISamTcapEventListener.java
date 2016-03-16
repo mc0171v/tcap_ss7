@@ -5,8 +5,12 @@ import java.util.concurrent.CountDownLatch;
 import com.ericsson.einss7.jtcap.TcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueContext;
+import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueManager;
 
-public interface IBellSamTcapEventListener extends TcapEventListener, IListenerContext,
+import jain.protocol.ss7.tcap.JainTcapProvider;
+import jain.protocol.ss7.tcap.JainTcapStack;
+
+public interface ISamTcapEventListener extends TcapEventListener, IListenerContext,
                                            IDialogueContext {
 
     boolean isReady();
@@ -20,4 +24,10 @@ public interface IBellSamTcapEventListener extends TcapEventListener, IListenerC
     void cleanup();
     
     void setConfiguration();
+    
+    void setProvider(JainTcapProvider provider);
+    
+    void setStack(JainTcapStack stack);
+    
+    void setDialogueManager(IDialogueManager dialogueManager);
 }

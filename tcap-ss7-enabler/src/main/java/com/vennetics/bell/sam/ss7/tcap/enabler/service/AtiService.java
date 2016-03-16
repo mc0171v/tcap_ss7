@@ -13,6 +13,7 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 import rx.Observable;
 
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 @Service
 public class AtiService implements IAtiService {
@@ -21,12 +22,12 @@ public class AtiService implements IAtiService {
 
     private static final int MAX_RETRIES = 5;
     
-    private IBellSamTcapEventListener listener;
+    private ISamTcapEventListener listener;
 
     private IAddressNormalizer addressNormalizer;
 
     @Autowired
-    public AtiService(final IBellSamTcapEventListener listener,
+    public AtiService(final ISamTcapEventListener listener,
                       final IAddressNormalizer addressNormalizer) {
         this.listener = listener;
         this.addressNormalizer = addressNormalizer;
@@ -45,8 +46,10 @@ public class AtiService implements IAtiService {
                 atiMessageRequest.setMsisdn(normalizedDestination.getE164Address());
             }
             if (atiMessageRequest.getDestination() != null) {
-                 result = new SendAtiCommand(listener,
-                                             atiMessageRequest).execute();
+                final CountDownLatch cDl = new CountDownLatch(1);
+                result = new SendAtiCommand(listener,
+                                            atiMessageRequest,
+                                            cDl).execute();
                 logger.debug("ATI Service Constructed ATI Command");
             }
         } else {
