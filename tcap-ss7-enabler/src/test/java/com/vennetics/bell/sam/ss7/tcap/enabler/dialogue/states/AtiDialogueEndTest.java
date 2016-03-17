@@ -5,10 +5,6 @@ import jain.protocol.ss7.tcap.JainTcapStack;
 import jain.protocol.ss7.tcap.component.InvokeIndEvent;
 import jain.protocol.ss7.tcap.component.Operation;
 import jain.protocol.ss7.tcap.component.ResultIndEvent;
-import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +22,6 @@ public class AtiDialogueEndTest {
 
     private static final int DIALOGUE_ID = 1111;
     private static final int LINK_ID = 33;
-    private static final int INVOKE_ID = 34;
 
     @Mock
     private IDialogueContext mockDialogueContext;

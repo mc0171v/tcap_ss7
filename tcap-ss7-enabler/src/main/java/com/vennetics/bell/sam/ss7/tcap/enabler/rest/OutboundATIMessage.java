@@ -39,6 +39,10 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
  *         &lt;element name="requestInfoSubscriberState" type="boolean"/&gt;
  *         &lt;element name="correlator" type="String"/&gt;
  *         &lt;element name="status" type="String"/&gt;
+ *         &lt;element name="latitude" type="byte[]"/&gt;
+ *         &lt;element name="longitude" type="byte[]"/&gt;
+ *         &lt;element name="uncertainty" type="byte"/&gt;
+ *         &lt;element name="age" type="Integer"/&gt;
  *       &lt;/sequence&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -53,7 +57,11 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
     "requestInfoLocation",
     "requestInfoSubscriberState",
     "correlator",
-    "status"
+    "status",
+    "latitude",
+    "longitude",
+    "uncertainty",
+    "age"
 })
 @XmlRootElement(name = "OutboundATIMessage")
 public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode2, ToString2 {
@@ -63,7 +71,14 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
     private Boolean requestInfoLocation;
     private Boolean requestInfoSubscriberState;
     private String correlator;
+    
+    //Result
     private Integer status;
+    private byte[] latitude;
+    private byte[] longitude;
+    private byte uncertainty;
+    private Integer age;
+    
 
     /**
      * Gets the value of the imsi property.
@@ -178,11 +193,23 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link Integer }
      *     
      */
     public Integer getStatus() {
         return status;
+    }
+    
+    /**
+     * Gets the value of the age property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Integer }
+     *     
+     */
+    public Integer getAge() {
+        return age;
     }
 
     /**
@@ -190,13 +217,25 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
      * 
      * @param value
      *     allowed object is
-     *     {@link Boolean }
+     *     {@link Integer }
      *     
      */
     public void setStatus(final Integer value) {
         this.status = value;
     }
 
+    /**
+     * Sets the value of the status property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Integer }
+     *     
+     */
+    public void setAge(final Integer value) {
+        this.age = value;
+    }
+    
     /**
      * Gets the value of the requestInfoSubscriberState property.
      * 
@@ -232,8 +271,78 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
         return false;
     }
 
+    /**
+     * Gets the value of the latitude property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link byte[] }
+     *     
+     */
+    public byte[] getLatitude() {
+        return latitude;
+    }
+    
+    /**
+     * Sets the value of the latitude property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link byte[] }
+     *     
+     */
+    public void setLatitude(final byte[] value) {
+        this.latitude = value;
+    }
+    
+    /**
+     * Gets the value of the longitude property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link byte[] }
+     *     
+     */
+    public byte[] getLongitude() {
+        return longitude;
+    }
+    
+    /**
+     * Sets the value of the longitude property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link byte[] }
+     *     
+     */
+    public void setLongitude(final byte[] value) {
+        this.longitude = value;
+    }
 
-
+    /**
+     * Gets the value of the uncertainty property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link byte }
+     *     
+     */
+    public byte getUncertainty() {
+        return uncertainty;
+    }
+    
+    /**
+     * Sets the value of the uncertainty property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link byte }
+     *     
+     */
+    public void setUncertainty(final byte value) {
+        this.uncertainty = value;
+    }
+    
     public OutboundATIMessage withImsi(final String value) {
         setImsi(value);
         return this;
@@ -253,7 +362,11 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
         setStatus(value);
         return this;
     }
-    
+
+    public OutboundATIMessage withAge(final Integer value) {
+        setAge(value);
+        return this;
+    }    
     public OutboundATIMessage withRequestInfoSubscriberState(final Boolean value) {
         setRequestInfoSubscriberState(value);
         return this;
@@ -264,6 +377,21 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
         return this;
     }
 
+    public OutboundATIMessage withLongitude(final byte[] value) {
+        setLongitude(value);
+        return this;
+    }
+    
+    public OutboundATIMessage withLatitude(final byte[] value) {
+        setLatitude(value);
+        return this;
+    }
+    
+    public OutboundATIMessage withUncertainty(final byte value) {
+        setUncertainty(value);
+        return this;
+    }
+    
     public String toString() {
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
@@ -278,25 +406,78 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
         return buffer;
     }
 
-    public StringBuilder appendFields(final ObjectLocator locator, final StringBuilder buffer, final ToStringStrategy2 strategy) {
-            String theImsi;
-            theImsi = this.getImsi();
-            strategy.appendField(locator, this, "imsi", buffer, theImsi, (this.imsi != null));
-            String theMsisdn;
-            theMsisdn = this.getMsisdn();
-            strategy.appendField(locator, this, "msisdn", buffer, theMsisdn, (this.msisdn != null));
-            Boolean theRequestInfoLocation;
-            theRequestInfoLocation = this.getRequestInfoLocation();
-            strategy.appendField(locator, this, "requestInfoLocation", buffer, theRequestInfoLocation, (this.requestInfoLocation != null));
-            Integer theStatus;
-            theStatus = this.getStatus();
-            strategy.appendField(locator, this, "status", buffer, theStatus, (this.status != null));
-            Boolean theRequestInfoSubscriberState;
-            theRequestInfoSubscriberState = this.getRequestInfoSubscriberState();
-            strategy.appendField(locator, this, "requestInfoSubscriberState", buffer, theRequestInfoSubscriberState, (this.requestInfoSubscriberState != null));
-            String theCorrelator;
-            theCorrelator = this.getCorrelator();
-            strategy.appendField(locator, this, "correlator", buffer, theCorrelator, (this.correlator != null));
+    public StringBuilder appendFields(final ObjectLocator locator,
+                                      final StringBuilder buffer,
+                                      final ToStringStrategy2 strategy) {
+        String theImsi;
+        theImsi = this.getImsi();
+        strategy.appendField(locator, this, "imsi", buffer, theImsi, (this.imsi != null));
+        
+        String theMsisdn;
+        theMsisdn = this.getMsisdn();
+        strategy.appendField(locator, this, "msisdn", buffer, theMsisdn, (this.msisdn != null));
+        
+        Boolean theRequestInfoLocation;
+        theRequestInfoLocation = this.getRequestInfoLocation();
+        strategy.appendField(locator,
+                             this,
+                             "requestInfoLocation",
+                             buffer,
+                             theRequestInfoLocation,
+                             (this.requestInfoLocation != null));
+        
+        Integer theStatus;
+        theStatus = this.getStatus();
+        strategy.appendField(locator, this, "status", buffer, theStatus, (this.status != null));
+
+        Integer theAge;
+        theAge = this.getAge();
+        strategy.appendField(locator, this, "age", buffer, theAge, (this.age != null));
+        
+        Boolean theRequestInfoSubscriberState;
+        theRequestInfoSubscriberState = this.getRequestInfoSubscriberState();
+        strategy.appendField(locator,
+                             this,
+                             "requestInfoSubscriberState",
+                             buffer,
+                             theRequestInfoSubscriberState,
+                             (this.requestInfoSubscriberState != null));
+        
+        String theCorrelator;
+        theCorrelator = this.getCorrelator();
+        strategy.appendField(locator,
+                             this,
+                             "correlator",
+                             buffer,
+                             theCorrelator,
+                             (this.correlator != null));
+        
+        byte[] theLatitude;
+        theLatitude = this.getLatitude();
+        strategy.appendField(locator,
+                             this,
+                             "latitude",
+                             buffer,
+                             theLatitude,
+                             (this.latitude != null));
+       
+        byte[] theLongitude;
+        theLongitude = this.getLongitude();
+        strategy.appendField(locator,
+                             this,
+                             "longitude",
+                             buffer,
+                             theLongitude,
+                             (this.longitude != null));
+       
+        byte theUncertainty;
+        theUncertainty = this.getUncertainty();
+        strategy.appendField(locator,
+                             this,
+                             "uncertainty",
+                             buffer,
+                             theUncertainty,
+                             true);
         return buffer;
     }
 
@@ -328,6 +509,15 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                                                 currentHashCode,
                                                 theStatus,
                                                 (this.status != null));
+
+            Integer theAge;
+            theAge = this.getAge();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator,
+                                                                      "age",
+                                                                      theAge),
+                                                currentHashCode,
+                                                theAge,
+                                                (this.age != null));
             
             Boolean theRequestInfoSubscriberState;
             theRequestInfoSubscriberState = this.getRequestInfoSubscriberState();
@@ -340,6 +530,18 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
             String theCorrelator;
             theCorrelator = this.getCorrelator();
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "correlator", theCorrelator), currentHashCode, theCorrelator, (this.correlator != null));
+            
+            byte[] theLongitude;
+            theLongitude = this.getLongitude();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "longitude", theLongitude), currentHashCode, theLongitude, (this.longitude != null));
+            
+            byte[] theLatitude;
+            theLatitude = this.getLatitude();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "latitude", theLatitude), currentHashCode, theLatitude, (this.latitude != null));
+            
+            byte theUncertainty;
+            theUncertainty = this.getUncertainty();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "uncertainty", theUncertainty), currentHashCode, theUncertainty, (true));
 
             return currentHashCode;
     }
@@ -376,6 +578,7 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                                  (that.imsi != null))) {
                 return false;
             }
+            
             String lhsMsisdn;
             lhsMsisdn = this.getMsisdn();
             String rhsMsisdn;
@@ -392,6 +595,7 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                                  (that.msisdn != null))) {
                 return false;
             }
+            
             Boolean lhsRequestInfoLocation;
             lhsRequestInfoLocation = this.getRequestInfoLocation();
             Boolean rhsRequestInfoLocation;
@@ -406,6 +610,7 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                                  (that.requestInfoLocation != null))) {
                 return false;
             }
+            
             Integer lhsStatus;
             lhsStatus = this.getStatus();
             Integer rhsStatus;
@@ -421,6 +626,23 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                                  (that.status != null))) {
                 return false;
             }
+
+            Integer lhsAge;
+            lhsAge = this.getAge();
+            Integer rhsAge;
+            rhsAge = that.getAge();
+            if (!strategy.equals(LocatorUtils.property(thisLocator,
+                                                       "status",
+                                                       lhsAge),
+                                 LocatorUtils.property(thatLocator,
+                                                       "status",
+                                                       rhsAge),
+                                 lhsAge, rhsAge,
+                                 (this.age != null),
+                                 (that.age != null))) {
+                return false;
+            }
+            
             Boolean lhsRequestInfoSubscriberState;
             lhsRequestInfoSubscriberState = this.getRequestInfoSubscriberState();
             Boolean rhsRequestInfoSubscriberState;
@@ -436,6 +658,7 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                                  (that.requestInfoSubscriberState != null))) {
                 return false;
             }
+            
             String lhsCorrelator;
             lhsCorrelator = this.getCorrelator();
             String rhsCorrelator;
@@ -446,10 +669,61 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                                  LocatorUtils.property(thatLocator,
                                                        "correlator",
                                                        rhsCorrelator),
-                                 lhsImsi,
-                                 rhsImsi,
+                                 lhsCorrelator,
+                                 rhsCorrelator,
                                  (this.correlator != null),
                                  (that.correlator != null))) {
+                return false;
+            }
+            
+            byte[] lhsLongitude;
+            lhsLongitude = this.getLongitude();
+            byte[] rhsLongitude;
+            rhsLongitude = that.getLongitude();
+            if (!strategy.equals(LocatorUtils.property(thisLocator,
+                                                       "longitude",
+                                                       lhsLongitude),
+                                 LocatorUtils.property(thatLocator,
+                                                       "longitude",
+                                                       rhsLongitude),
+                                 lhsLongitude,
+                                 rhsLongitude,
+                                 (this.longitude != null),
+                                 (that.longitude != null))) {
+                return false;
+            }
+            
+            byte[] lhsLatitude;
+            lhsLatitude = this.getLatitude();
+            byte[] rhsLatitude;
+            rhsLatitude = that.getLatitude();
+            if (!strategy.equals(LocatorUtils.property(thisLocator,
+                                                       "latitude",
+                                                       lhsLatitude),
+                                 LocatorUtils.property(thatLocator,
+                                                       "latitude",
+                                                       rhsLatitude),
+                                 lhsLatitude,
+                                 rhsLatitude,
+                                 (this.latitude != null),
+                                 (that.latitude != null))) {
+                return false;
+            }
+            
+            byte lhsUncertainty;
+            lhsUncertainty = this.getUncertainty();
+            byte rhsUncertainty;
+            rhsUncertainty = that.getUncertainty();
+            if (!strategy.equals(LocatorUtils.property(thisLocator,
+                                                       "uncertainty",
+                                                       lhsUncertainty),
+                                 LocatorUtils.property(thatLocator,
+                                                       "uncertainty",
+                                                       rhsUncertainty),
+                                 lhsUncertainty,
+                                 rhsUncertainty,
+                                 (true),
+                                 (true))) {
                 return false;
             }
         return true;
@@ -484,12 +758,13 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                         copy.imsi = null;
                     }
                 }
+                
                 Boolean msisdnShouldBeCopiedAndSet = strategy.shouldBeCopiedAndSet(locator, (this.msisdn != null));
                 if (msisdnShouldBeCopiedAndSet == Boolean.TRUE) {
                     String sourceMsisdn;
-                    sourceMsisdn = this.getImsi();
+                    sourceMsisdn = this.getMsisdn();
                     String copyMsisdn = ((String) strategy.copy(LocatorUtils.property(locator, "msisdn", sourceMsisdn), sourceMsisdn, (this.msisdn != null)));
-                    copy.setImsi(copyMsisdn);
+                    copy.setMsisdn(copyMsisdn);
                 } else {
                     if (msisdnShouldBeCopiedAndSet == Boolean.FALSE) {
                         copy.msisdn = null;
@@ -517,14 +792,30 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                     Integer sourceStatus;
                     sourceStatus = this.getStatus();
                     Integer copyStatus = ((Integer) strategy.copy(LocatorUtils.property(locator,
-                                                                                                     "status",
-                                                                                                     sourceStatus),
+                                                                                        "status",
+                                                                                        sourceStatus),
                                                                                sourceStatus,
                                                                                (this.status != null)));
                     copy.setStatus(copyStatus);
                 } else {
                     if (statusShouldBeCopiedAndSet == Boolean.FALSE) {
                         copy.status = null;
+                    }
+                }
+
+                Boolean ageShouldBeCopiedAndSet = strategy.shouldBeCopiedAndSet(locator, (this.age != null));
+                if (ageShouldBeCopiedAndSet == Boolean.TRUE) {
+                    Integer sourceAge;
+                    sourceAge = this.getAge();
+                    Integer copyAge = ((Integer) strategy.copy(LocatorUtils.property(locator,
+                                                                                     "age",
+                                                                                     sourceAge),
+                                                                               sourceAge,
+                                                                               (this.age != null)));
+                    copy.setAge(copyAge);
+                } else {
+                    if (ageShouldBeCopiedAndSet == Boolean.FALSE) {
+                        copy.age = null;
                     }
                 }
                 
@@ -543,6 +834,7 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                         copy.requestInfoSubscriberState = null;
                     }
                 }
+                
                 Boolean correlatorShouldBeCopiedAndSet = strategy.shouldBeCopiedAndSet(locator, (this.correlator != null));
                 if (correlatorShouldBeCopiedAndSet == Boolean.TRUE) {
                     String sourceCorrelator;
@@ -552,6 +844,42 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                 } else {
                     if (correlatorShouldBeCopiedAndSet == Boolean.FALSE) {
                         copy.correlator = null;
+                    }
+                }
+                
+                Boolean longitudeShouldBeCopiedAndSet = strategy.shouldBeCopiedAndSet(locator, (this.longitude != null));
+                if (longitudeShouldBeCopiedAndSet == Boolean.TRUE) {
+                    byte[] sourceLongitude;
+                    sourceLongitude = this.getLongitude();
+                    byte[] copyLongitude = ((byte[]) strategy.copy(LocatorUtils.property(locator, "longitude", sourceLongitude), sourceLongitude, (this.longitude != null)));
+                    copy.setLongitude(copyLongitude);
+                } else {
+                    if (longitudeShouldBeCopiedAndSet == Boolean.FALSE) {
+                        copy.longitude = null;
+                    }
+                }
+                
+                Boolean latitudeShouldBeCopiedAndSet = strategy.shouldBeCopiedAndSet(locator, (this.latitude != null));
+                if (longitudeShouldBeCopiedAndSet == Boolean.TRUE) {
+                    byte[] sourceLatitude;
+                    sourceLatitude = this.getLatitude();
+                    byte[] copyLatitude = ((byte[]) strategy.copy(LocatorUtils.property(locator, "latitude", sourceLatitude), sourceLatitude, (this.latitude != null)));
+                    copy.setLatitude(copyLatitude);
+                } else {
+                    if (latitudeShouldBeCopiedAndSet == Boolean.FALSE) {
+                        copy.latitude = null;
+                    }
+                }
+                
+                Boolean uncertaintyShouldBeCopiedAndSet = strategy.shouldBeCopiedAndSet(locator, (true));
+                if (uncertaintyShouldBeCopiedAndSet == Boolean.TRUE) {
+                    byte sourceUncertainty;
+                    sourceUncertainty = this.getUncertainty();
+                    byte copyUncertainty = ((byte) strategy.copy(LocatorUtils.property(locator, "uncertainty", sourceUncertainty), sourceUncertainty, (true)));
+                    copy.setUncertainty(copyUncertainty);
+                } else {
+                    if (uncertaintyShouldBeCopiedAndSet == Boolean.FALSE) {
+                        copy.uncertainty = 0x0;
                     }
                 }
         }

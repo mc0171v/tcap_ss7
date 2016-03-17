@@ -1,6 +1,8 @@
 package com.vennetics.bell.sam.ss7.tcap.enabler.utils;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +19,15 @@ public final class EncodingHelper {
     private static final int NULL_LENGTH = 0;
     private static final int MAX_SINGLE_OCTET_LENGTH = 0x7F;
     private static final int MAX_DOUBLE_OCTET_LENGTH = 0xFF;
-    private static final int LENGTH_TAG = 0x81;
+    private static final int LONG_LENGTH_TAG = 0x80;
+    private static final int SINGLE_LENGTH_OCTET_TAG = 0x81;
+    private static final int DOUBLE_LENGTH_OCTET_TAG = 0x82;
     private static final String SPECIAL_BCD_CHARS = "*#abcf*#ABCF";
     private static final String FILLER = "f";
+    
+    public static final int SEQUENCE_TAG = 0x30;
+    public static final int INTEGER_TAG = 0x02;
+    public static final int ENUMERATED_TAG = 0x0A;
     
     private EncodingHelper() {
         
@@ -32,13 +40,13 @@ public final class EncodingHelper {
             byteArray[0] = Tools.getLoByteOf2(paramLength);
         } else if (paramLength <= MAX_DOUBLE_OCTET_LENGTH) {
             byteArray = new byte[2];
-            byteArray[0]  = Tools.getLoByteOf2(LENGTH_TAG);
+            byteArray[0]  = Tools.getLoByteOf2(SINGLE_LENGTH_OCTET_TAG);
             byteArray[1]  = Tools.getLoByteOf2(paramLength);
-        } else {
+        } else { //Assuming Big Endian
             byteArray = new byte[3];
-            byteArray[0]  = Tools.getLoByteOf2(LENGTH_TAG);
-            byteArray[1]  = Tools.getLoByteOf2(paramLength);
-            byteArray[2] = Tools.getHiByteOf2(paramLength);
+            byteArray[0]  = Tools.getLoByteOf2(DOUBLE_LENGTH_OCTET_TAG);
+            byteArray[1]  = Tools.getHiByteOf2(paramLength);
+            byteArray[2] = Tools.getLoByteOf2(paramLength);
         }
         return byteArray;
     }
@@ -70,6 +78,12 @@ public final class EncodingHelper {
         }
         return new String(hexChars);
     }
+   
+    public static String bytesToHex(final byte aByte) {
+        final byte[] bytes = new byte[1];
+        bytes[0] = aByte;
+        return bytesToHex(bytes);
+    }
     
     public static byte[] hexTeleStringToByteArray(final String hexString) {
          if (hexString != null && !hexString.isEmpty()) {
@@ -99,4 +113,48 @@ public final class EncodingHelper {
          }
          return 10 + (SPECIAL_BCD_CHARS.indexOf(character) % 6);
      }
+    
+    public static List<TagLengthValue> getTlvs(final byte[] bytes) {
+        ByteBuffer bb = ByteBuffer.wrap(bytes);
+        final List<TagLengthValue> tlvs = new ArrayList<TagLengthValue>();
+        while (bb.hasRemaining()) {
+            final TagLengthValue tlv = new TagLengthValue();
+            final byte tag = bb.get(); //Assuming single byte tags
+            tlv.setTag(tag);
+            logger.debug("Tag: {}", EncodingHelper.bytesToHex(tag));
+            int valueLength = 0;
+            int lengthLength = 1;
+            byte lengthOrLengthTag = bb.get();
+            if ((lengthOrLengthTag & LONG_LENGTH_TAG) > 0x0) {
+                lengthLength = (bytes[1] & 0x7F);
+                if (lengthLength == 1) {
+                    byte octet1 = bb.get();
+                    valueLength = (int) octet1 & 0xFF;
+                    final byte[] length = { lengthOrLengthTag, octet1 };
+                    tlv.setLength(length);
+                    logger.debug("Length: {}", EncodingHelper.bytesToHex(length));
+                } else if (lengthLength == 2) {
+                    final byte octet1 = bb.get();
+                    final byte octet2 = bb.get();
+                    final byte[] length = { lengthOrLengthTag, octet1, octet2 };
+                    valueLength = (int) (octet1 << 8 + octet2) & 0xFFFF;
+                    tlv.setLength(length);
+                    logger.debug("Length: {}", EncodingHelper.bytesToHex(length));
+                } else { //Don't think we'll be dealing with anything longer
+                    logger.error("Parameters too long");
+                }
+            } else {
+                valueLength = lengthOrLengthTag;
+                final byte[] length = { lengthOrLengthTag };
+                tlv.setLength(length);
+                logger.debug("Length: {}", EncodingHelper.bytesToHex(length));
+            }
+            final byte[] value = new byte[valueLength];
+            bb.get(value, 0, valueLength);
+            tlv.setValue(value);
+            logger.debug("Value: {}", EncodingHelper.bytesToHex(value));
+            tlvs.add(tlv);
+        }
+        return tlvs;
+    }
 }

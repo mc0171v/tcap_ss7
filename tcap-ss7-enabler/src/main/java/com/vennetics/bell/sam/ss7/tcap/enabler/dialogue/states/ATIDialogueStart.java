@@ -1,6 +1,8 @@
 package com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states;
 
+import java.nio.ByteBuffer;
 import java.util.EventObject;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,10 +11,15 @@ import org.springframework.stereotype.Component;
 import com.ericsson.einss7.japi.OutOfServiceException;
 import com.ericsson.einss7.japi.VendorException;
 import com.ericsson.einss7.japi.WouldBlockException;
+import com.ericsson.jain.protocol.ss7.tcap.Tools;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.BadProtocolException;
+import com.vennetics.bell.sam.ss7.tcap.enabler.exception.UnexpectedResultException;
+import com.vennetics.bell.sam.ss7.tcap.enabler.map.ati.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
+import com.vennetics.bell.sam.ss7.tcap.enabler.utils.EncodingHelper;
+import com.vennetics.bell.sam.ss7.tcap.enabler.utils.TagLengthValue;
 
 import jain.protocol.ss7.SS7Exception;
 import jain.protocol.ss7.tcap.ComponentIndEvent;
@@ -32,8 +39,20 @@ public class AtiDialogueStart extends AbstractDialogueState implements IDialogue
 
     private static final Logger logger = LoggerFactory.getLogger(AtiDialogueStart.class);
 
-    private static final long BB_TEST_INVOKE_TIMEOUT = 5000;
+    private static final long BB_TEST_INVOKE_TIMEOUT = 5000; //TODO config
 
+    private static final byte SUBSCRIBER_STATE_TAG = Tools.getLoByteOf2(0xA1);
+    private static final byte LOCATION_INFO_TAG = Tools.getLoByteOf2(0xA0);
+
+    private static final byte IDLE_TAG = Tools.getLoByteOf2(0x80);
+    private static final byte BUSY_TAG = Tools.getLoByteOf2(0x81);
+    private static final byte NOT_PROVIDED_TAG = Tools.getLoByteOf2(0x82);
+
+    private static final byte GEO_INFO_TAG = Tools.getLoByteOf2(0x80);
+    private static final byte CELL_LAI_TAG = Tools.getLoByteOf2(0x81);
+    private static final byte VLR_NUMBER_TAG = Tools.getLoByteOf2(0x82);
+    private static final byte LOCATION_NUMBER_TAG = Tools.getLoByteOf2(0x83);
+    
     private static String stateName = "AtiDialogueStart";
 
     public AtiDialogueStart(final IDialogueContext context, final IDialogue dialogue) {
@@ -110,13 +129,14 @@ public class AtiDialogueStart extends AbstractDialogueState implements IDialogue
     @Override
     public void processResultIndEvent(final ResultIndEvent event) throws SS7Exception {
         logger.debug("ResultIndEvent event received in state {}", getStateName());
+        OutboundATIMessage obm = (OutboundATIMessage) getDialogue().getRequest();
         if (event.isParametersPresent()) {
             Parameters params = event.getParameters();
             final byte[] returnedBytes = params.getParameter();
-            processReturnedBytes(returnedBytes);
+            logger.debug("Parameters = {}", EncodingHelper.bytesToHex(returnedBytes));
+            processReturnedBytes(returnedBytes, obm);
         } else {
-            OutboundATIMessage obm = (OutboundATIMessage) getDialogue().getRequest();
-            obm.setStatus(99);
+            obm.setStatus(SubscriberState.UNKOWN.ordinal());
             getDialogue().setResult(obm);
         }
         final JainTcapProvider provider = getContext().getProvider();
@@ -136,8 +156,88 @@ public class AtiDialogueStart extends AbstractDialogueState implements IDialogue
         getDialogue().activate();
     }
 
-    private void processReturnedBytes(final byte[] returnedBytes) {
-        logger.debug("processing returned bytes {}", returnedBytes);
+    private void processReturnedBytes(final byte[] returnedBytes, final OutboundATIMessage obm) {
+        byte[] bytes;
+        bytes = getValueFromSequence(returnedBytes);
+        logger.debug("Values from sequence = {}", EncodingHelper.bytesToHex(bytes));
+        bytes = getValueFromSequence(bytes);
+        logger.debug("Values from next sequence = {}", EncodingHelper.bytesToHex(bytes));
+        final List<TagLengthValue> tlvs = EncodingHelper.getTlvs(bytes);
+        processSubscriberInfo(tlvs, obm);
+    }
+    
+    private void processSubscriberInfo(final List<TagLengthValue> tlvs, final OutboundATIMessage obm) {
+        for (TagLengthValue tlv: tlvs) {
+            logger.debug("tag {}, length {}, Value {}", EncodingHelper.bytesToHex(tlv.getTag()),
+                         EncodingHelper.bytesToHex(tlv.getLength()),
+                         EncodingHelper.bytesToHex(tlv.getValue()));
+            if (tlv.getTag() == SUBSCRIBER_STATE_TAG) {
+                final List<TagLengthValue> ssTlv = EncodingHelper.getTlvs(tlv.getValue());
+                if (ssTlv.size() == 1) {
+                    processSubscriberState(ssTlv.get(0).getTag(), obm);
+                } else {
+                    obm.setStatus(SubscriberState.UNKOWN.ordinal());
+                }
+            } else if (tlv.getTag() == LOCATION_INFO_TAG) {
+                final List<TagLengthValue> locTlvs = EncodingHelper.getTlvs(tlv.getValue());
+                for (final TagLengthValue locTlv: locTlvs) {
+                    processLocationInfo(locTlv.getTag(), locTlv.getValue(), obm);
+
+                }
+            }
+        }
+    }
+
+    private void processLocationInfo(final byte tag, final byte[] bs, final OutboundATIMessage obm) {
+        if (tag == GEO_INFO_TAG) {
+            ByteBuffer bb = ByteBuffer.wrap(bs);
+            bb.get(); // Skip shape
+            byte[] latitude = new byte[3];
+            bb.get(latitude, 0, 3);
+            obm.setLatitude(latitude);
+            byte[] longitude = new byte[3];
+            bb.get(longitude, 0, 3);
+            obm.setLongitude(longitude);
+            obm.setUncertainty(bb.get());
+        } else if (tag == VLR_NUMBER_TAG) {
+            logger.debug(EncodingHelper.bytesToHex(bs));
+        } else if (tag == LOCATION_NUMBER_TAG) {
+            logger.debug(EncodingHelper.bytesToHex(bs));
+        } else if (tag == CELL_LAI_TAG) {
+            logger.debug(EncodingHelper.bytesToHex(bs));
+        } else if (tag == EncodingHelper.INTEGER_TAG) {
+            Integer val = new Integer(0);
+            for (int i = 0; i < bs.length; i++)  {
+                val = val + ((bs[i] & 0xFF) << (bs.length - i) * 8);
+            }
+            obm.setAge(val);
+        } else {
+            logger.error("Unknown tag");
+        }
+    }
+
+    private void processSubscriberState(final byte octet, final OutboundATIMessage obm) {
+        logger.debug("SubscriberState tag = {}", EncodingHelper.bytesToHex(octet));
+        if (octet == IDLE_TAG) {
+            obm.setStatus(SubscriberState.ASSUMED_IDLE.ordinal());
+        } else if (octet == BUSY_TAG) {
+            obm.setStatus(SubscriberState.CAMEL_BUSY.ordinal());
+        } else if (octet == EncodingHelper.ENUMERATED_TAG) {
+            obm.setStatus(SubscriberState.NET_DET_NOT_REACHEABLE.ordinal());
+        } else if (octet == NOT_PROVIDED_TAG) {
+            obm.setStatus(SubscriberState.NOT_PROVIDED_VLR.ordinal());
+        } else {
+            obm.setStatus(SubscriberState.UNKOWN.ordinal());
+        }
+    }
+
+    byte[] getValueFromSequence(final byte[] bytes) {
+        final List<TagLengthValue> tlvs = EncodingHelper.getTlvs(bytes);
+        if (!(tlvs.size() == 1 && tlvs.get(0).getTag() == EncodingHelper.SEQUENCE_TAG)) {
+            logger.error("Expecting sequence");
+            throw new UnexpectedResultException(EncodingHelper.bytesToHex(bytes));
+        }
+        return tlvs.get(0).getValue();
     }
     
     /**
