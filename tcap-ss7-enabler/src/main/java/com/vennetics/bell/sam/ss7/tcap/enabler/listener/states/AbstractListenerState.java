@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.ericsson.einss7.japi.VendorIndEvent;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.UnexpectedPrimitiveException;
-import com.vennetics.bell.sam.ss7.tcap.enabler.service.IListenerContext;
+import com.vennetics.bell.sam.ss7.tcap.enabler.listener.IListenerContext;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;

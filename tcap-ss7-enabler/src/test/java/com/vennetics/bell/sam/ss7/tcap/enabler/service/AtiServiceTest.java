@@ -4,6 +4,7 @@ import com.vennetics.bell.sam.error.exceptions.InvalidAddressException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.address.Address;
 import com.vennetics.bell.sam.ss7.tcap.enabler.address.IAddressNormalizer;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.listener.ISamTcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 import org.junit.Before;

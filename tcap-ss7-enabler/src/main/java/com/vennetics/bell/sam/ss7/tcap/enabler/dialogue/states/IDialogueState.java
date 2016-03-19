@@ -19,5 +19,6 @@ public interface IDialogueState {
     void setContext(final IDialogueContext context);
     
     void setDialogue(final IDialogue dialogue);
-    
+     
+    void terminate();
 }

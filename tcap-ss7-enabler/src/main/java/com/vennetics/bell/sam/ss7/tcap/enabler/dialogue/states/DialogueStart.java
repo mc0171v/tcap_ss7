@@ -135,4 +135,8 @@ public class DialogueStart extends AbstractDialogueState implements IDialogueSta
     public String getStateName() {
         return stateName;
     }
+    
+    public void terminate() {
+        getDialogue().setState(new DialogueEnd(getContext(), getDialogue()));
+    }
 }

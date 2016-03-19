@@ -73,4 +73,7 @@ public class DialogueEnd extends AbstractDialogueState implements IDialogueState
     public String getStateName() {
         return stateName;
     }
+    
+    public void terminate() {
+    }
 }

@@ -1,4 +1,4 @@
-package com.vennetics.bell.sam.ss7.tcap.enabler.service;
+package com.vennetics.bell.sam.ss7.tcap.enabler.listener;
 
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.IListenerState;

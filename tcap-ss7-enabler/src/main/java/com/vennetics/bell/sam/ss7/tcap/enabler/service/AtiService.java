@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.vennetics.bell.sam.ss7.tcap.enabler.address.Address;
 import com.vennetics.bell.sam.ss7.tcap.enabler.address.IAddressNormalizer;
 import com.vennetics.bell.sam.ss7.tcap.enabler.commands.SendAtiCommand;
+import com.vennetics.bell.sam.ss7.tcap.enabler.listener.ISamTcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.enabler.map.ati.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 import rx.Observable;
@@ -53,9 +55,10 @@ public class AtiService implements IAtiService {
                 logger.debug("ATI Service Constructed ATI Command");
             }
         } else {
-            atiMessageRequest.setStatus(99);
+            atiMessageRequest.setStatus(SubscriberState.UNKOWN.ordinal());
             return Observable.just(atiMessageRequest); //Unknown
         }
+        logger.debug("Result = {}", result);
         return Observable.just(result);
     }
     

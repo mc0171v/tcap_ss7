@@ -1,4 +1,4 @@
-package com.vennetics.bell.sam.ss7.tcap.enabler.service;
+package com.vennetics.bell.sam.ss7.tcap.enabler.listener;
 
 import java.util.concurrent.CountDownLatch;
 

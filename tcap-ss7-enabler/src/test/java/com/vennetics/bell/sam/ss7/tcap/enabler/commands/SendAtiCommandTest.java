@@ -10,9 +10,9 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.listener.SamTcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.enabler.listener.states.ListenerBound;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
-import com.vennetics.bell.sam.ss7.tcap.enabler.service.SamTcapEventListener;
 
 import org.junit.Before;
 import org.junit.Test;

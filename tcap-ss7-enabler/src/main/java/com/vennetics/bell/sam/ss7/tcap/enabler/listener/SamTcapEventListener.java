@@ -1,4 +1,4 @@
-package com.vennetics.bell.sam.ss7.tcap.enabler.service;
+package com.vennetics.bell.sam.ss7.tcap.enabler.listener;
 
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
@@ -82,8 +82,8 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     SamTcapEventListener(final Ss7ConfigurationProperties configProperties,
                          @Qualifier("listenerUnbound") final IListenerState initialListenerState,
                          @Qualifier("dialogueRequestBuilder") final IDialogueRequestBuilder dialogueRequestBuilder,
-                         @Qualifier("ATIComponentRequestBuilder") final IComponentRequestBuilder componentRequestBuilder,
-                         @Qualifier("ATIDialogueStart") final IDialogueState initialDialogueState) {
+                         @Qualifier("atiComponentRequestBuilder") final IComponentRequestBuilder componentRequestBuilder,
+                         @Qualifier("atiDialogueStart") final IDialogueState initialDialogueState) {
         this.configProperties = configProperties;
         this.origAddr = new TcapUserAddress(configProperties.getOrigAddress().getsPC(),
                                             configProperties.getOrigAddress().getsSn());

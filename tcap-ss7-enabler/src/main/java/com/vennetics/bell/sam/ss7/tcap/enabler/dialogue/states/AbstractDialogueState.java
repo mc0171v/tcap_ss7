@@ -20,6 +20,7 @@ import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.ComponentReqEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
 import jain.protocol.ss7.tcap.DialogueReqEvent;
+import jain.protocol.ss7.tcap.ParameterNotSetException;
 import jain.protocol.ss7.tcap.TcapConstants;
 import jain.protocol.ss7.tcap.component.ErrorIndEvent;
 import jain.protocol.ss7.tcap.component.InvokeIndEvent;
@@ -105,7 +106,6 @@ public abstract class AbstractDialogueState {
     }
 
     private int getDialogueId(final EventObject currentReq) {
-        // release dialogue
         int dialogueId;
         try {
             if (currentReq instanceof VendorDialogueReqEvent) {
@@ -161,7 +161,7 @@ public abstract class AbstractDialogueState {
      */
     public void processBeginIndEvent(final BeginIndEvent event) throws SS7Exception {
 
-        logger.debug("BeginIndEvent received.");
+        logger.debug("BeginIndEvent received in state {}", dialogue.getStateName());
         throw new UnexpectedPrimitiveException(event.getPrimitiveType());
     }
 
@@ -169,7 +169,7 @@ public abstract class AbstractDialogueState {
      * Dialogue event.
      */
     public void processContinueIndEvent(final ContinueIndEvent event) throws SS7Exception {
-        logger.debug("Continue IndEvent received.");
+        logger.debug("Continue IndEvent received in state {}", dialogue.getStateName());
         throw new UnexpectedPrimitiveException(event.getPrimitiveType());
     }
 
@@ -177,7 +177,7 @@ public abstract class AbstractDialogueState {
      * Dialogue event.
      */
     public void processEndIndEvent(final EndIndEvent event) throws SS7Exception {
-        logger.debug("EndIndEvent received.");
+        logger.debug("EndIndEvent received in state {}", dialogue.getStateName());
         throw new UnexpectedPrimitiveException(event.getPrimitiveType());
     }
 
@@ -186,8 +186,9 @@ public abstract class AbstractDialogueState {
      */
     public void processProviderAbortIndEvent(final ProviderAbortIndEvent event) throws SS7Exception {
 
-        logger.debug("ProviderAbortIndEvent received.");
-        throw new UnexpectedPrimitiveException(event.getPrimitiveType());
+        logger.debug("ProviderAbortIndEvent received in state {}", dialogue.getStateName());
+        terminate();
+        logger.error("Provider abort reason is {}", event.getPAbort());
     }
 
     /**
@@ -195,7 +196,7 @@ public abstract class AbstractDialogueState {
      */
     public void processNoticeIndEvent(final NoticeIndEvent event) throws SS7Exception {
 
-        logger.debug("processNoticeIndEvent");
+        logger.debug("processNoticeIndEvent received in state {}", dialogue.getStateName());
         throw new UnexpectedPrimitiveException(event.getPrimitiveType());
     }
 
@@ -235,37 +236,52 @@ public abstract class AbstractDialogueState {
 
     protected void processInvokeIndEvent(final InvokeIndEvent event) throws SS7Exception,
                                                                      VendorException {
-        logger.debug("InvokeIndEvent event received");
+        logger.debug("InvokeIndEvent event received in state {}", dialogue.getStateName());
 
         final int primitive = event.getPrimitiveType();
         throw new UnexpectedPrimitiveException(primitive);
     }
 
     protected void processResultIndEvent(final ResultIndEvent event) throws SS7Exception {
-        logger.debug("ResultIndEvent event received");
+        logger.debug("ResultIndEvent event received in state {}", dialogue.getStateName());
 
         final int primitive = event.getPrimitiveType();
         throw new UnexpectedPrimitiveException(primitive);
     }
 
     protected void processErrorIndEvent(final ErrorIndEvent event) {
-        logger.debug("ErrorIndEvent event received");
+        logger.debug("ErrorIndEvent event received in state {}", dialogue.getStateName());
+        terminate();
+        try {
+        logger.error("Error Type: {} Code: {}", event.getErrorType(), event.getErrorCode());
+        } catch (Exception ex) {
+            logger.error("Error Type: Unknown Code: Unknown");
+        }
 
-        final int primitive = event.getPrimitiveType();
-        throw new UnexpectedPrimitiveException(primitive);
     }
 
     protected void processLocalCancelIndEvent(final LocalCancelIndEvent event) {
-        logger.debug("LocalCancelIndEvent event received in state ListenerUnbound");
-
-        final int primitive = event.getPrimitiveType();
-        throw new UnexpectedPrimitiveException(primitive);
+        logger.debug("LocalCancelIndEvent event received in state {}", dialogue.getStateName());
+        terminate();
     }
 
     protected void processRejectIndEvent(final RejectIndEvent event) {
-        logger.debug("RejectIndEvent event received in state ListenerUnbound");
-
-        final int primitive = event.getPrimitiveType();
-        throw new UnexpectedPrimitiveException(primitive);
+        logger.debug("RejectIndEvent event received in state {} ", dialogue.getStateName());
+        terminate();
+        try {
+            final int rejectType = event.getRejectType();
+            logger.error("Component rejected reason {}", rejectType);
+        } catch (ParameterNotSetException ex) {
+            logger.error("Component rejected unknown reason");
+        }
+    }
+    
+    private void  terminate() {
+        // Release the dialogue ID
+        if (dialogue != null) {
+            context.getDialogueManager().deactivate(dialogue);
+        }
+        context.getProvider().releaseDialogueId(dialogue.getDialogueId());
+        dialogue.getState().terminate();
     }
 }

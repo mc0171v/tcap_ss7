@@ -8,6 +8,7 @@ import jain.protocol.ss7.tcap.component.Parameters;
 import jain.protocol.ss7.tcap.component.ResultIndEvent;
 import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
 import static org.mockito.Matchers.isA;
@@ -36,7 +37,13 @@ public class AtiDialogueStartTest {
     private static final int LINK_ID = 33;
     private static final int INVOKE_ID = 34;
     
-    private static final byte[] PARAMETER_SEQ = {0x30, 0x06, 0x30, 0x04, Tools.getLoByteOf2(0xA1), 0x02, Tools.getLoByteOf2(0x80), 0x00 };
+    private static final byte[] PARAM_SUBSCRIBER_STATE = {0x30, 0x06, 0x30, 0x04, Tools.getLoByteOf2(0xA1), 0x02, Tools.getLoByteOf2(0x80), 0x00 };
+    private static final byte[] PARAM_GEO_INFO = {0x30, 0x12, 0x30, 0x10, Tools.getLoByteOf2(0xA0), 0x0E, 0x02, 0x02, 0x01, 0x03, Tools.getLoByteOf2(0x80),
+                                                  0x08, 0x10, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x01 };
+    private static final byte[] LATITUDE = { 0x00, 0x01, 0x02 }; // From PARAM_GEO_INFO
+    private static final byte[] LONGITUDE = { 0x03, 0x04, 0x05 }; // From PARAM_GEO_INFO
+    private static final byte UNCERTAINTY = 0x01; // From PARAM_GEO_INFO
+    private static final int GEO_AGE = 259; // 0x01, 0x03 From PARAM_GEO_INFO
     
     @Mock
     private IDialogueContext mockDialogueContext;
@@ -81,7 +88,7 @@ public class AtiDialogueStartTest {
         verify(mockProvider).releaseInvokeId(LINK_ID, DIALOGUE_ID);
         verify(mockDialogue).setState(isA(AtiDialogueEnd.class));
         verify(mockDialogue).setResult(oAtiMessage);
-        assertTrue(oAtiMessage.getStatus() == SubscriberState.UNKOWN.ordinal()); //TODO change to real status
+        assertTrue(oAtiMessage.getStatus() == SubscriberState.UNKOWN.ordinal());
     }
 
     @Test()
@@ -102,30 +109,59 @@ public class AtiDialogueStartTest {
         verify(mockProvider).releaseInvokeId(INVOKE_ID, DIALOGUE_ID);
         verify(mockDialogue).setState(isA(AtiDialogueEnd.class));
         verify(mockDialogue).setResult(oAtiMessage);
-        assertTrue(oAtiMessage.getStatus() == SubscriberState.UNKOWN.ordinal()); //TODO change to real status
+        assertTrue(oAtiMessage.getStatus() == SubscriberState.UNKOWN.ordinal());
 
     }
     
     @Test
-    public void shouldProcessReturnedBytes() {
+    public void shouldProcessReturnedBytesWithSubscriberState() {
+        final ResultIndEvent resultIndEvent = commonSetup(PARAM_SUBSCRIBER_STATE);
+        OutboundATIMessage oAtiMessage = getRequestObject();
+        commonWhen(oAtiMessage);
+        objectToTest.handleEvent(resultIndEvent);
+        commonVerify(oAtiMessage);
+        assertTrue(oAtiMessage.getStatus() == SubscriberState.ASSUMED_IDLE.ordinal());
+    }
+    
+    @Test
+    public void shouldProcessReturnedBytesWithLocationInfo() {
+        final ResultIndEvent resultIndEvent = commonSetup(PARAM_GEO_INFO);
+        OutboundATIMessage oAtiMessage = getRequestObject();
+        commonWhen(oAtiMessage);
+        objectToTest.handleEvent(resultIndEvent);
+        commonVerify(oAtiMessage);
+        assertTrue(oAtiMessage.getAge() == GEO_AGE);
+        assertTrue(oAtiMessage.getUncertainty() == UNCERTAINTY);
+        assertArrayEquals(oAtiMessage.getLatitude(), LATITUDE);
+        assertArrayEquals(oAtiMessage.getLongitude(), LONGITUDE);
+    }
+    
+    private ResultIndEvent commonSetup(final byte[] bs) {
         final ResultIndEvent resultIndEvent = new ResultIndEvent(mockTcapListener,
                                                                  DIALOGUE_ID,
                                                                  true,
                                                                  true);
-        Parameters params = new Parameters(Parameters.PARAMETERTYPE_SEQUENCE, PARAMETER_SEQ);
-        resultIndEvent.setParameters(params);
+        if (bs != null) {
+            Parameters params = new Parameters(Parameters.PARAMETERTYPE_SEQUENCE, bs);
+            resultIndEvent.setParameters(params);
+        }
         resultIndEvent.setInvokeId(INVOKE_ID);
         resultIndEvent.setDialogueId(DIALOGUE_ID);
-        OutboundATIMessage oAtiMessage = getRequestObject();
+        return resultIndEvent;
+    };
+    
+    private void commonWhen(final OutboundATIMessage oAtiMessage) {
         when(mockDialogue.getRequest()).thenReturn(oAtiMessage);
         when(mockDialogueContext.getStack()).thenReturn(mockStack);
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
         when(mockStack.getProtocolVersion()).thenReturn(DialogueConstants.PROTOCOL_VERSION_ITU_97);
         when(mockDialogueContext.getDialogue(DIALOGUE_ID)).thenReturn(mockDialogue);
-        objectToTest.handleEvent(resultIndEvent);
+    }
+    
+    private void commonVerify(final OutboundATIMessage oAtiMessage) {
         verify(mockProvider).releaseInvokeId(INVOKE_ID, DIALOGUE_ID);
         verify(mockDialogue).setState(isA(AtiDialogueEnd.class));
-        assertTrue(oAtiMessage.getStatus() == SubscriberState.ASSUMED_IDLE.ordinal());
+        verify(mockDialogue).setResult(oAtiMessage);
     }
     
     private OutboundATIMessage getRequestObject() {

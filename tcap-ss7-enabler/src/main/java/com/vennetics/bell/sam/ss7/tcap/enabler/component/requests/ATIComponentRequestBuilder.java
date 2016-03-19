@@ -30,7 +30,6 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
     private static final byte REQUESTED_INFO_TAG = Tools.getLoByteOf2(0xA1);
     private static final byte LOCATION_INFORMATION_TAG = Tools.getLoByteOf2(0xA0);
     private static final byte SUBSCRIBER_STATE_TAG = Tools.getLoByteOf2(0xA1);
-    private static final int SEQUENCE_TAG = 0x30;
     
 
     AtiComponentRequestBuilder() {
@@ -67,14 +66,12 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
         final ByteBuffer requestedInfo = buildRequestInfoElement(request);
         final ByteBuffer gsmScfAddress = EncodingHelper.buildIsdnAddressStringElement(GSMSCF_ADDRESS,
                                                                                       GSMSCF_ADDRESS_TAG);
-        final byte tag = SEQUENCE_TAG;
-        final byte[] asn1Length = EncodingHelper.getAsn1Length(subscriberInfo.capacity()
-                                                             + requestedInfo.capacity()
-                                                             + gsmScfAddress.capacity());
         ByteBuffer bb = ByteBuffer.allocate(subscriberInfo.capacity()
                                             + requestedInfo.capacity()
-                                            + gsmScfAddress.capacity() + 1 + asn1Length.length);
-        bb.put(tag).put(asn1Length).put(subscriberInfo.array()).put(requestedInfo.array()).put(gsmScfAddress.array());
+                                            //+ gsmScfAddress.capacity() + 1 + asn1Length.length);
+                                            + gsmScfAddress.capacity());
+
+        bb.put(subscriberInfo.array()).put(requestedInfo.array()).put(gsmScfAddress.array());
         return bb.array();
         
     }

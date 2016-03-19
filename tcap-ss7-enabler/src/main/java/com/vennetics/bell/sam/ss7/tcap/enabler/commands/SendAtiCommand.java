@@ -3,9 +3,8 @@ package com.vennetics.bell.sam.ss7.tcap.enabler.commands;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
+import com.vennetics.bell.sam.ss7.tcap.enabler.listener.ISamTcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
-import com.vennetics.bell.sam.ss7.tcap.enabler.service.ISamTcapEventListener;
-
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

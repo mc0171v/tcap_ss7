@@ -17,7 +17,7 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.DialogueExistsException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.NoDialogueExistsException;
-import com.vennetics.bell.sam.ss7.tcap.enabler.service.SamTcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.enabler.listener.SamTcapEventListener;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DialogueManagerTest {

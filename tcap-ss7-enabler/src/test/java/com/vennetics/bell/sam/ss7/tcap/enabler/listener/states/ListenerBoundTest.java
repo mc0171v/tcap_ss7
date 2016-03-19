@@ -20,7 +20,7 @@ import com.ericsson.einss7.jtcap.TcBindIndEvent;
 import com.ericsson.einss7.jtcap.TcStateIndEvent;
 import com.ericsson.einss7.jtcap.TcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.UnexpectedPrimitiveException;
-import com.vennetics.bell.sam.ss7.tcap.enabler.service.IListenerContext;
+import com.vennetics.bell.sam.ss7.tcap.enabler.listener.IListenerContext;
 
 import ericsson.ein.ss7.commonparts.util.Tools;
 

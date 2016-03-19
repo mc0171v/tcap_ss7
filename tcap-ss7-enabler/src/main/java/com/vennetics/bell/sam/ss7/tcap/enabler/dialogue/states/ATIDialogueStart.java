@@ -135,6 +135,7 @@ public class AtiDialogueStart extends AbstractDialogueState implements IDialogue
             final byte[] returnedBytes = params.getParameter();
             logger.debug("Parameters = {}", EncodingHelper.bytesToHex(returnedBytes));
             processReturnedBytes(returnedBytes, obm);
+            getDialogue().setResult(obm);
         } else {
             obm.setStatus(SubscriberState.UNKOWN.ordinal());
             getDialogue().setResult(obm);
@@ -182,7 +183,6 @@ public class AtiDialogueStart extends AbstractDialogueState implements IDialogue
                 final List<TagLengthValue> locTlvs = EncodingHelper.getTlvs(tlv.getValue());
                 for (final TagLengthValue locTlv: locTlvs) {
                     processLocationInfo(locTlv.getTag(), locTlv.getValue(), obm);
-
                 }
             }
         }
@@ -192,13 +192,17 @@ public class AtiDialogueStart extends AbstractDialogueState implements IDialogue
         if (tag == GEO_INFO_TAG) {
             ByteBuffer bb = ByteBuffer.wrap(bs);
             bb.get(); // Skip shape
-            byte[] latitude = new byte[3];
+            final byte[] latitude = new byte[3];
             bb.get(latitude, 0, 3);
             obm.setLatitude(latitude);
-            byte[] longitude = new byte[3];
+            logger.debug("latitude = {}", EncodingHelper.bytesToHex(latitude));
+            final byte[] longitude = new byte[3];
             bb.get(longitude, 0, 3);
             obm.setLongitude(longitude);
-            obm.setUncertainty(bb.get());
+            logger.debug("longitude = {}", EncodingHelper.bytesToHex(longitude));
+            final byte uncertainty = bb.get();
+            obm.setUncertainty(uncertainty);
+            logger.debug("Uncertainty = {}", EncodingHelper.bytesToHex(uncertainty));
         } else if (tag == VLR_NUMBER_TAG) {
             logger.debug(EncodingHelper.bytesToHex(bs));
         } else if (tag == LOCATION_NUMBER_TAG) {
@@ -208,8 +212,9 @@ public class AtiDialogueStart extends AbstractDialogueState implements IDialogue
         } else if (tag == EncodingHelper.INTEGER_TAG) {
             Integer val = new Integer(0);
             for (int i = 0; i < bs.length; i++)  {
-                val = val + ((bs[i] & 0xFF) << (bs.length - i) * 8);
+                val = val + ((bs[i] & 0xFF) << (bs.length - i - 1) * 8);
             }
+            logger.debug("Age of geographical info  = {}", val);
             obm.setAge(val);
         } else {
             logger.error("Unknown tag");
@@ -249,5 +254,9 @@ public class AtiDialogueStart extends AbstractDialogueState implements IDialogue
 
     public String getStateName() {
         return stateName;
+    }
+    
+    public void terminate() {
+        getDialogue().setState(new AtiDialogueEnd(getContext(), getDialogue()));
     }
 }

@@ -24,6 +24,9 @@ public class AtiDialogueEnd extends AbstractDialogueState implements IDialogueSt
 
     public void activate() {
     }
+    
+    public void terminate() {
+    }
 
     @Override
     public void handleEvent(final ComponentIndEvent event) {
