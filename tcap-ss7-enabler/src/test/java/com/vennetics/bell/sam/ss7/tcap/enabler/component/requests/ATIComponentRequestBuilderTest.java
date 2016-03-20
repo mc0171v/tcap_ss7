@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+
 import com.vennetics.bell.sam.ss7.tcap.enabler.rest.OutboundATIMessage;
 
 import ericsson.ein.ss7.commonparts.util.Tools;
@@ -17,9 +18,9 @@ public class ATIComponentRequestBuilderTest {
 
     private AtiComponentRequestBuilder objectToTest;
     
-    private static final byte[] EXPECTED_IMSI_STRING = { 0x30, 0x12, Tools.getLoByteOf2(0xA0), 0x06, Tools.getLoByteOf2(0x80), 0x04, 0x21, 0x43, 0x65, Tools.getLoByteOf2(0x87),
+    private static final byte[] EXPECTED_IMSI_STRING = { Tools.getLoByteOf2(0xA0), 0x06, Tools.getLoByteOf2(0x80), 0x04, 0x21, 0x43, 0x65, Tools.getLoByteOf2(0x87),
             Tools.getLoByteOf2(0xA1), 0x02, Tools.getLoByteOf2(0x80), 0x00, Tools.getLoByteOf2(0x83), 0x04, 0x21, 0x43, 0x34, 0x12};
-    private static final byte[] EXPECTED_MSISDN_STRING = { 0x30, 0x12, Tools.getLoByteOf2(0xA0), 0x06, Tools.getLoByteOf2(0x81), 0x04, Tools.getLoByteOf2(0x89), 0x67, 0x45,
+    private static final byte[] EXPECTED_MSISDN_STRING = { Tools.getLoByteOf2(0xA0), 0x06, Tools.getLoByteOf2(0x81), 0x04, Tools.getLoByteOf2(0x89), 0x67, 0x45,
             Tools.getLoByteOf2(0xF3), Tools.getLoByteOf2(0xA1), 0x02, Tools.getLoByteOf2(0x81), 0x00, Tools.getLoByteOf2(0x83), 0x04, 0x21, 0x43, 0x34, 0x12};
     @Before
     public void setup() {
@@ -29,6 +30,7 @@ public class ATIComponentRequestBuilderTest {
     @Test
     public void shouldBuildATIComponentWithImsi() throws Exception {
         final byte[] result = objectToTest.createParameters(getRequestObjectWithImsiAndRequestLocation());
+        
         assertArrayEquals(result, EXPECTED_IMSI_STRING);
     }
  

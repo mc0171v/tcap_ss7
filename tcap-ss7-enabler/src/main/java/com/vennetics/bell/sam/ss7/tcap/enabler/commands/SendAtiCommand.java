@@ -50,7 +50,9 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
         try {
             cDl.await(LATCH_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
-            logger.error("Caught Exception {} waiting for result", ex);
+            final String errorMessage = "Caught InterruptedException waiting for result";
+            logger.error(errorMessage);
+            request.setError(errorMessage);
         }
         if (dialogue.getResult() != null) {
             return (OutboundATIMessage) dialogue.getResult();

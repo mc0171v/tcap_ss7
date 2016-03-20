@@ -40,6 +40,8 @@ public interface IDialogue {
     
     void setResult(Object result);
     
+    void setError(String error);
+    
     Object getRequest();
     
     Object getResult();

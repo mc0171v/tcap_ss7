@@ -6,11 +6,11 @@ import com.vennetics.bell.sam.ss7.tcap.enabler.error.exceptions.SpecificServiceE
 /**
  * Exception to throw when a supplied address is deemed to be invalid.
  */
-public class BellSamOutOfServiceException extends SpecificServiceException {
+public class SamOutOfServiceException extends SpecificServiceException {
 
     private static final long serialVersionUID = -7778591932698107919L;
 
-    public BellSamOutOfServiceException(final Integer id) {
+    public SamOutOfServiceException(final Integer id) {
         super(ServiceErrorMessageType.TCAP_DIALOGUE_EXISTS, id.toString());
     }
 

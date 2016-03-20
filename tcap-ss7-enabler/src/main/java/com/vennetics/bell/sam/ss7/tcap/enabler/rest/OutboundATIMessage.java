@@ -43,6 +43,7 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
  *         &lt;element name="longitude" type="byte[]"/&gt;
  *         &lt;element name="uncertainty" type="byte"/&gt;
  *         &lt;element name="age" type="Integer"/&gt;
+ *         &lt;element name="error" type="String"/&gt;
  *       &lt;/sequence&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -61,7 +62,8 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
     "latitude",
     "longitude",
     "uncertainty",
-    "age"
+    "age",
+    "error"
 })
 @XmlRootElement(name = "OutboundATIMessage")
 public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode2, ToString2 {
@@ -78,6 +80,8 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
     private byte[] longitude;
     private byte uncertainty;
     private Integer age;
+    
+    private String error;
     
 
     /**
@@ -128,6 +132,29 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
         this.correlator = value;
     }
 
+    /**
+     * Gets the value of the error property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getError() {
+        return error;
+    }
+
+    /**
+     * Sets the value of the error property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setError(final String value) {
+        this.error = value;
+    }
     
     /**
      * Gets the value of the msisdn property.
@@ -366,7 +393,7 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
     public OutboundATIMessage withAge(final Integer value) {
         setAge(value);
         return this;
-    }    
+    }
     public OutboundATIMessage withRequestInfoSubscriberState(final Boolean value) {
         setRequestInfoSubscriberState(value);
         return this;
@@ -374,6 +401,11 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
     
     public OutboundATIMessage withCorrelator(final String value) {
         setCorrelator(value);
+        return this;
+    }
+
+    public OutboundATIMessage withError(final String value) {
+        setError(value);
         return this;
     }
 
@@ -451,6 +483,15 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                              buffer,
                              theCorrelator,
                              (this.correlator != null));
+
+        String theError;
+        theError = this.getError();
+        strategy.appendField(locator,
+                             this,
+                             "error",
+                             buffer,
+                             theError,
+                             (this.error != null));
         
         byte[] theLatitude;
         theLatitude = this.getLatitude();
@@ -530,6 +571,10 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
             String theCorrelator;
             theCorrelator = this.getCorrelator();
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "correlator", theCorrelator), currentHashCode, theCorrelator, (this.correlator != null));
+
+            String theError;
+            theError = this.getError();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "error", theError), currentHashCode, theError, (this.error != null));
             
             byte[] theLongitude;
             theLongitude = this.getLongitude();
@@ -566,12 +611,8 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
             lhsImsi = this.getImsi();
             String rhsImsi;
             rhsImsi = that.getImsi();
-            if (!strategy.equals(LocatorUtils.property(thisLocator,
-                                                       "imsi",
-                                                       lhsImsi),
-                                 LocatorUtils.property(thatLocator,
-                                                       "imsi",
-                                                       rhsImsi),
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "imsi", lhsImsi),
+                                 LocatorUtils.property(thatLocator, "imsi", rhsImsi),
                                  lhsImsi,
                                  rhsImsi,
                                  (this.imsi != null),
@@ -583,12 +624,8 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
             lhsMsisdn = this.getMsisdn();
             String rhsMsisdn;
             rhsMsisdn = that.getMsisdn();
-            if (!strategy.equals(LocatorUtils.property(thisLocator,
-                                                       "msisdn",
-                                                       lhsMsisdn),
-                                 LocatorUtils.property(thatLocator,
-                                                       "msisdn",
-                                                       rhsMsisdn),
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "msisdn", lhsMsisdn),
+                                 LocatorUtils.property(thatLocator, "msisdn", rhsMsisdn),
                                  lhsMsisdn,
                                  rhsMsisdn,
                                  (this.msisdn != null),
@@ -600,11 +637,8 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
             lhsRequestInfoLocation = this.getRequestInfoLocation();
             Boolean rhsRequestInfoLocation;
             rhsRequestInfoLocation = that.getRequestInfoLocation();
-            if (!strategy.equals(LocatorUtils.property(thisLocator,
-                                                       "requestInfoLocation",
-                                                       lhsRequestInfoLocation),
-                                 LocatorUtils.property(thatLocator, "requestInfoLocation",
-                                                       rhsRequestInfoLocation),
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "requestInfoLocation", lhsRequestInfoLocation),
+                                 LocatorUtils.property(thatLocator, "requestInfoLocation",  rhsRequestInfoLocation),
                                  lhsRequestInfoLocation, rhsRequestInfoLocation,
                                  (this.requestInfoLocation != null),
                                  (that.requestInfoLocation != null))) {
@@ -615,12 +649,8 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
             lhsStatus = this.getStatus();
             Integer rhsStatus;
             rhsStatus = that.getStatus();
-            if (!strategy.equals(LocatorUtils.property(thisLocator,
-                                                       "state",
-                                                       lhsStatus),
-                                 LocatorUtils.property(thatLocator,
-                                                       "state",
-                                                       rhsStatus),
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "state", lhsStatus),
+                                 LocatorUtils.property(thatLocator, "state", rhsStatus),
                                  lhsStatus, rhsStatus,
                                  (this.status != null),
                                  (that.status != null))) {
@@ -631,12 +661,8 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
             lhsAge = this.getAge();
             Integer rhsAge;
             rhsAge = that.getAge();
-            if (!strategy.equals(LocatorUtils.property(thisLocator,
-                                                       "status",
-                                                       lhsAge),
-                                 LocatorUtils.property(thatLocator,
-                                                       "status",
-                                                       rhsAge),
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "status", lhsAge),
+                                 LocatorUtils.property(thatLocator, "status", rhsAge),
                                  lhsAge, rhsAge,
                                  (this.age != null),
                                  (that.age != null))) {
@@ -663,12 +689,8 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
             lhsCorrelator = this.getCorrelator();
             String rhsCorrelator;
             rhsCorrelator = that.getCorrelator();
-            if (!strategy.equals(LocatorUtils.property(thisLocator,
-                                                       "correlator",
-                                                       lhsCorrelator),
-                                 LocatorUtils.property(thatLocator,
-                                                       "correlator",
-                                                       rhsCorrelator),
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "correlator", lhsCorrelator),
+                                 LocatorUtils.property(thatLocator, "correlator", rhsCorrelator),
                                  lhsCorrelator,
                                  rhsCorrelator,
                                  (this.correlator != null),
@@ -676,16 +698,25 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                 return false;
             }
             
+            String lhsError;
+            lhsError = this.getError();
+            String rhsError;
+            rhsError = that.getError();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "error", lhsError),
+                                 LocatorUtils.property(thatLocator, "error", rhsError),
+                                 lhsError,
+                                 rhsError,
+                                 (this.error != null),
+                                 (that.error != null))) {
+                return false;
+            }
+            
             byte[] lhsLongitude;
             lhsLongitude = this.getLongitude();
             byte[] rhsLongitude;
             rhsLongitude = that.getLongitude();
-            if (!strategy.equals(LocatorUtils.property(thisLocator,
-                                                       "longitude",
-                                                       lhsLongitude),
-                                 LocatorUtils.property(thatLocator,
-                                                       "longitude",
-                                                       rhsLongitude),
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "longitude", lhsLongitude),
+                                 LocatorUtils.property(thatLocator, "longitude", rhsLongitude),
                                  lhsLongitude,
                                  rhsLongitude,
                                  (this.longitude != null),
@@ -693,16 +724,10 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                 return false;
             }
             
-            byte[] lhsLatitude;
-            lhsLatitude = this.getLatitude();
-            byte[] rhsLatitude;
-            rhsLatitude = that.getLatitude();
-            if (!strategy.equals(LocatorUtils.property(thisLocator,
-                                                       "latitude",
-                                                       lhsLatitude),
-                                 LocatorUtils.property(thatLocator,
-                                                       "latitude",
-                                                       rhsLatitude),
+            byte[] lhsLatitude = this.getLatitude();
+            byte[] rhsLatitude = that.getLatitude();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "latitude", lhsLatitude),
+                                 LocatorUtils.property(thatLocator, "latitude", rhsLatitude),
                                  lhsLatitude,
                                  rhsLatitude,
                                  (this.latitude != null),
@@ -714,12 +739,8 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
             lhsUncertainty = this.getUncertainty();
             byte rhsUncertainty;
             rhsUncertainty = that.getUncertainty();
-            if (!strategy.equals(LocatorUtils.property(thisLocator,
-                                                       "uncertainty",
-                                                       lhsUncertainty),
-                                 LocatorUtils.property(thatLocator,
-                                                       "uncertainty",
-                                                       rhsUncertainty),
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "uncertainty", lhsUncertainty),
+                                 LocatorUtils.property(thatLocator, "uncertainty", rhsUncertainty),
                                  lhsUncertainty,
                                  rhsUncertainty,
                                  (true),
@@ -775,9 +796,7 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                 if (requestInfoLocatioShouldBeCopiedAndSet == Boolean.TRUE) {
                     Boolean sourceRequestInfoLocation;
                     sourceRequestInfoLocation = this.getRequestInfoLocation();
-                    Boolean copyRequestInfoLocation = ((Boolean) strategy.copy(LocatorUtils.property(locator,
-                                                                                                     "requestInfoLocation",
-                                                                                                     sourceRequestInfoLocation),
+                    Boolean copyRequestInfoLocation = ((Boolean) strategy.copy(LocatorUtils.property(locator, "requestInfoLocation", sourceRequestInfoLocation),
                                                                                sourceRequestInfoLocation,
                                                                                (this.requestInfoLocation != null)));
                     copy.setRequestInfoLocation(copyRequestInfoLocation);
@@ -791,9 +810,7 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                 if (statusShouldBeCopiedAndSet == Boolean.TRUE) {
                     Integer sourceStatus;
                     sourceStatus = this.getStatus();
-                    Integer copyStatus = ((Integer) strategy.copy(LocatorUtils.property(locator,
-                                                                                        "status",
-                                                                                        sourceStatus),
+                    Integer copyStatus = ((Integer) strategy.copy(LocatorUtils.property(locator, "status", sourceStatus),
                                                                                sourceStatus,
                                                                                (this.status != null)));
                     copy.setStatus(copyStatus);
@@ -807,9 +824,7 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                 if (ageShouldBeCopiedAndSet == Boolean.TRUE) {
                     Integer sourceAge;
                     sourceAge = this.getAge();
-                    Integer copyAge = ((Integer) strategy.copy(LocatorUtils.property(locator,
-                                                                                     "age",
-                                                                                     sourceAge),
+                    Integer copyAge = ((Integer) strategy.copy(LocatorUtils.property(locator, "age", sourceAge),
                                                                                sourceAge,
                                                                                (this.age != null)));
                     copy.setAge(copyAge);
@@ -844,6 +859,18 @@ public class OutboundATIMessage implements Cloneable, CopyTo2, Equals2, HashCode
                 } else {
                     if (correlatorShouldBeCopiedAndSet == Boolean.FALSE) {
                         copy.correlator = null;
+                    }
+                }
+                 
+                Boolean errorShouldBeCopiedAndSet = strategy.shouldBeCopiedAndSet(locator, (this.error != null));
+                if (errorShouldBeCopiedAndSet == Boolean.TRUE) {
+                    String sourceError;
+                    sourceError = this.getError();
+                    String copyError = ((String) strategy.copy(LocatorUtils.property(locator, "error", sourceError), sourceError, (this.error != null)));
+                    copy.setError(copyError);
+                } else {
+                    if (errorShouldBeCopiedAndSet == Boolean.FALSE) {
+                        copy.error = null;
                     }
                 }
                 

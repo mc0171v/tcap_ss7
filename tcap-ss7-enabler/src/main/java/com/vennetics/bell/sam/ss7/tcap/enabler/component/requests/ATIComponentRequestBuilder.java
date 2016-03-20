@@ -28,8 +28,8 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
     private static final byte MSISDN_TAG = Tools.getLoByteOf2(0x81);
     private static final byte GSMSCF_ADDRESS_TAG = Tools.getLoByteOf2(0x83);
     private static final byte REQUESTED_INFO_TAG = Tools.getLoByteOf2(0xA1);
-    private static final byte LOCATION_INFORMATION_TAG = Tools.getLoByteOf2(0xA0);
-    private static final byte SUBSCRIBER_STATE_TAG = Tools.getLoByteOf2(0xA1);
+    private static final byte LOCATION_INFORMATION_TAG = Tools.getLoByteOf2(0x80);
+    private static final byte SUBSCRIBER_STATE_TAG = Tools.getLoByteOf2(0x81);
     
 
     AtiComponentRequestBuilder() {

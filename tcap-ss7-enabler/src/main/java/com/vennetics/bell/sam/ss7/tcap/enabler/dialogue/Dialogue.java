@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vennetics.bell.sam.ss7.tcap.enabler.common.IError;
 import com.vennetics.bell.sam.ss7.tcap.enabler.component.requests.IComponentRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.states.IDialogueState;
@@ -126,7 +127,12 @@ public class Dialogue implements IDialogue {
         latch.countDown(); //Inform command that result is now available.
     }
     
-
+    public void setError(final String error) {
+        this.result = request;
+        ((IError) result).setError(error);
+        latch.countDown(); //Inform command that result is now available.
+    }
+    
     public CountDownLatch getLatch() {
         return latch;
     }

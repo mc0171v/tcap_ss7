@@ -11,7 +11,6 @@ import com.ericsson.einss7.japi.VendorException;
 import com.ericsson.einss7.japi.WouldBlockException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.enabler.dialogue.IDialogueContext;
-import com.vennetics.bell.sam.ss7.tcap.enabler.exception.BellSamOutOfServiceException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.DialogueExtractionException;
 import com.vennetics.bell.sam.ss7.tcap.enabler.exception.UnexpectedPrimitiveException;
 
@@ -87,22 +86,16 @@ public abstract class AbstractDialogueState {
     }
 
     /**
-     *
-     * @param invokeReq
-     * @param dialogueReq
+     * 
+     * @param currentReq
      * @param hdEx
      */
     protected void handleOutOfServiceException(final EventObject currentReq,
                                                final OutOfServiceException hdEx) {
-
-        // release dialogue
-        int dialogueId = -1;
-        dialogueId = getDialogueId(currentReq);
-        context.getDialogueManager()
-               .deactivate(context.getDialogueManager().lookUpDialogue(dialogueId));
-        // release dialogueId
-        context.getProvider().releaseDialogueId(dialogueId);
-        throw new BellSamOutOfServiceException(dialogueId);
+        terminate();
+        final String errorMessage = "Out of service: " + hdEx.getMessage();
+        logger.error(errorMessage);
+        dialogue.setError(errorMessage);
     }
 
     private int getDialogueId(final EventObject currentReq) {
@@ -188,7 +181,9 @@ public abstract class AbstractDialogueState {
 
         logger.debug("ProviderAbortIndEvent received in state {}", dialogue.getStateName());
         terminate();
-        logger.error("Provider abort reason is {}", event.getPAbort());
+        final String errorMessage = "Provider abort reason is " + event.getPAbort();
+        logger.error(errorMessage);
+        dialogue.setError(errorMessage);
     }
 
     /**
@@ -252,28 +247,37 @@ public abstract class AbstractDialogueState {
     protected void processErrorIndEvent(final ErrorIndEvent event) {
         logger.debug("ErrorIndEvent event received in state {}", dialogue.getStateName());
         terminate();
+        String errorMessage;
         try {
-        logger.error("Error Type: {} Code: {}", event.getErrorType(), event.getErrorCode());
+            errorMessage = "Error Type: " +  event.getErrorType() + " Code: " + event.getErrorCode();
         } catch (Exception ex) {
-            logger.error("Error Type: Unknown Code: Unknown");
+            errorMessage = "Error Type: Unknown Code: Unknown";
         }
+        logger.error(errorMessage);
+        dialogue.setError(errorMessage);
 
     }
 
     protected void processLocalCancelIndEvent(final LocalCancelIndEvent event) {
         logger.debug("LocalCancelIndEvent event received in state {}", dialogue.getStateName());
         terminate();
+        final String errorMessage = "Local cancel returned";
+        logger.error(errorMessage);
+        dialogue.setError(errorMessage);
     }
 
     protected void processRejectIndEvent(final RejectIndEvent event) {
         logger.debug("RejectIndEvent event received in state {} ", dialogue.getStateName());
         terminate();
+        String errorMessage;
         try {
             final int rejectType = event.getRejectType();
-            logger.error("Component rejected reason {}", rejectType);
+            errorMessage = "Component rejected reason " + rejectType;
         } catch (ParameterNotSetException ex) {
-            logger.error("Component rejected unknown reason");
+            errorMessage = "Component rejected unknown reason";
         }
+        logger.error(errorMessage);
+        dialogue.setError(errorMessage);
     }
     
     private void  terminate() {
