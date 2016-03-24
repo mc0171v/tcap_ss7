@@ -86,13 +86,14 @@ public class SamTcapEventListener implements ISamTcapEventListener {
                          final IComponentRequestBuilder componentRequestBuilder,
                          final IInitialDialogueState initialDialogueState) {
         this.configProperties = configProperties;
-        this.origAddr = new TcapUserAddress(configProperties.getOrigAddress().getsPC(),
-                                            configProperties.getOrigAddress().getsSn());
-        this.destAddr = new TcapUserAddress(configProperties.getDestAddress().getsPC(),
-                                            configProperties.getDestAddress().getsSn());
+        logger.debug("Configuration Properties:" + configProperties.toString());
+        this.origAddr = new TcapUserAddress(configProperties.getOrigAddress().getSpc(),
+                                            configProperties.getOrigAddress().getSsn());
+        this.destAddr = new TcapUserAddress(configProperties.getDestAddress().getSpc(),
+                                            configProperties.getDestAddress().getSsn());
         this.dialogueMgr = new DialogueManager();
         this.state = initialListenerState;
-        std = configProperties.getsTD();
+        std = configProperties.getStd();
         this.componentRequestBuilder = componentRequestBuilder;
         this.dialogueRequestBuilder = dialogueRequestBuilder;
         this.initialDialogueState = initialDialogueState;

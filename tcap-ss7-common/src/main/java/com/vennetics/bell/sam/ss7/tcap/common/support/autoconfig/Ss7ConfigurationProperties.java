@@ -2,8 +2,8 @@ package com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import ericsson.ein.ss7.commonparts.util.Tools;
-import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
+import com.ericsson.jain.protocol.ss7.tcap.Tools;
+import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
 
 @ConfigurationProperties(prefix = "ss7")
 public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
@@ -11,19 +11,11 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
     private Ss7Address origAddress;
     private Ss7Address destAddress;
     private String gsmScfAddress;
-    private int sTd;
+    private int std;
     private long invokeTimeout;
+    private long latchTimeout;
 
     public Ss7ConfigurationProperties() {
-        final byte[] spcA = {
-                Tools.getLoByteOf2(231), // zone
-                3,
-                0 };
-        this.origAddress = new Ss7Address(spcA, (short) 99);
-        this.destAddress = new Ss7Address(spcA, (short) 98);
-        this.sTd = DialogueConstants.PROTOCOL_VERSION_ITU_97;
-        this.gsmScfAddress = "12344321";
-        this.invokeTimeout = 10000;
     }
     
     public Ss7Address getOrigAddress() {
@@ -42,12 +34,12 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
         this.destAddress = destAddress;
     }
     
-    public int getsTD() {
-        return sTd;
+    public int getStd() {
+        return std;
     }
 
-    public void setsTD(final int sTD) {
-        this.sTd = sTD;
+    public void setStd(final int sTD) {
+        this.std = sTD;
     }
 
     public String getGsmScfAddress() {
@@ -59,11 +51,11 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
     }
     
     public int getsTd() {
-        return sTd;
+        return std;
     }
 
     public void setsTd(final int sTd) {
-        this.sTd = sTd;
+        this.std = sTd;
     }
 
     public long getInvokeTimeout() {
@@ -72,5 +64,55 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
 
     public void setInvokeTimeout(final long invokeTimeout) {
         this.invokeTimeout = invokeTimeout;
+    }
+    
+    public long getLatchTimeout() {
+        return latchTimeout;
+    }
+
+    public void setLatchTimeout(final long latchTimeout) {
+        this.latchTimeout = latchTimeout;
+    }
+    
+    public String toString() {
+        return "Orig Address: " + origAddress.toString()
+             + " Dest Address: " + destAddress.toString()
+             + " GSM SCF Address: " + gsmScfAddress
+             + " Invoke Timeout: " + invokeTimeout
+             + " Latch Timeout: " + invokeTimeout
+             + " STD: " + std;
+    }
+    
+    public static class Ss7Address {
+        
+        private short ssn;
+        private byte[] spc;
+        
+        public short getSsn() {
+            return ssn;
+        }
+
+        public void setSsn(final short ssn) {
+            this.ssn = ssn;
+        }
+
+        public byte[] getSpc() {
+            return spc;
+        }
+
+        public void setSpc(long spc) {
+            this.spc = convertToByte(spc);
+        }
+        
+        private byte[] convertToByte(long spc) {
+            final byte[] spcAsBytes =  { Tools.getLoByteOf4(spc), Tools.getNextToLoByteOf4(spc), Tools.getNextToHiByteOf4(spc)};
+            return spcAsBytes;
+        }
+        
+        @Override
+        public String toString() {
+            return "SSN: " + ssn + " SPC: " + EncodingHelper.bytesToHex(spc);
+        }
+
     }
 }

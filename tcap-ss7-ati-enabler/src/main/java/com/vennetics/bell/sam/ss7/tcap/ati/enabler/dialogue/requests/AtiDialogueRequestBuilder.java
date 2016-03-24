@@ -24,7 +24,7 @@ public class AtiDialogueRequestBuilder extends AbstractDialogueRequestBuilder {
             0x01,        /* GSM network */
             0x00,        /* application contexts */
             0x29,        /* anyTimeEnquiry */
-            0x03        /* version 3 */
+            0x03         /* version 3 */
           };
     
     AtiDialogueRequestBuilder() {

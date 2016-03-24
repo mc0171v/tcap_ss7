@@ -17,6 +17,7 @@ public class ATIComponentRequestBuilderTest {
 
     private AtiComponentRequestBuilder objectToTest;
     
+    private static final String GSM_SCF_ADDRESS = "12344321";
     private static final byte[] EXPECTED_IMSI_STRING = { Tools.getLoByteOf2(0xA0), 0x06, Tools.getLoByteOf2(0x80), 0x04, 0x21, 0x43, 0x65, Tools.getLoByteOf2(0x87),
             Tools.getLoByteOf2(0xA1), 0x02, Tools.getLoByteOf2(0x80), 0x00, Tools.getLoByteOf2(0x83), 0x04, 0x21, 0x43, 0x34, 0x12};
     private static final byte[] EXPECTED_MSISDN_STRING = { Tools.getLoByteOf2(0xA0), 0x06, Tools.getLoByteOf2(0x81), 0x04, Tools.getLoByteOf2(0x89), 0x67, 0x45,
@@ -28,14 +29,14 @@ public class ATIComponentRequestBuilderTest {
 
     @Test
     public void shouldBuildATIComponentWithImsi() throws Exception {
-        final byte[] result = objectToTest.createParameters(getRequestObjectWithImsiAndRequestLocation());
+        final byte[] result = objectToTest.createParameters(getRequestObjectWithImsiAndRequestLocation(), GSM_SCF_ADDRESS);
         
         assertArrayEquals(result, EXPECTED_IMSI_STRING);
     }
  
     @Test
     public void shouldBuildATIComponentWithMsisdn() throws Exception {
-        final byte[] result = objectToTest.createParameters(getRequestObjectWithMsisdnAndRequestSubscriberState());
+        final byte[] result = objectToTest.createParameters(getRequestObjectWithMsisdnAndRequestSubscriberState(), GSM_SCF_ADDRESS);
         assertArrayEquals(result, EXPECTED_MSISDN_STRING);
     }
     

@@ -89,7 +89,7 @@ public class AtiDialogueStartTest {
         verify(mockProvider).releaseInvokeId(LINK_ID, DIALOGUE_ID);
         verify(mockDialogue).setState(isA(AtiDialogueEnd.class));
         verify(mockDialogue).setResult(oAtiMessage);
-        assertTrue(oAtiMessage.getStatus() == SubscriberState.UNKOWN.ordinal());
+        assertTrue(oAtiMessage.getStatus() == SubscriberState.UNKOWN);
     }
 
     @Test()
@@ -110,7 +110,7 @@ public class AtiDialogueStartTest {
         verify(mockProvider).releaseInvokeId(INVOKE_ID, DIALOGUE_ID);
         verify(mockDialogue).setState(isA(AtiDialogueEnd.class));
         verify(mockDialogue).setResult(oAtiMessage);
-        assertTrue(oAtiMessage.getStatus() == SubscriberState.UNKOWN.ordinal());
+        assertTrue(oAtiMessage.getStatus() == SubscriberState.UNKOWN);
 
     }
     
@@ -121,7 +121,7 @@ public class AtiDialogueStartTest {
         commonWhen(oAtiMessage);
         objectToTest.handleEvent(resultIndEvent);
         commonVerify(oAtiMessage);
-        assertTrue(oAtiMessage.getStatus() == SubscriberState.ASSUMED_IDLE.ordinal());
+        assertTrue(oAtiMessage.getStatus() == SubscriberState.ASSUMED_IDLE);
     }
     
     @Test

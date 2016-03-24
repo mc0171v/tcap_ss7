@@ -7,6 +7,7 @@ import jain.protocol.ss7.tcap.component.Operation;
 import jain.protocol.ss7.tcap.dialogue.BeginIndEvent;
 
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +34,7 @@ public class ListenerReadyForTrafficTest {
 
     private static final int DIALOGUE_ID = 1111;
     private static final short SSN = 8;
-    private static final short WRONG_SSN = 8;
+    private static final short WRONG_SSN = 9;
     private static final byte[] SPC = { // signaling point 2143
             0, // id
             3, // area
@@ -42,7 +43,7 @@ public class ListenerReadyForTrafficTest {
     private static final byte[] WRONG_SPC = { // signaling point 2143
             0, // id
             3, // area
-            Tools.getLoByteOf2(231), // zone
+            Tools.getLoByteOf2(232), // zone
     };
 
     @Mock
@@ -53,10 +54,13 @@ public class ListenerReadyForTrafficTest {
     private IDialogue mockDialogue;
 
     private IListenerState objectToTest;
+    
+    private TcapUserAddress userAddress;
 
     @Before
     public void setup() throws Exception {
         objectToTest = new ListenerReadyForTraffic(mockListenerContext);
+        userAddress = new TcapUserAddress(SPC, SSN);
     }
 
     @Test()
@@ -101,11 +105,7 @@ public class ListenerReadyForTrafficTest {
 
     @Test()
     public void shouldHandleTcStateIndEventNotReadyForTraffic() throws Exception {
-        final TcStateIndEvent tcapStateInd = new TcStateIndEvent(mockTcapListener);
-        final TcapUserAddress userAddress = new TcapUserAddress(SPC, SSN);
-        tcapStateInd.setAffectedSpc(SPC);
-        tcapStateInd.setAffectedSsn(SSN);
-        tcapStateInd.setUserStatus(TcStateIndEvent.USER_UNAVAILABLE);
+        final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
         verify(mockListenerContext).setState(isA(ListenerBound.class));
@@ -113,33 +113,36 @@ public class ListenerReadyForTrafficTest {
 
     @Test()
     public void shouldHandleTcStateIndEventNotReadyForTrafficDifferentSSn() throws Exception {
-        final TcStateIndEvent tcapStateInd = new TcStateIndEvent(mockTcapListener);
-        final TcapUserAddress userAddress = new TcapUserAddress(SPC, SSN);
-        tcapStateInd.setAffectedSpc(SPC);
+        final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
         tcapStateInd.setAffectedSsn(WRONG_SSN);
-        tcapStateInd.setUserStatus(TcStateIndEvent.USER_UNAVAILABLE);
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
+        verify(mockListenerContext, never()).setState(isA(IListenerState.class));
     }
 
     @Test()
     public void shouldHandleTcStateIndEventNotReadyForTrafficDifferentSpc() throws Exception {
-        final TcStateIndEvent tcapStateInd = new TcStateIndEvent(mockTcapListener);
-        final TcapUserAddress userAddress = new TcapUserAddress(SPC, SSN);
+        final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
         tcapStateInd.setAffectedSpc(WRONG_SPC);
-        tcapStateInd.setAffectedSsn(SSN);
-        tcapStateInd.setUserStatus(TcStateIndEvent.USER_UNAVAILABLE);
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
+        verify(mockListenerContext, never()).setState(isA(IListenerState.class));
     }
 
     @Test()
     public void shouldHandleTcStateIndEventReadyForTrafficUserAvailable() throws Exception {
-        final TcStateIndEvent tcapStateInd = new TcStateIndEvent(mockTcapListener);
-        final TcapUserAddress userAddress = new TcapUserAddress(SPC, SSN);
-        tcapStateInd.setAffectedSpc(SPC);
-        tcapStateInd.setAffectedSsn(SSN);
+        final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
+        tcapStateInd.setUserStatus(TcStateIndEvent.USER_AVAILABLE_CONGESTION_0);
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
+        verify(mockListenerContext, never()).setState(isA(IListenerState.class));
+    }
+    
+    private TcStateIndEvent getTcStateIndEvent() {
+        final TcStateIndEvent tcapStateInd = new TcStateIndEvent(mockTcapListener);
+        tcapStateInd.setAffectedSpc(SPC);
+        tcapStateInd.setAffectedSsn(SSN);
+        tcapStateInd.setUserStatus(TcStateIndEvent.USER_UNAVAILABLE);
+        return tcapStateInd;
     }
 }

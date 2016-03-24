@@ -55,7 +55,7 @@ public class AtiService implements IAtiService {
                 logger.debug("ATI Service Constructed ATI Command");
             }
         } else {
-            atiMessageRequest.setStatus(SubscriberState.UNKOWN.ordinal());
+            atiMessageRequest.setStatus(SubscriberState.UNKOWN);
             return Observable.just(atiMessageRequest); //Unknown
         }
         logger.debug("Result = {}", result);

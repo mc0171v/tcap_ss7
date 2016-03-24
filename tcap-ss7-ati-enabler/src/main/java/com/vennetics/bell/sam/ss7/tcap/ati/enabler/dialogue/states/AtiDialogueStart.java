@@ -1,7 +1,6 @@
 package com.vennetics.bell.sam.ss7.tcap.ati.enabler.dialogue.states;
 
 import java.nio.ByteBuffer;
-import java.util.EventObject;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -28,7 +27,6 @@ import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
 import jain.protocol.ss7.tcap.JainTcapProvider;
 import jain.protocol.ss7.tcap.JainTcapStack;
-import jain.protocol.ss7.tcap.component.ComponentConstants;
 import jain.protocol.ss7.tcap.component.InvokeReqEvent;
 import jain.protocol.ss7.tcap.component.Parameters;
 import jain.protocol.ss7.tcap.component.ResultIndEvent;
@@ -40,8 +38,6 @@ import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
 public class AtiDialogueStart extends AbstractDialogueState implements IInitialDialogueState {
 
     private static final Logger logger = LoggerFactory.getLogger(AtiDialogueStart.class);
-
-    private static final long BB_TEST_INVOKE_TIMEOUT = 5000; //TODO config
 
     private static final byte SUBSCRIBER_STATE_TAG = Tools.getLoByteOf2(0xA1);
     private static final byte LOCATION_INFO_TAG = Tools.getLoByteOf2(0xA0);
@@ -84,7 +80,6 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
     }
 
     public void startDialogue() {
-        EventObject currentReq = null;
         InvokeReqEvent invokeReq = null;
         BeginReqEvent beginReq = null;
         int dialogueId = -1;
@@ -97,26 +92,19 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
                          dialogueId,
                          invokeId);
             invokeReq = getDialogue().getComponentRequestBuilder().createInvokeReq(getContext().getTcapEventListener(),
-                                                                invokeId,
-                                                                getDialogue().getRequest(),
-                                                                true);
-            currentReq = invokeReq;
-            invokeReq.setDialogueId(dialogueId);
-            invokeReq.setTimeOut(BB_TEST_INVOKE_TIMEOUT);
-            // set class 1 operation (report failure or success)
-            invokeReq.setClassType(ComponentConstants.CLASS_1);
+                                                                                   invokeId,
+                                                                                   getDialogue().getRequest(),
+                                                                                   true,
+                                                                                   getContext().getConfigProperties(), dialogueId);
             provider.sendComponentReqEventNB(invokeReq);
-
-            // ----- Build begin request:
             beginReq = getDialogue().getDialogueRequestBuilder().createBeginReq(getContext(), dialogueId);
-            currentReq = beginReq;
             provider.sendDialogueReqEventNB(beginReq);
         } catch (SS7Exception ex) {
             ex.printStackTrace();
         } catch (WouldBlockException vbEx) {
-            handleWouldBlock(currentReq, vbEx);
+            handleWouldBlock(invokeReq, vbEx);
         } catch (OutOfServiceException oosEx) {
-            handleOutOfServiceException(currentReq, oosEx);
+            handleOutOfServiceException(invokeReq, oosEx);
         } catch (VendorException vEx) {
             vEx.printStackTrace();
         }
@@ -139,7 +127,7 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
             processReturnedBytes(returnedBytes, obm);
             getDialogue().setResult(obm);
         } else {
-            obm.setStatus(SubscriberState.UNKOWN.ordinal());
+            obm.setStatus(SubscriberState.UNKOWN);
             getDialogue().setResult(obm);
         }
         final JainTcapProvider provider = getContext().getProvider();
@@ -179,7 +167,7 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
                 if (ssTlv.size() == 1) {
                     processSubscriberState(ssTlv.get(0).getTag(), obm);
                 } else {
-                    obm.setStatus(SubscriberState.UNKOWN.ordinal());
+                    obm.setStatus(SubscriberState.UNKOWN);
                 }
             } else if (tlv.getTag() == LOCATION_INFO_TAG) {
                 final List<TagLengthValue> locTlvs = EncodingHelper.getTlvs(tlv.getValue());
@@ -226,15 +214,15 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
     private void processSubscriberState(final byte octet, final OutboundATIMessage obm) {
         logger.debug("SubscriberState tag = {}", EncodingHelper.bytesToHex(octet));
         if (octet == IDLE_TAG) {
-            obm.setStatus(SubscriberState.ASSUMED_IDLE.ordinal());
+            obm.setStatus(SubscriberState.ASSUMED_IDLE);
         } else if (octet == BUSY_TAG) {
-            obm.setStatus(SubscriberState.CAMEL_BUSY.ordinal());
+            obm.setStatus(SubscriberState.CAMEL_BUSY);
         } else if (octet == EncodingHelper.ENUMERATED_TAG) {
-            obm.setStatus(SubscriberState.NET_DET_NOT_REACHEABLE.ordinal());
+            obm.setStatus(SubscriberState.NET_DET_NOT_REACHEABLE);
         } else if (octet == NOT_PROVIDED_TAG) {
-            obm.setStatus(SubscriberState.NOT_PROVIDED_VLR.ordinal());
+            obm.setStatus(SubscriberState.NOT_PROVIDED_VLR);
         } else {
-            obm.setStatus(SubscriberState.UNKOWN.ordinal());
+            obm.setStatus(SubscriberState.UNKOWN);
         }
     }
 

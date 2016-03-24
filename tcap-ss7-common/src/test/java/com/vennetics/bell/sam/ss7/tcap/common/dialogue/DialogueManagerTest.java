@@ -1,6 +1,7 @@
 package com.vennetics.bell.sam.ss7.tcap.common.dialogue;
 
 import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.ericsson.einss7.jtcap.TcDialoguesLostIndEvent;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.DialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager;
@@ -36,6 +38,8 @@ public class DialogueManagerTest {
     private IDialogue mockDialogue;
     @Mock
     private IDialogue mockDialogue2;
+    @Mock
+    private TcDialoguesLostIndEvent mockEvent;
 
     @Before
     public void setup() {
@@ -60,15 +64,19 @@ public class DialogueManagerTest {
 
     @Test
     public void shouldClearAllDialogue() throws Exception {
-        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
-        objectToTest.activate(mockDialogue);
-        when(mockDialogue2.getDialogueId()).thenReturn(DIALOGUE_ID2);
-        objectToTest.activate(mockDialogue2);
-        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID), sameInstance(mockDialogue));
-        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID2), sameInstance(mockDialogue2));
-        assertTrue(objectToTest.isDialogueLeft());
+        addTwoDialogues();
         objectToTest.clearAllDialogs();
         assertTrue(!objectToTest.isDialogueLeft());
+    }
+    
+    @Test
+    public void shouldCleanupLostDialogue() throws Exception {
+        addTwoDialogues();
+        when(mockEvent.isDialogueIdLost(DIALOGUE_ID)).thenReturn(true);
+        when(mockEvent.isDialogueIdLost(DIALOGUE_ID2)).thenReturn(false);
+        objectToTest.cleanUpLostDialogues(mockEvent);
+        assertNull(objectToTest.lookUpDialogue(DIALOGUE_ID));
+        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID2), sameInstance(mockDialogue2));
     }
 
     @Test(expected = DialogueExistsException.class)
@@ -83,6 +91,16 @@ public class DialogueManagerTest {
     @Test(expected = NoDialogueExistsException.class)
     public void shouldThrowExceptionIfNoDialogueExists() throws Exception {
         objectToTest.deactivate(mockDialogue);
+    }
+    
+    private void addTwoDialogues() {
+        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+        objectToTest.activate(mockDialogue);
+        when(mockDialogue2.getDialogueId()).thenReturn(DIALOGUE_ID2);
+        objectToTest.activate(mockDialogue2);
+        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID), sameInstance(mockDialogue));
+        assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID2), sameInstance(mockDialogue2));
+        assertTrue(objectToTest.isDialogueLeft());
     }
 
 }

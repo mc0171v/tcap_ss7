@@ -7,6 +7,7 @@ import jain.protocol.ss7.tcap.component.Operation;
 import jain.protocol.ss7.tcap.dialogue.BeginIndEvent;
 
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,16 +33,16 @@ public class ListenerBoundTest {
 
     private static final int DIALOGUE_ID = 1111;
     private static final short SSN = 8;
-    private static final short WRONG_SSN = 8;
-    private static final byte[] SPC = { // signaling point 2143
-            0, // id
-            3, // area
-            Tools.getLoByteOf2(231), // zone
+    private static final short WRONG_SSN = 9;
+    private static final byte[] SPC = {
+            0,
+            3,
+            Tools.getLoByteOf2(231),
     };
-    private static final byte[] WRONG_SPC = { // signaling point 2143
-            0, // id
-            3, // area
-            Tools.getLoByteOf2(231), // zone
+    private static final byte[] WRONG_SPC = {
+            0,
+            3,
+            Tools.getLoByteOf2(232),
     };
 
     @Mock
@@ -50,10 +51,12 @@ public class ListenerBoundTest {
     private TcapEventListener mockTcapListener;
 
     private IListenerState objectToTest;
+    private TcapUserAddress userAddress;
 
     @Before
     public void setup() throws Exception {
         objectToTest = new ListenerBound(mockListenerContext);
+        userAddress = new TcapUserAddress(SPC, SSN);
     }
 
     @Test(expected = UnexpectedPrimitiveException.class)
@@ -90,10 +93,7 @@ public class ListenerBoundTest {
 
     @Test()
     public void shouldHandleTcStateIndEventReadyForTraffic() throws Exception {
-        final TcStateIndEvent tcapStateInd = new TcStateIndEvent(mockTcapListener);
-        final TcapUserAddress userAddress = new TcapUserAddress(SPC, SSN);
-        tcapStateInd.setAffectedSpc(SPC);
-        tcapStateInd.setAffectedSsn(SSN);
+        final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
         verify(mockListenerContext).setState(isA(ListenerReadyForTraffic.class));
@@ -101,22 +101,20 @@ public class ListenerBoundTest {
 
     @Test()
     public void shouldHandleTcStateIndEventDifferentSSn() throws Exception {
-        final TcStateIndEvent tcapStateInd = new TcStateIndEvent(mockTcapListener);
-        final TcapUserAddress userAddress = new TcapUserAddress(SPC, SSN);
-        tcapStateInd.setAffectedSpc(SPC);
+        final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
         tcapStateInd.setAffectedSsn(WRONG_SSN);
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
+        verify(mockListenerContext, never()).setState(isA(IListenerState.class));
     }
 
     @Test()
     public void shouldHandleTcStateIndEventDifferentSpc() throws Exception {
-        final TcStateIndEvent tcapStateInd = new TcStateIndEvent(mockTcapListener);
-        final TcapUserAddress userAddress = new TcapUserAddress(SPC, SSN);
+        final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
         tcapStateInd.setAffectedSpc(WRONG_SPC);
-        tcapStateInd.setAffectedSsn(SSN);
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
+        verify(mockListenerContext, never()).setState(isA(IListenerState.class));
     }
 
     @Test()
@@ -126,5 +124,13 @@ public class ListenerBoundTest {
         final TcapUserAddress userAddress = new TcapUserAddress(SPC, SSN);
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
+        verify(mockListenerContext, never()).setState(isA(IListenerState.class));
+    }
+    
+    private TcStateIndEvent getTcStateIndEvent() {
+        final TcStateIndEvent tcapStateInd = new TcStateIndEvent(mockTcapListener);
+        tcapStateInd.setAffectedSpc(SPC);
+        tcapStateInd.setAffectedSsn(SSN);
+        return tcapStateInd;
     }
 }

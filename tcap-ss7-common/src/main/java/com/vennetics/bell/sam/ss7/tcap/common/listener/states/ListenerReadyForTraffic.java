@@ -152,7 +152,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
     }
 
     /**
-     * Check if the event indicates that the addr is ready for traffic.
+     * Check if the event indicates that the addr is still ready for traffic.
      *
      * @param event
      * @param addr
@@ -175,11 +175,13 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
         byte[] affectedSpc = event.getAffectedSpc();
 
         if (affectedSpc.length != addrSpc.length) {
+            logger.debug("TcStateIndEvent SPC's don't match");
             return true;
         }
 
         for (int i = 0; i < affectedSpc.length; i++) {
             if (affectedSpc[i] != addrSpc[i]) {
+                logger.debug("TcStateIndEvent SPC's don't match");
                 return true;
             }
         }

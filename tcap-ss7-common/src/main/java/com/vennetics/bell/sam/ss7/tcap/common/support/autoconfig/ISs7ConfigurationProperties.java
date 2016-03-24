@@ -1,18 +1,24 @@
 package com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig;
 
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.Ss7ConfigurationProperties.Ss7Address;
+
 public interface ISs7ConfigurationProperties {
 
     String getGsmScfAddress();
     
     void setGsmScfAddress(String gsmScfAddress);
     
-    int getsTd();
+    int getStd();
     
-    void setsTd(final int sTd);
+    void setStd(final int sTd);
     
     long getInvokeTimeout();
     
+    long getLatchTimeout();
+    
     void setInvokeTimeout(long invokeTimeout);
+    
+    void setLatchTimeout(long latchTimeout);
     
     Ss7Address getOrigAddress();
     
@@ -21,8 +27,4 @@ public interface ISs7ConfigurationProperties {
     Ss7Address getDestAddress();
     
     void setDestAddress(Ss7Address destAddress);
-    
-    int getsTD();
-    
-    void setsTD(final int sTD);
 }

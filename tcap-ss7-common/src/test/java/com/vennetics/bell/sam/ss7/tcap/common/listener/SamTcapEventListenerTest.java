@@ -31,6 +31,7 @@ import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerReadyForTr
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerUnbound;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.Ss7ConfigurationProperties;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.Ss7ConfigurationProperties.Ss7Address;
 
 import ericsson.ein.ss7.commonparts.util.Tools;
 import jain.protocol.ss7.tcap.ComponentIndEvent;
@@ -67,6 +68,8 @@ public class SamTcapEventListenerTest {
     
     private static final short ORIG_SSN = 99;
     private static final short DEST_SSN = 9;
+    private static final long LONG_ORIG_SPC = 999;
+    private static final long LONG_DEST_SPC = 1000;
     private static final byte[] ORIG_SPC = {
             Tools.getLoByteOf2(231),
             3,
@@ -88,6 +91,14 @@ public class SamTcapEventListenerTest {
         origTcapUserAddress = new TcapUserAddress(ORIG_SPC, ORIG_SSN);
         destTcapUserAddress = new TcapUserAddress(DEST_SPC, DEST_SSN);
         configProps = new Ss7ConfigurationProperties();
+        final Ss7Address destAddress = new Ss7Address(); 
+        destAddress.setSpc(LONG_DEST_SPC);
+        destAddress.setSsn(DEST_SSN);
+        final Ss7Address origAddress = new Ss7Address(); 
+        origAddress.setSpc(LONG_ORIG_SPC);
+        origAddress.setSsn(ORIG_SSN);   
+        configProps.setDestAddress(destAddress);
+        configProps.setOrigAddress(origAddress);
         objectUnderTest = new SamTcapEventListener(configProps,
                                                    mockListenerState,
                                                    mockDialogueRequestBuilder,
@@ -199,11 +210,4 @@ public class SamTcapEventListenerTest {
         objectUnderTest.setState(new ListenerUnbound(objectUnderTest));
         assertFalse(objectUnderTest.isBound());
     }
-    
-//    private OutboundATIMessage getRequestObject() {
-//        final OutboundATIMessage oBAtiMessage = new OutboundATIMessage();
-//        oBAtiMessage.setImsi("12345678");
-//        oBAtiMessage.setRequestInfoLocation(true);
-//        return oBAtiMessage;
-//    }
 }

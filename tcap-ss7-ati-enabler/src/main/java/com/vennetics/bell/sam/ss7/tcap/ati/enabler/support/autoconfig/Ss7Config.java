@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @EnableScheduling
-@ComponentScan(basePackages = { "com.vennetics.bell.sam.adapters.messaging.smpp" })
+@ComponentScan(basePackages = { "com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig" })
 @EnableConfigurationProperties(Ss7ConfigurationProperties.class)
 public class Ss7Config {
 

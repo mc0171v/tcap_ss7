@@ -3,6 +3,8 @@ package com.vennetics.bell.sam.ss7.tcap.common.dialogue;
 import java.util.concurrent.CountDownLatch;
 
 import com.ericsson.einss7.jtcap.TcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
+
 import jain.protocol.ss7.tcap.JainTcapProvider;
 import jain.protocol.ss7.tcap.JainTcapStack;
 import jain.protocol.ss7.tcap.TcapUserAddress;
@@ -28,4 +30,6 @@ public interface IDialogueContext {
     void deactivateDialogue(IDialogue dialogueId);
 
     IDialogue startDialogue(Object request, CountDownLatch latch);
+    
+    ISs7ConfigurationProperties getConfigProperties();
 }

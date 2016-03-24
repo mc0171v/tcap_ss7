@@ -23,8 +23,6 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
     private OutboundATIMessage request;
     private CountDownLatch cDl;
     
-    private static final long LATCH_TIMEOUT = 5000; //TODO config
-
     /**
      * Send an anyTimeInterrogationReq
      * @param listener
@@ -48,7 +46,7 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
         logger.debug("Running Hystrix wrapped send ATI command to return a location or status");
         final IDialogue dialogue = listener.startDialogue(request, cDl);
         try {
-            cDl.await(LATCH_TIMEOUT, TimeUnit.MILLISECONDS);
+            cDl.await(listener.getConfigProperties().getLatchTimeout(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
             final String errorMessage = "Caught InterruptedException waiting for result";
             logger.error(errorMessage);
