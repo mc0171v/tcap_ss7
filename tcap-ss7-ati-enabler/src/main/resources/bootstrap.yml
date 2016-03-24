@@ -1,6 +1,6 @@
 spring:
   application:
-    name: tcap-ss7-enabler
+    name: tcap-ss7-ati-enabler
   cloud:
     config:
       enabled: true

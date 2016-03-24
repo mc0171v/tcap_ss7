@@ -1,0 +1,100 @@
+package com.vennetics.bell.sam.terminal.location;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+import com.vennetics.bell.sam.model.location.LocationResponse;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import com.vennetics.bell.sam.error.adapters.IErrorAdapter;
+
+/**
+ * The Test class for SmsController
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = TestConfiguration.class)
+@WebIntegrationTest({ "server.port=0", "management.port=0", "spring.cloud.config.enabled=false"})
+public class LocationControllerTest {
+
+    private static final MediaType FORM_URLENCODED_MEDIA_TYPE = new MediaType(MediaType.APPLICATION_FORM_URLENCODED.getType(),
+                                                        MediaType.APPLICATION_FORM_URLENCODED.getSubtype(), Charset.forName("utf8"));
+
+    private static final MediaType XML_MEDIA_TYPE = new MediaType(MediaType.APPLICATION_XML.getType(),
+            MediaType.APPLICATION_XML.getSubtype(), Charset.forName("utf8"));
+
+    public static final String OUTBOUND_REQUEST_URL = LocationController.LOCATION_URL.replace("{serviceIdentifier}", TestConfiguration.SERVICE);
+
+    private MockMvc mockMvc;
+
+    @Autowired
+    @Qualifier("locationErrorAdapter")
+    private IErrorAdapter errorAdapter;
+
+    @Autowired
+    @Qualifier("locationService")
+    private ILocationService locationService;
+
+
+    @Autowired
+    private LocationController controller;
+
+    @Before
+    public void setup() throws Exception {
+
+        MockitoAnnotations.initMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .build();
+    }
+
+    @Test
+    public void shouldAcceptSendLocationRequestFormUrlEncoded() throws Exception {
+
+        final ResponseEntity<LocationResponse> response = TestConfiguration.dummyResponse();
+
+        when(locationService.sendLocationRequest(eq(TestConfiguration.SERVICE), any())).thenReturn(response);
+
+        mockMvc.perform(get(OUTBOUND_REQUEST_URL)
+                .accept(XML_MEDIA_TYPE)
+                .contentType(FORM_URLENCODED_MEDIA_TYPE)
+                .param(TestConfiguration.MSISDN_KEY, TestConfiguration.MSISDN)
+                ).andDo(print())
+               .andExpect(status().isCreated())
+               .andExpect(content().contentType(MediaType.APPLICATION_XML));
+    }
+
+    @Test
+    public void shouldDeliverErrorAdapter() throws Exception {
+        assertThat(controller.getErrorAdapter(), is(errorAdapter));
+    }
+
+    @Test
+    public void shouldDeliverExceptionClasses() throws Exception {
+        final List<Class<?>> exceptionClasses = controller.exceptionClasses();
+        assertThat(exceptionClasses, hasSize(0));
+    }
+}
+
+
