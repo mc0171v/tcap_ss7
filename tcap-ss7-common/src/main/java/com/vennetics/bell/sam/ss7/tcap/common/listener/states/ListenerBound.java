@@ -93,6 +93,9 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
      * @return True if ready.
      */
     private boolean isReadyForTraffic(final TcStateIndEvent event, final TcapUserAddress addr) {
+        if (!getContext().getConfigProperties().isWaitForReady()) {
+            return true;
+        }
         if (event.getUserStatus() == TcStateIndEvent.USER_UNAVAILABLE) {
             logger.debug("TcStateIndEvent.USER_UNAVAILABLE");
             return false;

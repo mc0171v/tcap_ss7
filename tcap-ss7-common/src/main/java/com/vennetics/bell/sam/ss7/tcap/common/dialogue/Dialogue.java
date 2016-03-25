@@ -9,6 +9,7 @@ import com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentReque
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.error.IError;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
@@ -127,7 +128,7 @@ public class Dialogue implements IDialogue {
         latch.countDown(); //Inform command that result is now available.
     }
     
-    public void setError(final String error) {
+    public void setError(final Ss7ServiceException error) {
         this.result = request;
         ((IError) result).setError(error);
         latch.countDown(); //Inform command that result is now available.

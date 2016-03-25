@@ -11,6 +11,8 @@ import static org.mockito.Mockito.when;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.SamTcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.Ss7ConfigurationProperties;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,8 +39,11 @@ public class SendAtiCommandTest {
     @Test
     public void shouldSendAti() throws Exception {
         final Object oBAtiMessage = getRequestObject();
+        final ISs7ConfigurationProperties props = new Ss7ConfigurationProperties();
+        props.setLatchTimeout(1000);
         latch = new CountDownLatch(1);
         when(mockListener.startDialogue(eq(oBAtiMessage), eq(latch))).thenReturn(mockDialogue);
+        when(mockListener.getConfigProperties()).thenReturn(props);
         latch.countDown();
         when(mockDialogue.getResult()).thenReturn(null);
         final SendAtiCommand command = new SendAtiCommand(mockListener,

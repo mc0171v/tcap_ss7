@@ -15,7 +15,7 @@ public interface ISamTcapEventListener extends TcapEventListener, IListenerConte
                                            IDialogueContext {
 
     boolean isReady();
-    
+        
     boolean isBound();
     
     void initialise(final boolean bool);

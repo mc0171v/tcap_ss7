@@ -6,6 +6,8 @@ import com.vennetics.bell.sam.ss7.tcap.common.address.Address;
 import com.vennetics.bell.sam.ss7.tcap.common.address.IAddressNormalizer;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.ISamTcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.Ss7ConfigurationProperties;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,17 +45,21 @@ public class AtiServiceTest {
     private static final String DEST_ADDRESS_ONE = "12345";
     private final UUID externalRequestId = UUID.randomUUID();
     private final Address address = new Address();
+    private ISs7ConfigurationProperties props;
 
     @Before public void setUp() {
         objectUnderTest = new AtiService(mockListener,
                                          mockAddressNormalizer);
         address.setSuppliedAddress(DEST_ADDRESS_ONE);
         address.setE164Address(DEST_ADDRESS_ONE);
+        props = new Ss7ConfigurationProperties();
+        props.setWaitForReady(true);
     }
 
     @Test
     public void testThatExceptionThrownForInvalidAddresses() {
         final OutboundATIMessage request = createDefaultOutboundMessage();
+        when(mockListener.getConfigProperties()).thenReturn(props);
         when(mockListener.isBound()).thenReturn(true);
         when(mockListener.isReady()).thenReturn(true);
         when(mockAddressNormalizer.normalizeToE164Address(isA(Address.class))).thenThrow(new InvalidAddressException(
@@ -70,6 +76,7 @@ public class AtiServiceTest {
     public void testThatAtiMessageCommandExecuted() {
         final OutboundATIMessage request = createDefaultOutboundMessage();
         when(mockAddressNormalizer.normalizeToE164Address(isA(Address.class))).thenReturn(address);
+        when(mockListener.getConfigProperties()).thenReturn(props);
         when(mockListener.isBound()).thenReturn(true);
         when(mockListener.isReady()).thenReturn(true);
         when(mockListener.startDialogue(eq(request), isA(CountDownLatch.class))).thenReturn(mockDialogue);

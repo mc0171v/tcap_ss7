@@ -1,25 +1,20 @@
 package com.vennetics.bell.sam.ss7.tcap.common.dialogue.states;
 
-import java.util.EventObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ericsson.einss7.japi.OutOfServiceException;
-import com.ericsson.einss7.japi.VendorDialogueReqEvent;
 import com.ericsson.einss7.japi.VendorException;
 import com.ericsson.einss7.japi.WouldBlockException;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
-import com.vennetics.bell.sam.ss7.tcap.common.exceptions.DialogueExtractionException;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedPrimitiveException;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
 
 import jain.protocol.ss7.SS7Exception;
 import jain.protocol.ss7.tcap.ComponentIndEvent;
-import jain.protocol.ss7.tcap.ComponentReqEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
-import jain.protocol.ss7.tcap.DialogueReqEvent;
 import jain.protocol.ss7.tcap.ParameterNotSetException;
 import jain.protocol.ss7.tcap.TcapConstants;
 import jain.protocol.ss7.tcap.component.ErrorIndEvent;
@@ -70,17 +65,14 @@ public abstract class AbstractDialogueState {
     public abstract void handleEvent(final DialogueIndEvent event);
 
     /**
-     *
-     * @param invokeReq
-     * @param dialogueReq
+     * 
      * @param vbEx
      */
-    protected void handleWouldBlock(final EventObject currentReq, final WouldBlockException vbEx) {
-        final int dialogueId = getDialogueId(currentReq);
+    protected void handleWouldBlock(final WouldBlockException vbEx) {
         context.getDialogueManager()
                .deactivate(dialogue);
         // release dialogueId
-        context.getProvider().releaseDialogueId(dialogueId);
+        context.getProvider().releaseDialogueId(dialogue.getDialogueId());
 
         context.startDialogue(dialogue.getRequest(),
                               dialogue.getLatch());
@@ -88,32 +80,24 @@ public abstract class AbstractDialogueState {
 
     /**
      * 
-     * @param currentReq
      * @param hdEx
      */
-    protected void handleOutOfServiceException(final EventObject currentReq,
-                                               final OutOfServiceException hdEx) {
+    protected void handleOutOfServiceException(final OutOfServiceException hdEx) {
         terminate();
         final String errorMessage = "Out of service: " + hdEx.getMessage();
         logger.error(errorMessage);
-        dialogue.setError(errorMessage);
+        dialogue.setError(new Ss7ServiceException(errorMessage));
     }
-
-    private int getDialogueId(final EventObject currentReq) {
-        int dialogueId;
-        try {
-            if (currentReq instanceof VendorDialogueReqEvent) {
-                dialogueId = ((VendorDialogueReqEvent) currentReq).getDialogueId();
-            } else if (currentReq instanceof ComponentReqEvent) {
-                dialogueId = ((ComponentReqEvent) currentReq).getDialogueId();
-            } else {
-                dialogueId = ((DialogueReqEvent) currentReq).getDialogueId();
-            }
-        } catch (Exception exception) {
-            throw new DialogueExtractionException(exception.getMessage());
-        }
-
-        return dialogueId;
+    
+    /**
+     * 
+     * @param hdEx
+     */
+    protected void handleSs7Exception(final SS7Exception hdEx) {
+        terminate();
+        final String errorMessage = "SS7 exception: " + hdEx.getMessage();
+        logger.error(errorMessage);
+        dialogue.setError(new Ss7ServiceException(errorMessage));
     }
 
     /**
@@ -184,7 +168,7 @@ public abstract class AbstractDialogueState {
         terminate();
         final String errorMessage = "Provider abort reason is " + event.getPAbort();
         logger.error(errorMessage);
-        dialogue.setError(errorMessage);
+        dialogue.setError(new Ss7ServiceException(errorMessage));
     }
 
     /**
@@ -255,7 +239,7 @@ public abstract class AbstractDialogueState {
             errorMessage = "Error Type: Unknown Code: Unknown";
         }
         logger.error(errorMessage);
-        dialogue.setError(errorMessage);
+        dialogue.setError(new Ss7ServiceException(errorMessage));
 
     }
 
@@ -264,7 +248,7 @@ public abstract class AbstractDialogueState {
         terminate();
         final String errorMessage = "Local cancel returned";
         logger.error(errorMessage);
-        dialogue.setError(errorMessage);
+        dialogue.setError(new Ss7ServiceException(errorMessage));
     }
 
     protected void processRejectIndEvent(final RejectIndEvent event) {
@@ -278,16 +262,12 @@ public abstract class AbstractDialogueState {
             errorMessage = "Component rejected unknown reason";
         }
         logger.error(errorMessage);
-        dialogue.setError(errorMessage);
+        dialogue.setError(new Ss7ServiceException(errorMessage));
     }
-    
-    private void  terminate() {
-        // Release the dialogue ID
-        if (dialogue != null) {
-            context.getDialogueManager().deactivate(dialogue);
-            context.getProvider().releaseDialogueId(dialogue.getDialogueId());
-            dialogue.getState().terminate();
-        }
 
+    protected void terminate() {
+        // Release the dialogue ID
+        context.getDialogueManager().deactivate(dialogue);
+        context.getProvider().releaseDialogueId(dialogue.getDialogueId());
     }
 }

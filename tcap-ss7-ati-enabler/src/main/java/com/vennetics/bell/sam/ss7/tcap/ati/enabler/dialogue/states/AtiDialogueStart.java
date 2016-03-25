@@ -17,7 +17,7 @@ import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IInitialDialogueState;
-import com.vennetics.bell.sam.ss7.tcap.common.exceptions.BadProtocolException;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedResultException;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.TagLengthValue;
@@ -100,11 +100,11 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
             beginReq = getDialogue().getDialogueRequestBuilder().createBeginReq(getContext(), dialogueId);
             provider.sendDialogueReqEventNB(beginReq);
         } catch (SS7Exception ex) {
-            ex.printStackTrace();
+            handleSs7Exception(ex);
         } catch (WouldBlockException vbEx) {
-            handleWouldBlock(invokeReq, vbEx);
+            handleWouldBlock(vbEx);
         } catch (OutOfServiceException oosEx) {
-            handleOutOfServiceException(invokeReq, oosEx);
+            handleOutOfServiceException(oosEx);
         } catch (VendorException vEx) {
             vEx.printStackTrace();
         }
@@ -125,11 +125,10 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
             final byte[] returnedBytes = params.getParameter();
             logger.debug("Parameters = {}", EncodingHelper.bytesToHex(returnedBytes));
             processReturnedBytes(returnedBytes, obm);
-            getDialogue().setResult(obm);
         } else {
-            obm.setStatus(SubscriberState.UNKOWN);
-            getDialogue().setResult(obm);
+            obm.setError(new Ss7ServiceException("No parameters received with component"));
         }
+        getDialogue().setResult(obm);
         final JainTcapProvider provider = getContext().getProvider();
         final JainTcapStack stack = getContext().getStack();
         switch (stack.getProtocolVersion()) {
@@ -140,11 +139,10 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
                 provider.releaseInvokeId(event.getInvokeId(), event.getDialogueId());
                 break;
             default:
-                throw new BadProtocolException("Wrong protocol version" + stack.getProtocolVersion());
+                logger.error("Wrong protocol version" + stack.getProtocolVersion());
         }
         logger.debug("Changing state from {}", getStateName());
-        getDialogue().setState(new AtiDialogueEnd(getContext(), getDialogue()));
-        getDialogue().activate();
+        terminate();
     }
 
     private void processReturnedBytes(final byte[] returnedBytes, final OutboundATIMessage obm) {
@@ -160,13 +158,14 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
     private void processSubscriberInfo(final List<TagLengthValue> tlvs, final OutboundATIMessage obm) {
         for (TagLengthValue tlv: tlvs) {
             logger.debug("tag {}, length {}, Value {}", EncodingHelper.bytesToHex(tlv.getTag()),
-                         EncodingHelper.bytesToHex(tlv.getLength()),
-                         EncodingHelper.bytesToHex(tlv.getValue()));
+                                                        EncodingHelper.bytesToHex(tlv.getLength()),
+                                                        EncodingHelper.bytesToHex(tlv.getValue()));
             if (tlv.getTag() == SUBSCRIBER_STATE_TAG) {
                 final List<TagLengthValue> ssTlv = EncodingHelper.getTlvs(tlv.getValue());
                 if (ssTlv.size() == 1) {
                     processSubscriberState(ssTlv.get(0).getTag(), obm);
                 } else {
+                    logger.error("Expected TLV with subscriber state setting state UNKNOWN");
                     obm.setStatus(SubscriberState.UNKOWN);
                 }
             } else if (tlv.getTag() == LOCATION_INFO_TAG) {
@@ -246,7 +245,9 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         return stateName;
     }
     
+    @Override
     public void terminate() {
+        super.terminate();
         getDialogue().setState(new AtiDialogueEnd(getContext(), getDialogue()));
     }
 }

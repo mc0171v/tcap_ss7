@@ -6,11 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.commands.SendAtiCommand;
-import com.vennetics.bell.sam.ss7.tcap.ati.enabler.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.common.address.Address;
 import com.vennetics.bell.sam.ss7.tcap.common.address.IAddressNormalizer;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.ISamTcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
 
 import rx.Observable;
 
@@ -21,8 +22,6 @@ import java.util.concurrent.CountDownLatch;
 public class AtiService implements IAtiService {
 
     private static final Logger logger = LoggerFactory.getLogger(AtiService.class);
-
-    private static final int MAX_RETRIES = 5;
     
     private ISamTcapEventListener listener;
 
@@ -45,6 +44,7 @@ public class AtiService implements IAtiService {
             Address normalizedDestination = null;
             if (null != atiMessageRequest.getMsisdn()) {
                 normalizedDestination = normalizeAddress(atiMessageRequest.getMsisdn());
+                logger.debug("Normalized address {} to {}", atiMessageRequest.getMsisdn(), normalizedDestination);
                 atiMessageRequest.setMsisdn(normalizedDestination.getE164Address());
             }
             if (atiMessageRequest.getDestination() != null) {
@@ -55,8 +55,7 @@ public class AtiService implements IAtiService {
                 logger.debug("ATI Service Constructed ATI Command");
             }
         } else {
-            atiMessageRequest.setStatus(SubscriberState.UNKOWN);
-            return Observable.just(atiMessageRequest); //Unknown
+            throw new Ss7ServiceException("Not ready for traffic");
         }
         logger.debug("Result = {}", result);
         return Observable.just(result);
@@ -70,11 +69,12 @@ public class AtiService implements IAtiService {
     
     private boolean checkAndWaitForListener() {
         int retry = 0;
-        while (!listener.isBound() && retry < MAX_RETRIES) {
+        final ISs7ConfigurationProperties props = listener.getConfigProperties();
+        while (!listener.isBound() && retry < props.getWaitForBindRetries()) {
             logger.debug("Waiting for bind {}", retry);
             retry++;
             try {
-                Thread.sleep(5000);
+                Thread.sleep(props.getWaitBeforeBindRetry());
             } catch (Exception ex) {
                 logger.debug("Caught exception");
             }
@@ -85,22 +85,24 @@ public class AtiService implements IAtiService {
             return false;
         }
         logger.debug("User bound");
-        retry = 0;
-        while (!listener.isReady() && retry < MAX_RETRIES) {
-            logger.debug("Waiting for ready {}", retry);
-            retry++;
-            try {
-                Thread.sleep(5000);
-            } catch (Exception ex) {
-                logger.debug("Caught exception");
-            }
+        if (props.isWaitForReady()) {
+            retry = 0;
+            while (!listener.isReady() && retry < props.getWaitForReadyRetries()) {
+                logger.debug("Waiting for ready {}", retry);
+                retry++;
+                try {
+                    Thread.sleep(props.getWaitBeforeReadyRetry());
+                } catch (Exception ex) {
+                    logger.debug("Caught exception");
+                }
 
+            }
+            if (!listener.isReady()) {
+                logger.debug("Is not ready");
+                return false;
+            }
+            logger.debug("User Ready");
         }
-        if (!listener.isReady()) {
-            logger.debug("Is not ready");
-            return false;
-        }
-        logger.debug("User Ready");
         return true;
     }
 }

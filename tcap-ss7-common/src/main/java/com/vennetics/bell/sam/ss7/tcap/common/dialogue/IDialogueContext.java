@@ -13,8 +13,6 @@ public interface IDialogueContext {
 
     int getSsn();
 
-    IDialogueManager getDialogueManager();
-
     TcapUserAddress getDestAddr();
 
     TcapUserAddress getOrigAddr();
@@ -24,6 +22,8 @@ public interface IDialogueContext {
     JainTcapStack getStack();
 
     TcapEventListener getTcapEventListener();
+    
+    IDialogueManager getDialogueManager();
 
     IDialogue getDialogue(int dialogueId);
 

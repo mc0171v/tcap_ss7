@@ -145,21 +145,8 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     public void setConfiguration() {
 
         try {
-            // NOTE: a real application would NOT hard code the
-            // configString as in this example, get the configString from
-            // some data base or file instead:
-            String configString =
-            // "-DEIN_JCP_CONFIG_NAME=/Users/martincaldwell/Documents/workspace/ss7/src/jtcapblackbox/cp.cnf
-            // " +
-            // "-DEINSS7_JCP_CONFIG_FILE_FORMAT=ascii " +
-            "-DEIN_JCP_USER_ID=USER02_ID " +
-            "-DEINSS7_ASYNCH_BEHAVIOUR_ON=true "
-            + "-DEINSS7_DID_SLICING_ID=1 "
-                            + "-DEINSS7_DID_NUM_OF_SLICES=1 " + "-DEINSS7_JDID_SUPPORT_ON=true"
-                            + "-DEIN_HD_USER_INSTANCE=0"
-//                            + "-DEIN_JCP_CPMANAGER_ADDRESS=10.87.79.209:6669"
-                            + "-DEIN_JCP_CPMANAGER_ADDRESS=10.87.79.81:6669"
-                            + "-DEIN_HD_ATTACH_INSTANCES=1";
+
+            String configString = configProperties.getCpConfig();
 
             JainTcapConfig.getInstance().setConfigString(configString);
 

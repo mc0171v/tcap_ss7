@@ -7,6 +7,7 @@ import jain.protocol.ss7.tcap.component.Operation;
 import jain.protocol.ss7.tcap.dialogue.BeginIndEvent;
 
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
@@ -23,6 +24,8 @@ import com.vennetics.bell.sam.ss7.tcap.common.listener.IListenerContext;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerBound;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerUnbound;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.Ss7ConfigurationProperties;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ListenerUnboundTest {
@@ -77,6 +80,9 @@ public class ListenerUnboundTest {
 
     @Test()
     public void shouldHandleTcBindIndEvent() throws Exception {
+        final ISs7ConfigurationProperties props = new Ss7ConfigurationProperties();
+        props.setWaitForReady(true);
+        when(mockListenerContext.getConfigProperties()).thenReturn(props);
         objectToTest.handleEvent(new TcBindIndEvent(mockTcapListener));
         verify(mockListenerContext).setState(isA(ListenerBound.class));
     }

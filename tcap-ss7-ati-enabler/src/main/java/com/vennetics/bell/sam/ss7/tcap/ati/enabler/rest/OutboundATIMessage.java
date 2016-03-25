@@ -3,6 +3,7 @@ package com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest;
 
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.common.error.IError;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 
 public class OutboundATIMessage implements IError {
 
@@ -19,7 +20,7 @@ public class OutboundATIMessage implements IError {
     private byte uncertainty;
     private Integer age;
     
-    private String error;
+    private Ss7ServiceException error;
     
 
     /**
@@ -75,10 +76,10 @@ public class OutboundATIMessage implements IError {
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link Ss7ServiceException }
      *     
      */
-    public String getError() {
+    public Ss7ServiceException getError() {
         return error;
     }
 
@@ -87,10 +88,10 @@ public class OutboundATIMessage implements IError {
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link Ss7ServiceException }
      *     
      */
-    public void setError(final String value) {
+    public void setError(final Ss7ServiceException value) {
         this.error = value;
     }
     

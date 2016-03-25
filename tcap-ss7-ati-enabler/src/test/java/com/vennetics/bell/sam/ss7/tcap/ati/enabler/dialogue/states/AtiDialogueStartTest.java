@@ -26,7 +26,9 @@ import com.vennetics.bell.sam.ss7.tcap.ati.enabler.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
+import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedPrimitiveException;
 
 import ericsson.ein.ss7.commonparts.util.Tools;
@@ -57,6 +59,8 @@ public class AtiDialogueStartTest {
     private TcapEventListener mockTcapListener;
     @Mock
     private IDialogue mockDialogue;
+    @Mock
+    private IDialogueManager mockDialogueMgr;
 
     private IDialogueState objectToTest;
 
@@ -85,11 +89,15 @@ public class AtiDialogueStartTest {
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
         when(mockStack.getProtocolVersion()).thenReturn(DialogueConstants.PROTOCOL_VERSION_ANSI_96);
         when(mockDialogueContext.getDialogue(DIALOGUE_ID)).thenReturn(mockDialogue);
+        when(mockDialogueContext.getDialogueManager()).thenReturn(mockDialogueMgr);
+        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
         objectToTest.handleEvent(resultIndEvent);
         verify(mockProvider).releaseInvokeId(LINK_ID, DIALOGUE_ID);
-        verify(mockDialogue).setState(isA(AtiDialogueEnd.class));
         verify(mockDialogue).setResult(oAtiMessage);
-        assertTrue(oAtiMessage.getStatus() == SubscriberState.UNKOWN);
+        assertTrue(oAtiMessage.getError() != null);
+        verify(mockDialogue).setState(isA(AtiDialogueEnd.class));
+        verify(mockProvider).releaseDialogueId(DIALOGUE_ID);
+        verify(mockDialogueMgr).deactivate(mockDialogue);
     }
 
     @Test()
@@ -106,11 +114,15 @@ public class AtiDialogueStartTest {
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
         when(mockStack.getProtocolVersion()).thenReturn(DialogueConstants.PROTOCOL_VERSION_ITU_97);
         when(mockDialogueContext.getDialogue(DIALOGUE_ID)).thenReturn(mockDialogue);
+        when(mockDialogueContext.getDialogueManager()).thenReturn(mockDialogueMgr);
+        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
         objectToTest.handleEvent(resultIndEvent);
         verify(mockProvider).releaseInvokeId(INVOKE_ID, DIALOGUE_ID);
-        verify(mockDialogue).setState(isA(AtiDialogueEnd.class));
         verify(mockDialogue).setResult(oAtiMessage);
-        assertTrue(oAtiMessage.getStatus() == SubscriberState.UNKOWN);
+        verify(mockProvider).releaseDialogueId(DIALOGUE_ID);
+        verify(mockDialogueMgr).deactivate(mockDialogue);
+        assertTrue(oAtiMessage.getError() != null);
+        verify(mockDialogue).setState(isA(AtiDialogueEnd.class));
 
     }
     
@@ -157,12 +169,16 @@ public class AtiDialogueStartTest {
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
         when(mockStack.getProtocolVersion()).thenReturn(DialogueConstants.PROTOCOL_VERSION_ITU_97);
         when(mockDialogueContext.getDialogue(DIALOGUE_ID)).thenReturn(mockDialogue);
+        when(mockDialogueContext.getDialogueManager()).thenReturn(mockDialogueMgr);
+        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
     }
     
     private void commonVerify(final OutboundATIMessage oAtiMessage) {
         verify(mockProvider).releaseInvokeId(INVOKE_ID, DIALOGUE_ID);
         verify(mockDialogue).setState(isA(AtiDialogueEnd.class));
         verify(mockDialogue).setResult(oAtiMessage);
+        verify(mockProvider).releaseDialogueId(DIALOGUE_ID);
+        verify(mockDialogueMgr).deactivate(mockDialogue);
     }
     
     private OutboundATIMessage getRequestObject() {

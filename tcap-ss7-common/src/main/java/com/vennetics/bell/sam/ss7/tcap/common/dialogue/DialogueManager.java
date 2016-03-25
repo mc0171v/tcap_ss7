@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.ericsson.einss7.jtcap.TcDialoguesLostIndEvent;
-import com.vennetics.bell.sam.ss7.tcap.common.exceptions.DialogueExistsException;
-import com.vennetics.bell.sam.ss7.tcap.common.exceptions.NoDialogueExistsException;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 
 
 public class DialogueManager implements IDialogueManager {
@@ -18,15 +17,12 @@ public class DialogueManager implements IDialogueManager {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogueManager#activate
-     * (com.vennetics.bell.sam.ss7.tcap.enabler.service.Dialogue)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager#activate(com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue)
      */
     @Override
     public void activate(final IDialogue dialogue) {
         if (null != dialogueMap.get(dialogue.getDialogueId())) {
-            throw new DialogueExistsException(dialogue.getDialogueId());
+            throw new Ss7ServiceException("Dialogue already exists " + dialogue.getDialogueId());
 
         }
         dialogueMap.put(dialogue.getDialogueId(), dialogue);
@@ -54,7 +50,7 @@ public class DialogueManager implements IDialogueManager {
     public void deactivate(final IDialogue dialogue) {
         IDialogue old = dialogueMap.remove(dialogue.getDialogueId());
         if (old == null) {
-            throw new NoDialogueExistsException(dialogue.getDialogueId());
+            throw new Ss7ServiceException("Could not deactivate dialogue " + dialogue.getDialogueId());
         }
     }
 

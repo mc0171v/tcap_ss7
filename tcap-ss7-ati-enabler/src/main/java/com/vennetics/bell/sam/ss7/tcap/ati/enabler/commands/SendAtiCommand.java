@@ -4,6 +4,7 @@ import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.ISamTcapEventListener;
 
 import java.util.concurrent.CountDownLatch;
@@ -27,6 +28,7 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
      * Send an anyTimeInterrogationReq
      * @param listener
      * @param request
+     * @param cDl
      */
     public SendAtiCommand(final ISamTcapEventListener listener,
                           final OutboundATIMessage request,
@@ -42,7 +44,7 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
      * 
      */
     @Override
-    protected OutboundATIMessage run() {
+    protected OutboundATIMessage run() throws Ss7ServiceException {
         logger.debug("Running Hystrix wrapped send ATI command to return a location or status");
         final IDialogue dialogue = listener.startDialogue(request, cDl);
         try {
@@ -50,11 +52,15 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
         } catch (InterruptedException ex) {
             final String errorMessage = "Caught InterruptedException waiting for result";
             logger.error(errorMessage);
-            request.setError(errorMessage);
+            throw new Ss7ServiceException(errorMessage);
         }
         if (dialogue.getResult() != null) {
-            return (OutboundATIMessage) dialogue.getResult();
+            OutboundATIMessage obm = (OutboundATIMessage) dialogue.getResult();
+            if (obm.getError() == null) {
+                return obm;
+            }
+            throw obm.getError();
         }
-        return request; //TODO Add an error
+        return request;
     }
 }

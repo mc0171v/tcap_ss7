@@ -17,8 +17,7 @@ import com.ericsson.einss7.jtcap.TcDialoguesLostIndEvent;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.DialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager;
-import com.vennetics.bell.sam.ss7.tcap.common.exceptions.DialogueExistsException;
-import com.vennetics.bell.sam.ss7.tcap.common.exceptions.NoDialogueExistsException;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.SamTcapEventListener;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -79,7 +78,7 @@ public class DialogueManagerTest {
         assertThat(objectToTest.lookUpDialogue(DIALOGUE_ID2), sameInstance(mockDialogue2));
     }
 
-    @Test(expected = DialogueExistsException.class)
+    @Test(expected = Ss7ServiceException.class)
     public void shouldThrowExceptionIfDialogueExists() throws Exception {
         when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
         when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
@@ -88,7 +87,7 @@ public class DialogueManagerTest {
 
     }
 
-    @Test(expected = NoDialogueExistsException.class)
+    @Test(expected = Ss7ServiceException.class)
     public void shouldThrowExceptionIfNoDialogueExists() throws Exception {
         objectToTest.deactivate(mockDialogue);
     }

@@ -7,7 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vennetics.bell.sam.ss7.tcap.common.exceptions.BadTBCDException;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 
 import ericsson.ein.ss7.commonparts.util.Tools;
 
@@ -109,7 +109,7 @@ public final class EncodingHelper {
              return val;
          }
          if (SPECIAL_BCD_CHARS.indexOf(character) < 0) {
-             throw new BadTBCDException("Could not convert " + Character.toString(character));
+             throw new Ss7ServiceException("Could not convert " + Character.toString(character));
          }
          return 10 + (SPECIAL_BCD_CHARS.indexOf(character) % 6);
      }

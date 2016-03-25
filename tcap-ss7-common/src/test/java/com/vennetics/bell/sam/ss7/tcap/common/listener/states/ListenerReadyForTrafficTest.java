@@ -26,6 +26,8 @@ import com.vennetics.bell.sam.ss7.tcap.common.listener.IListenerContext;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerBound;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerReadyForTraffic;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
+import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.Ss7ConfigurationProperties;
 
 import ericsson.ein.ss7.commonparts.util.Tools;
 
@@ -106,6 +108,9 @@ public class ListenerReadyForTrafficTest {
     @Test()
     public void shouldHandleTcStateIndEventNotReadyForTraffic() throws Exception {
         final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
+        final ISs7ConfigurationProperties props = new Ss7ConfigurationProperties();
+        props.setWaitForReady(true);
+        when(mockListenerContext.getConfigProperties()).thenReturn(props);
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
         verify(mockListenerContext).setState(isA(ListenerBound.class));
@@ -115,6 +120,9 @@ public class ListenerReadyForTrafficTest {
     public void shouldHandleTcStateIndEventNotReadyForTrafficDifferentSSn() throws Exception {
         final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
         tcapStateInd.setAffectedSsn(WRONG_SSN);
+        final ISs7ConfigurationProperties props = new Ss7ConfigurationProperties();
+        props.setWaitForReady(true);
+        when(mockListenerContext.getConfigProperties()).thenReturn(props);
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
         verify(mockListenerContext, never()).setState(isA(IListenerState.class));
@@ -124,6 +132,9 @@ public class ListenerReadyForTrafficTest {
     public void shouldHandleTcStateIndEventNotReadyForTrafficDifferentSpc() throws Exception {
         final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
         tcapStateInd.setAffectedSpc(WRONG_SPC);
+        final ISs7ConfigurationProperties props = new Ss7ConfigurationProperties();
+        props.setWaitForReady(true);
+        when(mockListenerContext.getConfigProperties()).thenReturn(props);
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
         verify(mockListenerContext, never()).setState(isA(IListenerState.class));
@@ -133,6 +144,9 @@ public class ListenerReadyForTrafficTest {
     public void shouldHandleTcStateIndEventReadyForTrafficUserAvailable() throws Exception {
         final TcStateIndEvent tcapStateInd = getTcStateIndEvent();
         tcapStateInd.setUserStatus(TcStateIndEvent.USER_AVAILABLE_CONGESTION_0);
+        final ISs7ConfigurationProperties props = new Ss7ConfigurationProperties();
+        props.setWaitForReady(true);
+        when(mockListenerContext.getConfigProperties()).thenReturn(props);
         when(mockListenerContext.getDestinationAddress()).thenReturn(userAddress);
         objectToTest.handleEvent(tcapStateInd);
         verify(mockListenerContext, never()).setState(isA(IListenerState.class));

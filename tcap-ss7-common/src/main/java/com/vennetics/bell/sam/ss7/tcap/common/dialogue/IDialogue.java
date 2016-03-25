@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
@@ -40,7 +41,7 @@ public interface IDialogue {
     
     void setResult(Object result);
     
-    void setError(String error);
+    void setError(Ss7ServiceException error);
     
     Object getRequest();
     

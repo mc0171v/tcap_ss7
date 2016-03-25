@@ -49,7 +49,7 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
         invokeReq.setDialogueId(dialogueId);
         invokeReq.setLastInvokeEvent(true);
         invokeReq.setTimeOut(configProps.getInvokeTimeout());
-        // set class 1 operation (report failure or success)
+        // set class 1 operation (report failure or success i.e timeout is an abnormal failure)
         invokeReq.setClassType(ComponentConstants.CLASS_1);
         final Operation op = new Operation();
         op.setOperationCode(OPERATION_ATI);
@@ -71,9 +71,7 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
                                                                                       GSMSCF_ADDRESS_TAG);
         ByteBuffer bb = ByteBuffer.allocate(subscriberInfo.capacity()
                                             + requestedInfo.capacity()
-                                            //+ gsmScfAddress.capacity() + 1 + asn1Length.length);
                                             + gsmScfAddress.capacity());
-
         bb.put(subscriberInfo.array()).put(requestedInfo.array()).put(gsmScfAddress.array());
         return bb.array();
         

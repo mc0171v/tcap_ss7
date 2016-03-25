@@ -81,7 +81,10 @@ public class ListenerUnbound extends AbstractListenerState implements IListenerS
     private void processTcBindIndEvent() {
         logger.debug("TcapBindIndEvent event received in state {}", getStateName());
         logger.debug("Changing state from {}", getStateName());
-        getContext().setState(new ListenerBound(getContext()));
+        if (getContext().getConfigProperties().isWaitForReady()) {
+            getContext().setState(new ListenerBound(getContext()));
+        }
+        getContext().setState(new ListenerReadyForTraffic(getContext()));
     }
 
     protected String getStateName() {

@@ -13,7 +13,13 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
     private String gsmScfAddress;
     private int std;
     private long invokeTimeout;
-    private long latchTimeout;
+    private long latchTimeout;  
+    private int waitForBindRetries;
+    private int waitForReadyRetries;
+    private long waitBeforeBindRetry;
+    private long waitBeforeReadyRetry;
+    private boolean waitForReady;
+    private String cpConfig;
 
     public Ss7ConfigurationProperties() {
     }
@@ -74,13 +80,68 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
         this.latchTimeout = latchTimeout;
     }
     
+    public int getWaitForBindRetries() {
+        return waitForBindRetries;
+    }
+
+    public void setWaitForBindRetries(final int waitForBindRetries) {
+        this.waitForBindRetries = waitForBindRetries;
+    }
+
+    public int getWaitForReadyRetries() {
+        return waitForReadyRetries;
+    }
+
+    public void setWaitForReadyRetries(final int waitForReadyRetries) {
+        this.waitForReadyRetries = waitForReadyRetries;
+    }
+
+    public long getWaitBeforeBindRetry() {
+        return waitBeforeBindRetry;
+    }
+
+    public void setWaitBeforeBindRetry(final long waitBeforeBindRetry) {
+        this.waitBeforeBindRetry = waitBeforeBindRetry;
+    }
+
+    public long getWaitBeforeReadyRetry() {
+        return waitBeforeReadyRetry;
+    }
+
+    public void setWaitBeforeReadyRetry(final long waitBeforeReadyRetry) {
+        this.waitBeforeReadyRetry = waitBeforeReadyRetry;
+    }
+
+    public boolean isWaitForReady() {
+        return waitForReady;
+    }
+
+    public void setWaitForReady(final boolean waitForReady) {
+        this.waitForReady = waitForReady;
+    } 
+
+    public String getCpConfig() {
+        return cpConfig;
+    }
+
+    public void setCpConfig(final String cpConfig) {
+        this.cpConfig = cpConfig;
+    }
+
+    
     public String toString() {
         return "Orig Address: " + origAddress.toString()
              + " Dest Address: " + destAddress.toString()
              + " GSM SCF Address: " + gsmScfAddress
              + " Invoke Timeout: " + invokeTimeout
              + " Latch Timeout: " + invokeTimeout
-             + " STD: " + std;
+             + " STD: " + std
+             + " waitForBindRetries: " + waitForBindRetries
+             + " waitForReadyRetries: " + waitForReadyRetries
+             + " waitBeforeBindRetry: " + waitBeforeBindRetry
+             + " waitBeforeReadyRetry: " + waitBeforeReadyRetry
+             + " waitForReady: " + waitForReady
+             + " cpConfig: " + cpConfig;
     }
     
     public static class Ss7Address {

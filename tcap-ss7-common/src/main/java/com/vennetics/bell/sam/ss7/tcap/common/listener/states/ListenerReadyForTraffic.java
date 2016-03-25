@@ -159,7 +159,9 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
      * @return True if ready.
      */
     private boolean isReadyForTraffic(final TcStateIndEvent event, final TcapUserAddress addr) {
-
+        if (!getContext().getConfigProperties().isWaitForReady()) {
+            return true;
+        }
         // extract SPC and SSN from addr
         byte[] addrSpc = null;
         int addrSsn = -1;

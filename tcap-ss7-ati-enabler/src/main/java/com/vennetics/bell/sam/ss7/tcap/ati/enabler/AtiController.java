@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vennetics.bell.sam.model.location.LocationResponse;
 import com.vennetics.bell.sam.model.subscriber.status.SubscriberStatusResponse;
+import com.vennetics.bell.sam.rest.controller.ExceptionHandlingSs7RestController;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.service.IAtiService;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
 
 import rx.Observable;
@@ -29,7 +31,7 @@ import rx.Observable;
 @RequestMapping("/")
 @RefreshScope
 @EnableAutoConfiguration
-public class AtiController {
+public class AtiController extends ExceptionHandlingSs7RestController {
 
     private static final Logger logger = LoggerFactory.getLogger(AtiController.class);
     
@@ -42,10 +44,6 @@ public class AtiController {
     public ResponseEntity<LocationResponse> sendLocationRequest(@RequestParam final MultiValueMap<String, String> params) {
         final OutboundATIMessage obm = setupOutBoundMessage(params);
         final LocationResponse response = new LocationResponse();
-        if (obm == null) {
-            return new ResponseEntity<LocationResponse>(response,
-                                                         HttpStatus.BAD_REQUEST);
-        }
         obm.setRequestInfoLocation(true);
         UUID uuid = UUID.randomUUID();
         Observable<OutboundATIMessage> observer = atiService.sendAtiMessage(uuid, obm);
@@ -64,10 +62,6 @@ public class AtiController {
     public ResponseEntity<SubscriberStatusResponse> sendStatusRequest(@RequestParam final MultiValueMap<String, String> params) {
         final OutboundATIMessage obm = setupOutBoundMessage(params);
         final SubscriberStatusResponse response = new SubscriberStatusResponse();
-        if (obm == null) {
-            return new ResponseEntity<SubscriberStatusResponse>(response,
-                                                                HttpStatus.BAD_REQUEST);
-        }
         obm.setRequestInfoSubscriberState(true);
         UUID uuid = UUID.randomUUID();
         Observable<OutboundATIMessage> observer = atiService.sendAtiMessage(uuid, obm);
@@ -92,7 +86,7 @@ public class AtiController {
         } else if (params.getFirst("imsi") != null) {
             obm.setImsi(params.getFirst("imsi"));
         } else {
-            return null;
+            throw new Ss7ServiceException("One paramater msisdn or imsi must be supplied");
         }
         return obm;
     }
