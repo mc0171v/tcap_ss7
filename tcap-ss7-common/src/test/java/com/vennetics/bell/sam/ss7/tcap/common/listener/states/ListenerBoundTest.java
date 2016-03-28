@@ -22,9 +22,6 @@ import com.ericsson.einss7.jtcap.TcStateIndEvent;
 import com.ericsson.einss7.jtcap.TcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedPrimitiveException;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.IListenerContext;
-import com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState;
-import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerBound;
-import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerReadyForTraffic;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.Ss7ConfigurationProperties;
 
@@ -132,7 +129,6 @@ public class ListenerBoundTest {
     public void shouldHandleTcStateIndEventNotReadyForTrafficUserUnavailable() throws Exception {
         final TcStateIndEvent tcapStateInd = new TcStateIndEvent(mockTcapListener);
         tcapStateInd.setUserStatus(TcStateIndEvent.USER_UNAVAILABLE);
-        final TcapUserAddress userAddress = new TcapUserAddress(SPC, SSN);
         final ISs7ConfigurationProperties props = new Ss7ConfigurationProperties();
         props.setWaitForReady(true);
         when(mockListenerContext.getConfigProperties()).thenReturn(props);

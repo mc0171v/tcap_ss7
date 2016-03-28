@@ -51,10 +51,6 @@ public class LocationRequestCommand extends HystrixCommand<ResponseEntity<Locati
         this.internalServiceName = internalServiceName;
         this.map = map;
         this.template = template;
-//        SimpleClientHttpRequestFactory rf =
-//        	    (SimpleClientHttpRequestFactory) template.getRequestFactory();
-//        	rf.setReadTimeout(50000);
-//        	rf.setConnectTimeout(50000);
     }
 
     @Override
@@ -84,7 +80,7 @@ public class LocationRequestCommand extends HystrixCommand<ResponseEntity<Locati
     	if (map.getFirst("imsi") != null) {
     		return String.format("http://%s/outbound/location/requests?imsi=%s", internalServiceName, map.getFirst("imsi"));
     	} else if (map.getFirst("msisdn") != null) {
-            return String.format("http://%s/outbound/location/requests?msisdn=%s", internalServiceName, map.getFirst("imsi"));
+            return String.format("http://%s/outbound/location/requests?msisdn=%s", internalServiceName, map.getFirst("msisdn"));
     	} else {
     		return null;
     	}

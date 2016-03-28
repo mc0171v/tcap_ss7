@@ -22,9 +22,9 @@ import com.vennetics.bell.sam.ss7.tcap.common.dialogue.DialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IInitialDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.SS7ConfigException;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.TcapErrorException;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.TcapUserInitialisationException;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState;
@@ -49,7 +49,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
 
     private ISs7ConfigurationProperties configProperties;
         
-    private IDialogueState initialDialogueState;
+    private IInitialDialogueState initialDialogueState;
 
     private IDialogueRequestBuilder dialogueRequestBuilder;
     
@@ -87,16 +87,32 @@ public class SamTcapEventListener implements ISamTcapEventListener {
                          final IInitialDialogueState initialDialogueState) {
         this.configProperties = configProperties;
         logger.debug("Configuration Properties:" + configProperties.toString());
-        this.origAddr = new TcapUserAddress(configProperties.getOrigAddress().getSpc(),
-                                            configProperties.getOrigAddress().getSsn());
-        this.destAddr = new TcapUserAddress(configProperties.getDestAddress().getSpc(),
-                                            configProperties.getDestAddress().getSsn());
+        if (configProperties.getOrigAddress() != null) {
+            this.origAddr = new TcapUserAddress(configProperties.getOrigAddress().getSpc(),
+                                                configProperties.getOrigAddress().getSsn());
+            logger.debug("Orig Address Set");
+        } else {
+            logger.error("Orig address not set");
+            throw new SS7ConfigException("Orig address not set");
+        }
+        if (configProperties.getOrigAddress() != null) {
+            this.destAddr = new TcapUserAddress(configProperties.getDestAddress().getSpc(),
+                                                configProperties.getDestAddress().getSsn());
+            logger.debug("Dest Address Set");
+        } else {
+            logger.error("Dest address not set");  
+            throw new SS7ConfigException("Dest address not set");
+        }
         this.dialogueMgr = new DialogueManager();
         this.state = initialListenerState;
+        logger.debug("Initial Listener State Set");
         std = configProperties.getStd();
         this.componentRequestBuilder = componentRequestBuilder;
+        logger.debug("Component Request Builder Set");
         this.dialogueRequestBuilder = dialogueRequestBuilder;
+        logger.debug("Dialogue Request Builder Set");
         this.initialDialogueState = initialDialogueState;
+        logger.debug("Initial Dialogue State Set");
         initialListenerState.setContext(this);
     }
 
@@ -188,14 +204,32 @@ public class SamTcapEventListener implements ISamTcapEventListener {
 
     public IDialogue startDialogue(final Object request,
                                    final CountDownLatch cDl) {
+        final IDialogue dialogue = dialogueSetup(request, cDl);
+        dialogue.activate();
+        return dialogue;
+    }
+    
+    public IDialogue joinDialogue(final int dialogueId) {
+        final IDialogue dialogue = dialogueSetup(null, null);
+        dialogue.setDialogueId(dialogueId);
+        dialogue.activate();
+        return dialogue;
+    }
+    
+    private IDialogue dialogueSetup(final Object request, final CountDownLatch cDl) {
         final IDialogue dialogue = new Dialogue(this, provider, request);
         dialogue.setDialogueRequestBuilder(dialogueRequestBuilder);
         dialogue.setComponentRequestBuilder(componentRequestBuilder);
         dialogue.setLatch(cDl);
-        initialDialogueState.setContext(this);
-        initialDialogueState.setDialogue(dialogue);
-        dialogue.setState(initialDialogueState);
-        dialogue.activate();
+        IInitialDialogueState startState = null;
+        try {
+            startState = (IInitialDialogueState) initialDialogueState.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new Ss7ServiceException("Failed to start dialogue");
+        }
+        startState.setContext(this);
+        startState.setDialogue(dialogue);
+        dialogue.setState(startState);
         return dialogue;
     }
 
@@ -339,7 +373,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
          return configProperties;
     }
     
-    public void setInitialDialogueState(final IDialogueState initialDialogueState) {
+    public void setInitialDialogueState(final IInitialDialogueState initialDialogueState) {
         this.initialDialogueState = initialDialogueState;
     }
 

@@ -35,7 +35,7 @@ import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
 import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
 
 @Component
-public class AtiDialogueStart extends AbstractDialogueState implements IInitialDialogueState {
+public class AtiDialogueStart extends AbstractDialogueState implements IInitialDialogueState, Cloneable {
 
     private static final Logger logger = LoggerFactory.getLogger(AtiDialogueStart.class);
 
@@ -247,7 +247,16 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
     
     @Override
     public void terminate() {
-        super.terminate();
+        logger.debug("terminating");
         getDialogue().setState(new AtiDialogueEnd(getContext(), getDialogue()));
+        logger.debug("terminated");
+    }
+    
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        if (getContext() == null && getDialogue() == null) {
+          return super.clone();
+        }
+        throw new CloneNotSupportedException();
     }
 }

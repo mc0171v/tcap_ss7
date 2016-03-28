@@ -17,7 +17,9 @@ public interface IListenerContext {
     
     TcapUserAddress getDestinationAddress();
     
-    IDialogue getDialogue(final int dialogueId);
+    IDialogue getDialogue(int dialogueId);
     
     ISs7ConfigurationProperties getConfigProperties();
+    
+    IDialogue joinDialogue(int dialogueId);
 }

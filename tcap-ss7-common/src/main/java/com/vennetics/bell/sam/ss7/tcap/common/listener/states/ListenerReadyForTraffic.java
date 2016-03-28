@@ -16,6 +16,7 @@ import com.vennetics.bell.sam.ss7.tcap.common.listener.IListenerContext;
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
 import jain.protocol.ss7.tcap.ParameterNotSetException;
+import jain.protocol.ss7.tcap.TcapConstants;
 import jain.protocol.ss7.tcap.TcapUserAddress;
 
 public class ListenerReadyForTraffic extends AbstractListenerState implements IListenerState {
@@ -90,6 +91,17 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
         IDialogue dialogue = getDialogue(event);
         if (null != dialogue) {
             dialogue.handleEvent(event);
+            return;
+        }
+        if (event.getPrimitiveType() == TcapConstants.PRIMITIVE_BEGIN) {
+            int dialogueId = 0;
+            try {
+                dialogueId = event.getDialogueId();
+                getContext().joinDialogue(dialogueId);
+                logger.debug("Retrieved dialogId {} and created new dialogue", dialogueId);
+            } catch (ParameterNotSetException ex) {
+                logger.error("Could not extract dialogue Id");
+            }
         }
     }
 

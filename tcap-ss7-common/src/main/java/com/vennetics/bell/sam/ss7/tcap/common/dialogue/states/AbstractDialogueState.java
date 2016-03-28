@@ -265,8 +265,13 @@ public abstract class AbstractDialogueState {
         dialogue.setError(new Ss7ServiceException(errorMessage));
     }
 
-    protected void terminate() {
+    public void activate() {
+        logger.debug("Nothing to do");
+    }
+    
+    public void terminate() {
         // Release the dialogue ID
+        logger.debug("deactivating");
         context.getDialogueManager().deactivate(dialogue);
         context.getProvider().releaseDialogueId(dialogue.getDialogueId());
     }

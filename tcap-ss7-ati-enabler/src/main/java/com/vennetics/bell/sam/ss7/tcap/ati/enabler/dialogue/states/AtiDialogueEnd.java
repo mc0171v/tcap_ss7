@@ -22,12 +22,7 @@ public class AtiDialogueEnd extends AbstractDialogueState implements IDialogueSt
     public AtiDialogueEnd(final IDialogueContext context, final IDialogue dialogue) {
         super(context, dialogue);
         logger.debug("Changing state to {}", getStateName());
-    }
-
-    public void activate() {
-    }
-    
-    public void terminate() {
+        terminate();
     }
 
     @Override

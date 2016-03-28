@@ -18,10 +18,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.ericsson.einss7.jtcap.TcapEventListener;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.Dialogue;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
 
 

@@ -1,21 +1,21 @@
 = Overview
 
-The netapi-sms-enabler provides an enabler implementation of the NETAPI SMS functionality.
+The tcap-ss7-ati-enabler enables the request of subscriber location and status via SS7 ATI requests.
 
 The following functionality is exposed:
 
-- Send SMS including delivery notifications
+- Request subscriber location and status information
 
 = Testing
-In order to carry out basic testing of Send SMS functionality, the SMSC-Simulator has been created.
+In order to carry out basic testing of MAP SS7 ATI, the tcap-ss7-ati-enabler and the tcap-ss7-ati-simulator should be started. Each enabler/simulator originating SAP is the other destination SAP.
 
 == Locally
-By default, the netapi-sms-enabler will attempt to connect to the smsc-simulator on localhost.
+By default, both the simulator and enabler will connect to the CP manager on 10.87.79.81 at port 6669.
 
 == Docker
-In order to run the SMSC-Simulator in the same network as our system you must run the following
+In order to run the simulator in the same network as our system you must run the following
 command (assuming you are in the bell-sam directory of your workspace folder:
 [source,sh]
 ----
-$ docker-compose -f docker-compose.yml -f smsc-simulator/docker-compose.yml --x-networking up -d
+$ docker-compose -f docker-compose.yml -f tcap-ss7-ati-simulator/docker-compose.yml up -d
 ----

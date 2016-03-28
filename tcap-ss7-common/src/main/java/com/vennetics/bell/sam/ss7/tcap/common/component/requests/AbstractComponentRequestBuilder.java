@@ -15,7 +15,8 @@ public abstract class AbstractComponentRequestBuilder implements IComponentReque
     public InvokeReqEvent createInvokeReq(final java.lang.Object source,
                                           final int invokeId,
                                           final Object request,
-                                          ISs7ConfigurationProperties configProps, int dialogueId) {
+                                          final ISs7ConfigurationProperties configProps,
+                                          final int dialogueId) {
         return createInvokeReq(source,
                                invokeId,
                                request,
@@ -27,7 +28,8 @@ public abstract class AbstractComponentRequestBuilder implements IComponentReque
                                           final int invokeId,
                                           final Object request,
                                           final boolean withParams,
-                                          final ISs7ConfigurationProperties configProps, int dialogueId) {
+                                          final ISs7ConfigurationProperties configProps,
+                                          final int dialogueId) {
         logger.error("Unexpected createInvokeReq");
         return null;
     }

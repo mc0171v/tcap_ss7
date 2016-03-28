@@ -13,7 +13,7 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
     private String gsmScfAddress;
     private int std;
     private long invokeTimeout;
-    private long latchTimeout;  
+    private long latchTimeout;
     private int waitForBindRetries;
     private int waitForReadyRetries;
     private long waitBeforeBindRetry;
@@ -118,7 +118,7 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
 
     public void setWaitForReady(final boolean waitForReady) {
         this.waitForReady = waitForReady;
-    } 
+    }
 
     public String getCpConfig() {
         return cpConfig;
@@ -130,9 +130,7 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
 
     
     public String toString() {
-        return "Orig Address: " + origAddress.toString()
-             + " Dest Address: " + destAddress.toString()
-             + " GSM SCF Address: " + gsmScfAddress
+             String output = " GSM SCF Address: " + gsmScfAddress
              + " Invoke Timeout: " + invokeTimeout
              + " Latch Timeout: " + invokeTimeout
              + " STD: " + std
@@ -142,6 +140,13 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
              + " waitBeforeReadyRetry: " + waitBeforeReadyRetry
              + " waitForReady: " + waitForReady
              + " cpConfig: " + cpConfig;
+             if (origAddress != null) {
+                 output = output + " Orig Address: " + origAddress.toString();
+             }
+             if (origAddress != null) {
+                 output = output + " Dest Address: " + destAddress.toString();
+             }
+             return output;
     }
     
     public static class Ss7Address {
@@ -161,12 +166,12 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
             return spc;
         }
 
-        public void setSpc(long spc) {
-            this.spc = convertToByte(spc);
+        public void setSpc(final long spcAsLong) {
+            this.spc = convertToByte(spcAsLong);
         }
         
-        private byte[] convertToByte(long spc) {
-            final byte[] spcAsBytes =  { Tools.getLoByteOf4(spc), Tools.getNextToLoByteOf4(spc), Tools.getNextToHiByteOf4(spc)};
+        private byte[] convertToByte(final long spcAsLong) {
+            final byte[] spcAsBytes =  { Tools.getLoByteOf4(spcAsLong), Tools.getNextToLoByteOf4(spcAsLong), Tools.getNextToHiByteOf4(spcAsLong)};
             return spcAsBytes;
         }
         

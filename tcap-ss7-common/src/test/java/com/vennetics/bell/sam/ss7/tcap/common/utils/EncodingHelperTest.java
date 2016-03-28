@@ -7,14 +7,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
-import com.vennetics.bell.sam.ss7.tcap.common.utils.TagLengthValue;
 
 import ericsson.ein.ss7.commonparts.util.Tools;
 

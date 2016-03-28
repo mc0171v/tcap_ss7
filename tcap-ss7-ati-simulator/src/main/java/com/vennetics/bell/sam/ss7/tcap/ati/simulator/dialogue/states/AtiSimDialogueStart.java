@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
+import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IInitialDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedResultException;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.TagLengthValue;
@@ -24,7 +24,7 @@ import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
 import jain.protocol.ss7.tcap.dialogue.EndReqEvent;
 
 @Component
-public class AtiSimDialogueStart extends AbstractDialogueState implements IDialogueState {
+public class AtiSimDialogueStart extends AbstractDialogueState implements IInitialDialogueState, Cloneable {
 
     private static final Logger logger = LoggerFactory.getLogger(AtiSimDialogueStart.class);
 
@@ -70,31 +70,32 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IDialo
         final int dialogueId = event.getDialogueId();
         ResultReqEvent resultReq;
         if (operation[0] == ATI[0]) {
-            resultReq = getDialogue().getComponentRequestBuilder().createResultReq(getContext(),
-                                        dialogueId,
-                                        event.getInvokeId());
+            resultReq = getDialogue().getComponentRequestBuilder()
+                                     .createResultReq(getContext(),
+                                                      dialogueId,
+                                                      event.getInvokeId());
 
-        resultReq.setInvokeId(event.getInvokeId());
+            resultReq.setInvokeId(event.getInvokeId());
 
-        logger.debug("Sending result...");
-        try {
-            getDialogue().getJainTcapProvider().sendComponentReqEventNB(resultReq);
-        } catch (Exception ex) {
-            logger.error("Failed to send component");
-        }
+            logger.debug("Sending result...");
+            try {
+                getDialogue().getJainTcapProvider().sendComponentReqEventNB(resultReq);
+            } catch (Exception ex) {
+                logger.error("Failed to send component");
+            }
 
-        //---Build end request, depending on operation code
+            // ---Build end request, depending on operation code
 
-        EndReqEvent dialogueReq = getDialogue().getDialogueRequestBuilder().createEndReq(getContext(), dialogueId);
-        try {
-            getDialogue().getJainTcapProvider().sendDialogueReqEventNB(dialogueReq);
-        } catch (Exception ex) {
-            logger.error("Failed to send component");
-        }
-        logger.debug(event.toString());
-        logger.debug("Changing state from {}", getStateName());
-        getDialogue().setState(new AtiSimDialogueEnd(getContext(), getDialogue()));
-        getDialogue().activate();
+            EndReqEvent dialogueReq = getDialogue().getDialogueRequestBuilder()
+                                                   .createEndReq(getContext(), dialogueId);
+            try {
+                getDialogue().getJainTcapProvider().sendDialogueReqEventNB(dialogueReq);
+            } catch (Exception ex) {
+                logger.error("Failed to send component");
+            }
+            logger.debug(event.toString());
+            logger.debug("Changing state from {}", getStateName());
+            terminate();
         }
     }
 
@@ -120,5 +121,13 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IDialo
     
     public void terminate() {
         getDialogue().setState(new AtiSimDialogueEnd(getContext(), getDialogue()));
+    }
+    
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        if (getContext() == null && getDialogue() == null) {
+          return super.clone();
+        }
+        throw new CloneNotSupportedException();
     }
 }

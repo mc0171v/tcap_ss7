@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
@@ -23,8 +24,6 @@ import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IInitialDialogueState;
-import com.vennetics.bell.sam.ss7.tcap.common.listener.ISamTcapEventListener;
-import com.vennetics.bell.sam.ss7.tcap.common.listener.SamTcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerBound;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerReadyForTraffic;
@@ -55,6 +54,8 @@ public class SamTcapEventListenerTest {
     private IDialogueManager mockDialogueManager;
     @Mock
     private IInitialDialogueState mockDialogueState;
+    @Mock
+    private IInitialDialogueState mockDialogueState2;
     @Mock
     private IDialogueRequestBuilder mockDialogueRequestBuilder;
     @Mock
@@ -94,9 +95,9 @@ public class SamTcapEventListenerTest {
         final Ss7Address destAddress = new Ss7Address(); 
         destAddress.setSpc(LONG_DEST_SPC);
         destAddress.setSsn(DEST_SSN);
-        final Ss7Address origAddress = new Ss7Address(); 
+        final Ss7Address origAddress = new Ss7Address();
         origAddress.setSpc(LONG_ORIG_SPC);
-        origAddress.setSsn(ORIG_SSN);   
+        origAddress.setSsn(ORIG_SSN);
         configProps.setDestAddress(destAddress);
         configProps.setOrigAddress(origAddress);
         objectUnderTest = new SamTcapEventListener(configProps,
@@ -124,12 +125,17 @@ public class SamTcapEventListenerTest {
     public void shouldStartDialogue() {
         final Object message = new Object();
         CountDownLatch latch = new CountDownLatch(1);
+        try {
+            when(mockDialogueState.clone()).thenReturn(mockDialogueState2);
+        } catch (final CloneNotSupportedException ex) {
+            fail();
+        }
         IDialogue dialogue = objectUnderTest.startDialogue(message, latch);
-        verify(mockDialogueState).setContext(objectUnderTest);
-        verify(mockDialogueState).setDialogue(dialogue);
+        verify(mockDialogueState2).setContext(objectUnderTest);
+        verify(mockDialogueState2).setDialogue(dialogue);
         assertEquals(dialogue.getComponentRequestBuilder(), mockComponentRequestBuilder);
         assertEquals(dialogue.getDialogueRequestBuilder(), mockDialogueRequestBuilder);
-        assertEquals(dialogue.getState(), mockDialogueState);
+        assertEquals(dialogue.getState(), mockDialogueState2);
         assertEquals(dialogue.getLatch(), latch);
     }
     

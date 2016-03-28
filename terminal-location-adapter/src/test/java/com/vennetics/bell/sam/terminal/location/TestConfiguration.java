@@ -2,7 +2,7 @@ package com.vennetics.bell.sam.terminal.location;
 
 import com.vennetics.bell.sam.core.CoreErrorsConfig;
 import com.vennetics.bell.sam.error.SamErrorsConfig;
-import com.vennetics.bell.sam.error.adapters.LocationErrorAdapter;
+import com.vennetics.bell.sam.error.adapters.Ss7ErrorAdapter;
 import com.vennetics.bell.sam.error.mapper.IExceptionTypeMapper;
 import com.vennetics.bell.sam.model.location.LocationResponse;
 import com.vennetics.bell.sam.rest.config.RestConfig;
@@ -63,9 +63,9 @@ public class TestConfiguration {
         return mock(IExceptionTypeMapper.class);
     }
 
-    @Bean(name = "locationErrorAdapter")
-    public LocationErrorAdapter errorAdapter() {
-        return mock(LocationErrorAdapter.class);
+    @Bean(name = "ss7ErrorAdapter")
+    public Ss7ErrorAdapter errorAdapter() {
+        return mock(Ss7ErrorAdapter.class);
     }
 
     public static final MultiValueMap<String, String> createMap() {

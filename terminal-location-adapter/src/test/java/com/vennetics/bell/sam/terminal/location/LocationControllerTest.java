@@ -50,7 +50,7 @@ public class LocationControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    @Qualifier("locationErrorAdapter")
+    @Qualifier("ss7ErrorAdapter")
     private IErrorAdapter errorAdapter;
 
     @Autowired

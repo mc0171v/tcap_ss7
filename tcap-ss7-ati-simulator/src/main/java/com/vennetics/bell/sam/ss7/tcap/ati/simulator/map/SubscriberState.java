@@ -5,5 +5,9 @@ public enum SubscriberState {
     CAMEL_BUSY,
     NET_DET_NOT_REACHEABLE,
     NOT_PROVIDED_VLR,
-    UNKOWN
+    UNKOWN;
+    
+    public String value() {
+        return name();
+    }
 }

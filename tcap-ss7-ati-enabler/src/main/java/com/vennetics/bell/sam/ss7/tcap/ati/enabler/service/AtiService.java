@@ -44,8 +44,8 @@ public class AtiService implements IAtiService {
             Address normalizedDestination = null;
             if (null != atiMessageRequest.getMsisdn()) {
                 normalizedDestination = normalizeAddress(atiMessageRequest.getMsisdn());
-                logger.debug("Normalized address {} to {}", atiMessageRequest.getMsisdn(), normalizedDestination);
-                atiMessageRequest.setMsisdn(normalizedDestination.getE164Address());
+                logger.debug("Normalized address {} to {}", atiMessageRequest.getMsisdn(), normalizedDestination.getE164Address());
+                atiMessageRequest.setMsisdn(normalizedDestination.getE164Address().replaceFirst("\\+", ""));
             }
             if (atiMessageRequest.getDestination() != null) {
                 final CountDownLatch cDl = new CountDownLatch(1);

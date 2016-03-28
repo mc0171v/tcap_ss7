@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+
+  tcapss7atisimulator:
+    image: "vennetics/bell-sam-tcap-ss7-ati-simulator:latest"
+    restart: always
+    depends_on:
+      - discoveryservice
+      - configserver
+    volumes_from:
+      - logaggregator
+    environment:
+       EUREKA_URL: "http://vennetics:M5NLqZD8ivv0@discoveryservice:8761/eureka/"
+       SPRING_PROFILES_ACTIVE: simulator
+
+networks:
+  default:
+    external:
+      name: bellsam

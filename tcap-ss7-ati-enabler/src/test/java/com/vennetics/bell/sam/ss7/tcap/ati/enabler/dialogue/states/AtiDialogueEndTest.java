@@ -7,14 +7,19 @@ import jain.protocol.ss7.tcap.component.Operation;
 import jain.protocol.ss7.tcap.component.ResultIndEvent;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+
 import com.ericsson.einss7.jtcap.TcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
+import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedPrimitiveException;
 
@@ -34,12 +39,19 @@ public class AtiDialogueEndTest {
     private TcapEventListener mockTcapListener;
     @Mock
     private IDialogue mockDialogue;
+    @Mock
+    private IDialogueManager mockDialogueMgr;
 
     private IDialogueState objectToTest;
 
     @Before
     public void setup() throws Exception {
+        when(mockDialogueContext.getDialogueManager()).thenReturn(mockDialogueMgr);
+        when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
+        when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
         objectToTest = new AtiDialogueEnd(mockDialogueContext, mockDialogue);
+        verify(mockProvider).releaseDialogueId(DIALOGUE_ID);
+        verify(mockDialogueMgr).deactivate(mockDialogue);
     }
 
     @Test(expected = UnexpectedPrimitiveException.class)
@@ -57,5 +69,16 @@ public class AtiDialogueEndTest {
         resultIndEvent.setLinkId(LINK_ID);
         resultIndEvent.setDialogueId(DIALOGUE_ID);
         objectToTest.handleEvent(resultIndEvent);
+    }
+    
+    @Ignore
+    @Test
+    public void shouldTerminate() {
+      when(mockDialogueContext.getDialogueManager()).thenReturn(mockDialogueMgr);
+      when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
+      when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
+      objectToTest.terminate();
+      verify(mockProvider).releaseDialogueId(DIALOGUE_ID);
+      verify(mockDialogueMgr).deactivate(mockDialogue);
     }
 }

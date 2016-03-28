@@ -22,7 +22,7 @@ import com.vennetics.bell.sam.rest.controller.PassThruExceptionHandlingRestContr
 
 /**
  * Spring REST Controller for Location Service.
- * This implementation simply forwards to the internal SMS service.
+ * This implementation simply forwards to the internal SS7 service.
  */
 
 @RestController("locationController")
@@ -38,11 +38,11 @@ public class LocationController extends PassThruExceptionHandlingRestController 
     private ILocationService locationService;
 
     @Autowired
-    @Qualifier("locationErrorAdapter")
+    @Qualifier("ss7ErrorAdapter")
     private IErrorAdapter errorAdapter;
 
     /**
-     * POST endpoint used to create an outgoing location request.
+     * GET endpoint used to create an outgoing location request.
      * @param params
      *   The parameters that make up the location request.
      * @param serviceIdentifier

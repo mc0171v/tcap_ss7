@@ -23,9 +23,6 @@ import com.ericsson.einss7.jtcap.TcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedPrimitiveException;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.IListenerContext;
-import com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState;
-import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerBound;
-import com.vennetics.bell.sam.ss7.tcap.common.listener.states.ListenerReadyForTraffic;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.Ss7ConfigurationProperties;
 
