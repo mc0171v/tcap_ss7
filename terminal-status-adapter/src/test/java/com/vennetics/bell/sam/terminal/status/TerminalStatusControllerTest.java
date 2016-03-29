@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.vennetics.bell.sam.error.adapters.IErrorAdapter;
-import com.vennetics.bell.sam.model.status.StatusResponse;
+import com.vennetics.bell.sam.model.subscriber.status.SubscriberStatusResponse;
 
 /**
  * The Test class for SmsController
@@ -72,7 +72,7 @@ public class TerminalStatusControllerTest {
     @Test
     public void shouldAcceptSendStatusRequestFormUrlEncoded() throws Exception {
 
-        final ResponseEntity<StatusResponse> response = TestConfiguration.dummyResponse();
+        final ResponseEntity<SubscriberStatusResponse> response = TestConfiguration.dummyResponse();
 
         when(terminalStatusService.sendStatusRequest(eq(TestConfiguration.SERVICE), any())).thenReturn(response);
 

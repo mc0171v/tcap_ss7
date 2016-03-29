@@ -19,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import com.vennetics.bell.sam.model.status.StatusResponse;
+import com.vennetics.bell.sam.model.subscriber.status.SubscriberStatusResponse;
 import com.vennetics.bell.sam.terminal.status.TestConfiguration;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -35,8 +35,8 @@ public class TerminalStatusRequestCommandTest {
         final String expectedUrl = String.format("http://tcap-ss7-ati-enabler/outbound/status/requests?imsi=%s", TestConfiguration.IMSI);
         LOG.debug(expectedUrl);
         MultiValueMap<String, String> map = TestConfiguration.createMap();
-        ResponseEntity<StatusResponse> response = TestConfiguration.dummyResponse();
-        when(mockTemplate.exchange(eq(expectedUrl), eq(HttpMethod.GET), isA(HttpEntity.class), same(StatusResponse.class))).thenReturn(response);
+        ResponseEntity<SubscriberStatusResponse> response = TestConfiguration.dummyResponse();
+        when(mockTemplate.exchange(eq(expectedUrl), eq(HttpMethod.GET), isA(HttpEntity.class), same(SubscriberStatusResponse.class))).thenReturn(response);
 
         final TerminalStatusRequestCommand command = new TerminalStatusRequestCommand("tcap-ss7-ati-enabler", map,  mockTemplate);
 

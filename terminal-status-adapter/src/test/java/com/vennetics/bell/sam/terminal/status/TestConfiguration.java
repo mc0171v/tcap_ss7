@@ -4,7 +4,7 @@ import com.vennetics.bell.sam.core.CoreErrorsConfig;
 import com.vennetics.bell.sam.error.SamErrorsConfig;
 import com.vennetics.bell.sam.error.adapters.Ss7ErrorAdapter;
 import com.vennetics.bell.sam.error.mapper.IExceptionTypeMapper;
-import com.vennetics.bell.sam.model.status.StatusResponse;
+import com.vennetics.bell.sam.model.subscriber.status.SubscriberStatusResponse;
 import com.vennetics.bell.sam.rest.config.RestConfig;
 import com.vennetics.bell.sam.terminal.status.config.TerminalStatusAdapterConfig;
 
@@ -74,11 +74,11 @@ public class TestConfiguration {
         return map;
     }
 
-    public static final ResponseEntity<StatusResponse> dummyResponse() {
+    public static final ResponseEntity<SubscriberStatusResponse> dummyResponse() {
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
-        final StatusResponse response = new StatusResponse();
-        response.setStatus("Busy");
-        return new ResponseEntity<StatusResponse>(response, headers, HttpStatus.CREATED);
+        final SubscriberStatusResponse response = new SubscriberStatusResponse();
+        response.setSubscriberStatus("Busy");
+        return new ResponseEntity<SubscriberStatusResponse>(response, headers, HttpStatus.CREATED);
     }
 }

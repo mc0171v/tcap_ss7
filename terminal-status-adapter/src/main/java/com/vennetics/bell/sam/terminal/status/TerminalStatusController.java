@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vennetics.bell.sam.error.adapters.IErrorAdapter;
-import com.vennetics.bell.sam.model.status.StatusResponse;
+import com.vennetics.bell.sam.model.subscriber.status.SubscriberStatusResponse;
 import com.vennetics.bell.sam.registry.ServiceConstants;
 import com.vennetics.bell.sam.rest.controller.PassThruExceptionHandlingRestController;
 
@@ -50,17 +50,17 @@ public class TerminalStatusController extends PassThruExceptionHandlingRestContr
      * @return
      */
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<StatusResponse> sendStatusRequest(@RequestParam final MultiValueMap<String, String> params,
+    public ResponseEntity<SubscriberStatusResponse> sendStatusRequest(@RequestParam final MultiValueMap<String, String> params,
                                                             @PathVariable final String serviceIdentifier) {
 
         LOG.debug("sendStatusRequest: serviceIdentifier:{} params:{}", serviceIdentifier , params);
-        final ResponseEntity<StatusResponse> internalResponse = forwardRequest(serviceIdentifier, params);
+        final ResponseEntity<SubscriberStatusResponse> internalResponse = forwardRequest(serviceIdentifier, params);
 
         LOG.debug("sendStatusRequest response:{}", internalResponse);
         return internalResponse;
     }
 
-    private ResponseEntity<StatusResponse> forwardRequest(final String serviceIdentifier,
+    private ResponseEntity<SubscriberStatusResponse> forwardRequest(final String serviceIdentifier,
                                                           final MultiValueMap<String, String> params) {
 
         return terminalStatusService.sendStatusRequest(serviceIdentifier,

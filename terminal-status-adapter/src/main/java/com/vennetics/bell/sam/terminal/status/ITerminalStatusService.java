@@ -3,7 +3,7 @@ package com.vennetics.bell.sam.terminal.status;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 
-import com.vennetics.bell.sam.model.status.StatusResponse;
+import com.vennetics.bell.sam.model.subscriber.status.SubscriberStatusResponse;
 
 
 /**
@@ -19,7 +19,7 @@ public interface ITerminalStatusService {
      *   The parameters that constitute the status request to be sent.
      * @return
      */
-    ResponseEntity<StatusResponse> sendStatusRequest(String serviceIdentifier,
+    ResponseEntity<SubscriberStatusResponse> sendStatusRequest(String serviceIdentifier,
                                                      MultiValueMap<String, String> prams);
 
 }

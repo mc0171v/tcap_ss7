@@ -24,7 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import com.vennetics.bell.sam.model.status.StatusResponse;
+import com.vennetics.bell.sam.model.subscriber.status.SubscriberStatusResponse;
 import com.vennetics.bell.sam.terminal.status.config.TerminalStatusAdapterConfig;
 
 
@@ -50,10 +50,10 @@ public class TerminalStatusServiceTest {
     @Test
     public void shouldSendStatusRequest() throws Exception {
         final String expectedUrl = "http://tcap-ss7-ati-enabler/outbound/status/requests?imsi=442890269151123";
-        final ResponseEntity<StatusResponse> dummyResponse = TestConfiguration.dummyResponse();
+        final ResponseEntity<SubscriberStatusResponse> dummyResponse = TestConfiguration.dummyResponse();
         final MultiValueMap<String, String> map = TestConfiguration.createMap();
-        when(mockTemplate.exchange(eq(expectedUrl), eq(HttpMethod.GET), isA(HttpEntity.class), same(StatusResponse.class))).thenReturn(dummyResponse);
-        final ResponseEntity<StatusResponse> response = service.sendStatusRequest(TestConfiguration.SERVICE, map);
+        when(mockTemplate.exchange(eq(expectedUrl), eq(HttpMethod.GET), isA(HttpEntity.class), same(SubscriberStatusResponse.class))).thenReturn(dummyResponse);
+        final ResponseEntity<SubscriberStatusResponse> response = service.sendStatusRequest(TestConfiguration.SERVICE, map);
         assertThat(response, is(not(nullValue())));
         assertThat(response, is(sameInstance(dummyResponse)));
     }

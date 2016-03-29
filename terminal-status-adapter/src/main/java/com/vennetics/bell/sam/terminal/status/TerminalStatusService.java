@@ -1,6 +1,6 @@
 package com.vennetics.bell.sam.terminal.status;
 
-import com.vennetics.bell.sam.model.status.StatusResponse;
+import com.vennetics.bell.sam.model.subscriber.status.SubscriberStatusResponse;
 import com.vennetics.bell.sam.terminal.status.commands.TerminalStatusRequestCommand;
 import com.vennetics.bell.sam.terminal.status.config.TerminalStatusAdapterConfig;
 
@@ -29,7 +29,7 @@ public class TerminalStatusService implements ITerminalStatusService, Initializi
     private TerminalStatusAdapterConfig templateFactory;
 
     @Override
-    public ResponseEntity<StatusResponse> sendStatusRequest(final String serviceIdentifier,
+    public ResponseEntity<SubscriberStatusResponse> sendStatusRequest(final String serviceIdentifier,
                                                               final MultiValueMap<String, String> params) {
         LOG.debug("Status service:{} params:{}", serviceIdentifier, params);
         return new TerminalStatusRequestCommand(serviceIdentifier,

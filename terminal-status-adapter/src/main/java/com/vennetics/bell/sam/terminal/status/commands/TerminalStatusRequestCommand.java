@@ -4,7 +4,7 @@ import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandProperties;
-import com.vennetics.bell.sam.model.status.StatusResponse;
+import com.vennetics.bell.sam.model.subscriber.status.SubscriberStatusResponse;
 
 import java.util.Arrays;
 
@@ -23,7 +23,7 @@ import org.springframework.web.client.RestTemplate;
  * A HystrixCommand to invoke Status Request on the internal SS7 service
  */
 
-public class TerminalStatusRequestCommand extends HystrixCommand<ResponseEntity<StatusResponse>> {
+public class TerminalStatusRequestCommand extends HystrixCommand<ResponseEntity<SubscriberStatusResponse>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TerminalStatusRequestCommand.class);
 
@@ -54,18 +54,18 @@ public class TerminalStatusRequestCommand extends HystrixCommand<ResponseEntity<
     }
 
     @Override
-    protected ResponseEntity<StatusResponse> run() {
+    protected ResponseEntity<SubscriberStatusResponse> run() {
         final String url = buildUrl();
         LOG.debug("StatusRequestCommand {}", url);
         if (url != null) {
-            final ResponseEntity<StatusResponse> response = template.exchange(buildUrl(),
+            final ResponseEntity<SubscriberStatusResponse> response = template.exchange(buildUrl(),
                                                                               HttpMethod.GET,
                                                                               buildEntity(),
-                                                                              StatusResponse.class);
+                                                                              SubscriberStatusResponse.class);
             LOG.debug("StatusRequestCommand result {}", response);
             return response;
         } else {
-            return new ResponseEntity<StatusResponse>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<SubscriberStatusResponse>(HttpStatus.BAD_REQUEST);
         }
     }
 
