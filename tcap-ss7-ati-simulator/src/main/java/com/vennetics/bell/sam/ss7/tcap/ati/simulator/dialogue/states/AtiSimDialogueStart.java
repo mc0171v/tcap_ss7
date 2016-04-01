@@ -14,21 +14,20 @@ import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedResultExcepti
 import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.TagLengthValue;
 
-import jain.protocol.ss7.SS7Exception;
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
-
+import jain.protocol.ss7.tcap.ParameterNotSetException;
 import jain.protocol.ss7.tcap.component.InvokeIndEvent;
 import jain.protocol.ss7.tcap.component.ResultReqEvent;
 import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
 import jain.protocol.ss7.tcap.dialogue.EndReqEvent;
 
 @Component
-public class AtiSimDialogueStart extends AbstractDialogueState implements IInitialDialogueState, Cloneable {
+public class AtiSimDialogueStart extends AbstractDialogueState implements IInitialDialogueState {
 
     private static final Logger logger = LoggerFactory.getLogger(AtiSimDialogueStart.class);
 
-    public static final byte[] ATI  = { 0x47 };
+    private static final byte[] ATI  = { 0x47 };
     
     private static String stateName = "AtiDialogueStart";
 
@@ -42,7 +41,9 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
         logger.debug("Changing state to {}", getStateName());
     }
 
+    @Override
     public void activate() {
+        logger.debug("Nothing to do");
     }
 
     @Override
@@ -64,24 +65,33 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
      * @exception SS7Exception
      */
     @Override
-    public void processInvokeIndEvent(final InvokeIndEvent event) throws SS7Exception {
+    public void processInvokeIndEvent(final InvokeIndEvent event) {
         logger.debug("InvokeIndEvent event received in state {}", getStateName());
-        byte[] operation = event.getOperation().getOperationCode();
-        final int dialogueId = event.getDialogueId();
+        int dialogueId;
+        int invokeId;
+        byte[] operation;
+        try {
+            operation = event.getOperation().getOperationCode();
+            dialogueId = event.getDialogueId();
+            invokeId = event.getInvokeId();
+        } catch (ParameterNotSetException ex) {
+            logger.error("Could not extract parameters {}", ex);
+            terminate();
+            return;
+        }
         ResultReqEvent resultReq;
         if (operation[0] == ATI[0]) {
             resultReq = getDialogue().getComponentRequestBuilder()
-                                     .createResultReq(getContext(),
+                                     .createResultReq(getContext().getTcapEventListener(),
                                                       dialogueId,
-                                                      event.getInvokeId());
-
-            resultReq.setInvokeId(event.getInvokeId());
-
+                                                      invokeId);
             logger.debug("Sending result...");
             try {
                 getDialogue().getJainTcapProvider().sendComponentReqEventNB(resultReq);
             } catch (Exception ex) {
-                logger.error("Failed to send component");
+                logger.error("Failed to send component {}", ex);
+                terminate();
+                return;
             }
 
             // ---Build end request, depending on operation code
@@ -91,9 +101,10 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
             try {
                 getDialogue().getJainTcapProvider().sendDialogueReqEventNB(dialogueReq);
             } catch (Exception ex) {
-                logger.error("Failed to send component");
+                logger.error("Failed to send component {}", ex);
+                terminate();
+                return;
             }
-            logger.debug(event.toString());
             logger.debug("Changing state from {}", getStateName());
             terminate();
         }
@@ -111,23 +122,24 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
     /**
      * Dialogue event.
      */
-    public void processEndIndEvent(final EndIndEvent event) throws SS7Exception {
+    @Override
+    public void processEndIndEvent(final EndIndEvent event) {
         logger.debug("Expected EndIndEvent received.");
     }
 
+    @Override
     public String getStateName() {
         return stateName;
     }
     
+    @Override
     public void terminate() {
         getDialogue().setState(new AtiSimDialogueEnd(getContext(), getDialogue()));
     }
     
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        if (getContext() == null && getDialogue() == null) {
-          return super.clone();
-        }
-        throw new CloneNotSupportedException();
+    public IInitialDialogueState newInstance() {
+          return new AtiSimDialogueStart();
+  
     }
 }

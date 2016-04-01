@@ -91,6 +91,7 @@ public class OutboundATIMessage implements IError {
      *     {@link Ss7ServiceException }
      *     
      */
+    @Override
     public void setError(final Ss7ServiceException value) {
         this.error = value;
     }

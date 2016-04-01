@@ -8,7 +8,6 @@ import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
 
-import jain.protocol.ss7.SS7Exception;
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
 import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
@@ -40,10 +39,12 @@ public class AtiDialogueEnd extends AbstractDialogueState implements IDialogueSt
     /**
      * Dialogue event.
      */
-    public void processEndIndEvent(final EndIndEvent event) throws SS7Exception {
+    @Override
+    public void processEndIndEvent(final EndIndEvent event) {
         logger.debug("Expected EndIndEvent received.");
     }
 
+    @Override
     public String getStateName() {
         return stateName;
     }

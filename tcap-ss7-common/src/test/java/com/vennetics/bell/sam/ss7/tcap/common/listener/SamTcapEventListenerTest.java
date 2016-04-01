@@ -125,11 +125,7 @@ public class SamTcapEventListenerTest {
     public void shouldStartDialogue() {
         final Object message = new Object();
         CountDownLatch latch = new CountDownLatch(1);
-        try {
-            when(mockDialogueState.clone()).thenReturn(mockDialogueState2);
-        } catch (final CloneNotSupportedException ex) {
-            fail();
-        }
+        when(mockDialogueState.newInstance()).thenReturn(mockDialogueState2);
         IDialogue dialogue = objectUnderTest.startDialogue(message, latch);
         verify(mockDialogueState2).setContext(objectUnderTest);
         verify(mockDialogueState2).setDialogue(dialogue);

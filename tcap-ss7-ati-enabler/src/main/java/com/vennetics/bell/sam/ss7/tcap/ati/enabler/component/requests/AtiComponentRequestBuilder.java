@@ -36,7 +36,7 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
         logger.debug("Constructed ATIComponentRequestBuilder");
     }
 
-
+    @Override
     public InvokeReqEvent createInvokeReq(final Object source,
                                           final int invokeId,
                                           final Object request,
@@ -77,14 +77,14 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
         
     }
     
-    private int getRequestInfoLenth(final OutboundATIMessage request) {
+    private static int getRequestInfoLenth(final OutboundATIMessage request) {
         int requestInfoLength = 0;
         requestInfoLength = request.isRequestInfoLocation() ? requestInfoLength + 2 : requestInfoLength;
         requestInfoLength = request.isRequestInfoSubscriberState() ? requestInfoLength + 2 : requestInfoLength;
         return requestInfoLength;
     }
     
-   private ByteBuffer buildRequestInfoElement(final OutboundATIMessage request) {
+   private static ByteBuffer buildRequestInfoElement(final OutboundATIMessage request) {
        final byte tag = REQUESTED_INFO_TAG;
        final byte[] asn1Length = EncodingHelper.getAsn1Length(getRequestInfoLenth(request));
        ByteBuffer bb = ByteBuffer.allocate(getRequestInfoLenth(request) + asn1Length.length + 1);
@@ -99,7 +99,7 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
        return bb;
    }
    
-   private ByteBuffer buildSubsciberIdentityElement(final OutboundATIMessage request) {
+   private static ByteBuffer buildSubsciberIdentityElement(final OutboundATIMessage request) {
        final byte tag = SUBSCRIBER_IDENTITY_TAG;
        ByteBuffer subInfoBb;
        if (request.getImsi() != null) {

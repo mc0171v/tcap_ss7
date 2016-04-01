@@ -41,7 +41,7 @@ public class AtiService implements IAtiService {
                      atiMessageRequest.getDestination());
         OutboundATIMessage result = null;
         if (checkAndWaitForListener()) {
-            Address normalizedDestination = null;
+            Address normalizedDestination;
             if (null != atiMessageRequest.getMsisdn()) {
                 normalizedDestination = normalizeAddress(atiMessageRequest.getMsisdn());
                 logger.debug("Normalized address {} to {}", atiMessageRequest.getMsisdn(), normalizedDestination.getE164Address());
@@ -68,6 +68,16 @@ public class AtiService implements IAtiService {
     }
     
     private boolean checkAndWaitForListener() {
+        if (!checkBound()) {
+            return false;
+        }
+        if (!checkReady()) {
+            return false;
+        }
+        return true;
+    }
+    
+    private boolean checkBound() {
         int retry = 0;
         final ISs7ConfigurationProperties props = listener.getConfigProperties();
         while (!listener.isBound() && retry < props.getWaitForBindRetries()) {
@@ -76,7 +86,8 @@ public class AtiService implements IAtiService {
             try {
                 Thread.sleep(props.getWaitBeforeBindRetry());
             } catch (Exception ex) {
-                logger.debug("Caught exception");
+                logger.debug("Caught interrupted exception{}", ex);
+                return false;
             }
 
         }
@@ -85,6 +96,12 @@ public class AtiService implements IAtiService {
             return false;
         }
         logger.debug("User bound");
+        return true;
+    }
+    
+    private boolean checkReady() {
+        int retry;
+        final ISs7ConfigurationProperties props = listener.getConfigProperties();
         if (props.isWaitForReady()) {
             retry = 0;
             while (!listener.isReady() && retry < props.getWaitForReadyRetries()) {
@@ -93,7 +110,8 @@ public class AtiService implements IAtiService {
                 try {
                     Thread.sleep(props.getWaitBeforeReadyRetry());
                 } catch (Exception ex) {
-                    logger.debug("Caught exception");
+                    logger.debug("Caught interrupted exception {}", ex);
+                    return false;
                 }
 
             }
@@ -101,8 +119,8 @@ public class AtiService implements IAtiService {
                 logger.debug("Is not ready");
                 return false;
             }
-            logger.debug("User Ready");
         }
+        logger.debug("User Ready");
         return true;
     }
 }

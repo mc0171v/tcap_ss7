@@ -1,6 +1,5 @@
 package com.vennetics.bell.sam.ss7.tcap.common.component.requests;
 
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
 
 import jain.protocol.ss7.tcap.component.InvokeReqEvent;
@@ -21,7 +20,7 @@ public interface IComponentRequestBuilder {
                                    ISs7ConfigurationProperties configProps,
                                    int dialogueId);
     
-    ResultReqEvent createResultReq(IDialogueContext context,
+    ResultReqEvent createResultReq(Object source,
                                    int dialogueId,
                                    int invokeId);
 }

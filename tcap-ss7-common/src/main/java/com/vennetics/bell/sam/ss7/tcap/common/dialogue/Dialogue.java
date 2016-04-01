@@ -48,33 +48,40 @@ public class Dialogue implements IDialogue {
         logger.debug("Started new Dialogue");
     }
 
+    @Override
     public int getDialogueId() {
         return dialogueId;
     }
 
+    @Override
     public void setDialogueId(final int dialogueId) {
         this.dialogueId = dialogueId;
         context.getDialogueManager().activate(this);
         logger.debug("Activated Dialogue with ID {}", dialogueId);
     }
 
+    @Override
     public JainTcapProvider getJainTcapProvider() {
         return provider;
     }
 
+    @Override
     public IDialogueState getState() {
         return state;
     }
 
+    @Override
     public void setState(final IDialogueState state) {
         this.state = state;
     }
 
+    @Override
     public void handleEvent(final ComponentIndEvent event) {
         logger.debug("Handing off event to state {}", state.getStateName());
         state.handleEvent(event);
     }
 
+    @Override
     public void handleEvent(final DialogueIndEvent event) {
         logger.debug("Handing off event to state {}", state.getStateName());
         state.handleEvent(event);
@@ -86,30 +93,37 @@ public class Dialogue implements IDialogue {
                         + context.getSsn() + "]";
     }
 
+    @Override
     public void activate() {
         state.activate();
     }
 
+    @Override
     public String getStateName() {
         return state.getStateName();
     }
     
+    @Override
     public void setDialogueRequestBuilder(final IDialogueRequestBuilder dialogueRequestBuilder) {
         this.dialogueRequestBuilder = dialogueRequestBuilder;
     }
 
+    @Override
     public void setComponentRequestBuilder(final IComponentRequestBuilder componentRequestBuilder) {
         this.componentRequestBuilder = componentRequestBuilder;
     }
     
+    @Override
     public IDialogueRequestBuilder getDialogueRequestBuilder() {
         return dialogueRequestBuilder;
     }
 
+    @Override
     public IComponentRequestBuilder getComponentRequestBuilder() {
         return componentRequestBuilder;
     }
 
+    @Override
     public Object getRequest() {
         return request;
     }
@@ -118,26 +132,30 @@ public class Dialogue implements IDialogue {
         this.request = request;
     }
 
-
+    @Override
     public Object getResult() {
         return result;
     }
 
+    @Override
     public void setResult(final Object result) {
         this.result = result;
         latch.countDown(); //Inform command that result is now available.
     }
     
+    @Override
     public void setError(final Ss7ServiceException error) {
         this.result = request;
         ((IError) result).setError(error);
         latch.countDown(); //Inform command that result is now available.
     }
     
+    @Override
     public CountDownLatch getLatch() {
         return latch;
     }
 
+    @Override
     public void setLatch(final CountDownLatch latch) {
         this.latch = latch;
     }

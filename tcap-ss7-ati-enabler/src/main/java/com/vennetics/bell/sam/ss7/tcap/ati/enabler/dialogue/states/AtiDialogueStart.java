@@ -27,6 +27,7 @@ import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
 import jain.protocol.ss7.tcap.JainTcapProvider;
 import jain.protocol.ss7.tcap.JainTcapStack;
+import jain.protocol.ss7.tcap.ParameterNotSetException;
 import jain.protocol.ss7.tcap.component.InvokeReqEvent;
 import jain.protocol.ss7.tcap.component.Parameters;
 import jain.protocol.ss7.tcap.component.ResultIndEvent;
@@ -35,7 +36,7 @@ import jain.protocol.ss7.tcap.dialogue.DialogueConstants;
 import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
 
 @Component
-public class AtiDialogueStart extends AbstractDialogueState implements IInitialDialogueState, Cloneable {
+public class AtiDialogueStart extends AbstractDialogueState implements IInitialDialogueState {
 
     private static final Logger logger = LoggerFactory.getLogger(AtiDialogueStart.class);
 
@@ -63,6 +64,7 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         logger.debug("Changing state to {}", getStateName());
     }
 
+    @Override
     public void activate() {
         startDialogue();
     }
@@ -106,7 +108,7 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         } catch (OutOfServiceException oosEx) {
             handleOutOfServiceException(oosEx);
         } catch (VendorException vEx) {
-            vEx.printStackTrace();
+            handleVendorException(vEx);
         }
     }
 
@@ -117,29 +119,39 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
      * @exception SS7Exception
      */
     @Override
-    public void processResultIndEvent(final ResultIndEvent event) throws SS7Exception {
+    public void processResultIndEvent(final ResultIndEvent event) {
         logger.debug("ResultIndEvent event received in state {}", getStateName());
         OutboundATIMessage obm = (OutboundATIMessage) getDialogue().getRequest();
         if (event.isParametersPresent()) {
-            Parameters params = event.getParameters();
-            final byte[] returnedBytes = params.getParameter();
-            logger.debug("Parameters = {}", EncodingHelper.bytesToHex(returnedBytes));
-            processReturnedBytes(returnedBytes, obm);
+            try {
+                Parameters params = event.getParameters();
+                final byte[] returnedBytes = params.getParameter();
+                logger.debug("Parameters = {}", EncodingHelper.bytesToHex(returnedBytes));
+                processReturnedBytes(returnedBytes, obm);
+            } catch (ParameterNotSetException ex) {
+                logger.error("Parameters not set exception received {}", ex);
+                obm.setError(new Ss7ServiceException("No parameters received with component"));
+            }
+
         } else {
             obm.setError(new Ss7ServiceException("No parameters received with component"));
         }
         getDialogue().setResult(obm);
         final JainTcapProvider provider = getContext().getProvider();
         final JainTcapStack stack = getContext().getStack();
-        switch (stack.getProtocolVersion()) {
-            case DialogueConstants.PROTOCOL_VERSION_ANSI_96:
-                provider.releaseInvokeId(event.getLinkId(), event.getDialogueId());
-                break;
-            case DialogueConstants.PROTOCOL_VERSION_ITU_97:
-                provider.releaseInvokeId(event.getInvokeId(), event.getDialogueId());
-                break;
-            default:
-                logger.error("Wrong protocol version" + stack.getProtocolVersion());
+        try {
+            switch (stack.getProtocolVersion()) {
+                case DialogueConstants.PROTOCOL_VERSION_ANSI_96:
+                    provider.releaseInvokeId(event.getLinkId(), event.getDialogueId());
+                    break;
+                case DialogueConstants.PROTOCOL_VERSION_ITU_97:
+                    provider.releaseInvokeId(event.getInvokeId(), event.getDialogueId());
+                    break;
+                default:
+                    logger.error("Wrong protocol version" + stack.getProtocolVersion());
+            }
+        } catch (ParameterNotSetException ex) {
+            logger.error("Parameter not set exception {}", ex);
         }
         logger.debug("Changing state from {}", getStateName());
         terminate();
@@ -155,7 +167,7 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         processSubscriberInfo(tlvs, obm);
     }
     
-    private void processSubscriberInfo(final List<TagLengthValue> tlvs, final OutboundATIMessage obm) {
+    private static void processSubscriberInfo(final List<TagLengthValue> tlvs, final OutboundATIMessage obm) {
         for (TagLengthValue tlv: tlvs) {
             logger.debug("tag {}, length {}, Value {}", EncodingHelper.bytesToHex(tlv.getTag()),
                                                         EncodingHelper.bytesToHex(tlv.getLength()),
@@ -177,7 +189,7 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         }
     }
 
-    private void processLocationInfo(final byte tag, final byte[] bs, final OutboundATIMessage obm) {
+    private static void processLocationInfo(final byte tag, final byte[] bs, final OutboundATIMessage obm) {
         if (tag == GEO_INFO_TAG) {
             ByteBuffer bb = ByteBuffer.wrap(bs);
             bb.get(); // Skip shape
@@ -210,7 +222,7 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         }
     }
 
-    private void processSubscriberState(final byte octet, final OutboundATIMessage obm) {
+    private static void processSubscriberState(final byte octet, final OutboundATIMessage obm) {
         logger.debug("SubscriberState tag = {}", EncodingHelper.bytesToHex(octet));
         if (octet == IDLE_TAG) {
             obm.setStatus(SubscriberState.ASSUMED_IDLE);
@@ -237,26 +249,23 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
     /**
      * Dialogue event.
      */
-    public void processEndIndEvent(final EndIndEvent event) throws SS7Exception {
+    @Override
+    public void processEndIndEvent(final EndIndEvent event) {
         logger.debug("Expected EndIndEvent received.");
     }
 
+    @Override
     public String getStateName() {
         return stateName;
     }
     
     @Override
     public void terminate() {
-        logger.debug("terminating");
         getDialogue().setState(new AtiDialogueEnd(getContext(), getDialogue()));
-        logger.debug("terminated");
     }
     
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        if (getContext() == null && getDialogue() == null) {
-          return super.clone();
-        }
-        throw new CloneNotSupportedException();
+    public IInitialDialogueState newInstance() {
+        return new AtiDialogueStart();
     }
 }

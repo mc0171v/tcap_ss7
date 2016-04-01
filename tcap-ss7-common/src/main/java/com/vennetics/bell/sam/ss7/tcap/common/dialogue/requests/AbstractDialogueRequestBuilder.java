@@ -8,6 +8,8 @@ import jain.protocol.ss7.tcap.dialogue.DialoguePortion;
 import jain.protocol.ss7.tcap.dialogue.EndReqEvent;
 
 public abstract class AbstractDialogueRequestBuilder implements IDialogueRequestBuilder {
+    
+    @Override
     public BeginReqEvent createBeginReq(final IDialogueContext context, final int dialogueId) {
 
         final BeginReqEvent beginReq = new BeginReqEvent(context.getTcapEventListener(),
@@ -21,6 +23,7 @@ public abstract class AbstractDialogueRequestBuilder implements IDialogueRequest
         return beginReq;
     }
     
+    @Override
     public ContinueReqEvent createContinueReq(final IDialogueContext context, final int dialogueId) {
 
         ContinueReqEvent continueReq = new ContinueReqEvent(context.getTcapEventListener(), 0);
@@ -30,6 +33,7 @@ public abstract class AbstractDialogueRequestBuilder implements IDialogueRequest
         return continueReq;
     }
     
+    @Override
     public EndReqEvent createEndReq(final IDialogueContext context, final int dialogueId) {
 
         EndReqEvent endReq = new EndReqEvent(context.getTcapEventListener(), 0);

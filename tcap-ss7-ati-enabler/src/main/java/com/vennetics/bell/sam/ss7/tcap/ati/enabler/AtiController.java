@@ -50,7 +50,8 @@ public class AtiController extends ExceptionHandlingSs7RestController {
         observer.subscribe(outboundATIMessage -> { logger.debug("Controller received {}", outboundATIMessage);
                            response.setLatitude(EncodingHelper.bytesToHex(outboundATIMessage.getLatitude()));
                            response.setLongitude(EncodingHelper.bytesToHex(outboundATIMessage.getLongitude()));
-                           response.setUncertainty(EncodingHelper.bytesToHex(outboundATIMessage.getUncertainty())); });
+                           response.setUncertainty(EncodingHelper.bytesToHex(outboundATIMessage.getUncertainty()));
+                           });
         logger.debug("Response {}", response);
         return new ResponseEntity<LocationResponse>(
                         response,
@@ -66,7 +67,8 @@ public class AtiController extends ExceptionHandlingSs7RestController {
         UUID uuid = UUID.randomUUID();
         Observable<OutboundATIMessage> observer = atiService.sendAtiMessage(uuid, obm);
         observer.subscribe(outboundATIMessage -> { logger.debug("Controller received {}", outboundATIMessage);
-                           response.setSubscriberStatus(outboundATIMessage.getStatus().name()); });
+                           response.setSubscriberStatus(outboundATIMessage.getStatus().name()); 
+                           });
         logger.debug("Response {}", response);
         return new ResponseEntity<SubscriberStatusResponse>(
                         response,
@@ -78,7 +80,7 @@ public class AtiController extends ExceptionHandlingSs7RestController {
         this.atiService = atiService;
     }
     
-    private OutboundATIMessage setupOutBoundMessage(final MultiValueMap<String, String> params) {
+    private static OutboundATIMessage setupOutBoundMessage(final MultiValueMap<String, String> params) {
         final OutboundATIMessage obm = new OutboundATIMessage();
         
         if (params.getFirst("msisdn") != null) {

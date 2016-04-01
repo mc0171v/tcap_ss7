@@ -44,7 +44,7 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
      * 
      */
     @Override
-    protected OutboundATIMessage run() throws Ss7ServiceException {
+    protected OutboundATIMessage run() {
         logger.debug("Running Hystrix wrapped send ATI command to return a location or status");
         final IDialogue dialogue = listener.startDialogue(request, cDl);
         try {

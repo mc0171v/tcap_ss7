@@ -30,6 +30,7 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
      * 
      * @param event
      */
+    @Override
     protected void processVendorIndEvent(final VendorIndEvent event) {
         final int eventType = event.getVendorEventType();
         logger.debug("VendorIndEvent event {} received in state {}", eventType, getStateName());
@@ -77,8 +78,7 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
     private void processTcStateIndEvent(final TcStateIndEvent event) {
         if (!isReadyForTraffic(event, getContext().getDestinationAddress())) {
             logger.debug("processTcStateIndEvent congestion: " + event.getUserStatus());
-            // @todo handle congestion...
-
+//TODO Handle congestion?
         } else {
             logger.debug("Changing state from {}", getStateName());
             getContext().setState(new ListenerReadyForTraffic(getContext()));
@@ -100,22 +100,27 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
             logger.debug("TcStateIndEvent.USER_UNAVAILABLE");
             return false;
         }
-
-        // extract SPC and SSN from addr
-        byte[] addrSpc = null;
-        int addrSsn = -1;
-        try {
-            addrSpc = addr.getSignalingPointCode();
-            addrSsn = addr.getSubSystemNumber();
-        } catch (Exception ex) {
-            logger.error("Failed to extract SPC and/or SSN");
+        if (!checkSpcMatches(event, addr)) {
             return false;
         }
-        logger.debug("", addrSsn);
+        if (!checkSsnMatches(event, addr)) {
+            return false;
+        }
+        return true;
 
+    }
+
+    private static boolean checkSpcMatches(final TcStateIndEvent event, final TcapUserAddress addr) {
+        // extract SPC and SSN from addr
+        byte[] addrSpc = null;
+        try {
+            addrSpc = addr.getSignalingPointCode();
+        } catch (Exception ex) {
+            logger.error("Failed to extract SPC: {}", ex);
+            return false;
+        }
         // check that SPC in addr is the same as affected SPC
         byte[] affectedSpc = event.getAffectedSpc();
-        logger.debug("Our SSN {} Affected SSN {}", addrSsn, event.getAffectedSsn());
 
         if (affectedSpc.length != addrSpc.length) {
             return false;
@@ -128,11 +133,23 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
                 return false;
             }
         }
-
-        // if SSN also matches then ready for traffic
+        return true;
+    }
+    
+    private static boolean checkSsnMatches(final TcStateIndEvent event, final TcapUserAddress addr) {
+        // extract SPC and SSN from addr
+        int addrSsn = -1;
+        try {
+            addrSsn = addr.getSubSystemNumber();
+        } catch (Exception ex) {
+            logger.error("Failed to extract SSN: {}", ex);
+            return false;
+        }
+        logger.debug("Our SSN {} Affected SSN {}", addrSsn, event.getAffectedSsn());
+        
         return event.getAffectedSsn() == addrSsn;
     }
-
+    
     protected String getStateName() {
         return statename;
     }

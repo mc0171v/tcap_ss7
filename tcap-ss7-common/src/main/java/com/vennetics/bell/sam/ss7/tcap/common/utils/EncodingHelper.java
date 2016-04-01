@@ -24,6 +24,7 @@ public final class EncodingHelper {
     private static final int DOUBLE_LENGTH_OCTET_TAG = 0x82;
     private static final String SPECIAL_BCD_CHARS = "*#abcf*#ABCF";
     private static final String FILLER = "f";
+    private static final String LENGTH_DEBUG = "Length: {}";
     
     public static final int SEQUENCE_TAG = 0x30;
     public static final int INTEGER_TAG = 0x02;
@@ -123,7 +124,7 @@ public final class EncodingHelper {
             tlv.setTag(tag);
             logger.debug("Tag: {}", EncodingHelper.bytesToHex(tag));
             int valueLength = 0;
-            int lengthLength = 1;
+            int lengthLength;
             byte lengthOrLengthTag = bb.get();
             if ((lengthOrLengthTag & LONG_LENGTH_TAG) > 0x0) {
                 lengthLength = bytes[1] & 0x7F;
@@ -132,14 +133,14 @@ public final class EncodingHelper {
                     valueLength = (int) octet1 & 0xFF;
                     final byte[] length = { lengthOrLengthTag, octet1 };
                     tlv.setLength(length);
-                    logger.debug("Length: {}", EncodingHelper.bytesToHex(length));
+                    logger.debug(LENGTH_DEBUG, EncodingHelper.bytesToHex(length));
                 } else if (lengthLength == 2) {
                     final byte octet1 = bb.get();
                     final byte octet2 = bb.get();
                     final byte[] length = { lengthOrLengthTag, octet1, octet2 };
-                    valueLength = (int) (((octet1 & 0xFF) << 8) + (octet2 & 0xFF));
+                    valueLength = ((octet1 & 0xFF) << 8) + (octet2 & 0xFF);
                     tlv.setLength(length);
-                    logger.debug("Length: {}", EncodingHelper.bytesToHex(length));
+                    logger.debug(LENGTH_DEBUG, EncodingHelper.bytesToHex(length));
                 } else { //Don't think we'll be dealing with anything longer
                     logger.error("Parameters too long");
                 }
@@ -147,7 +148,7 @@ public final class EncodingHelper {
                 valueLength = lengthOrLengthTag;
                 final byte[] length = { lengthOrLengthTag };
                 tlv.setLength(length);
-                logger.debug("Length: {}", EncodingHelper.bytesToHex(length));
+                logger.debug(LENGTH_DEBUG, EncodingHelper.bytesToHex(length));
             }
             final byte[] value = new byte[valueLength];
             bb.get(value, 0, valueLength);

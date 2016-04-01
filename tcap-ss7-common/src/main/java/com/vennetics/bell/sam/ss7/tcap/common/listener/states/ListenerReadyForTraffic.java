@@ -24,6 +24,8 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
     private static final Logger logger = LoggerFactory.getLogger(ListenerReadyForTraffic.class);
 
     private static String stateName = "ListenerReadyForTraffic";
+    
+    private static final String NOEXTRACT = "Could not extract dialogue Id: {}";
 
     public ListenerReadyForTraffic(final IListenerContext context) {
         super(context);
@@ -45,6 +47,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
         processVendorIndEvent(event);
     }
 
+    @Override
     protected void processComponentIndEvent(final ComponentIndEvent event) {
         logger.debug("ComponentIndEvent event received in state {}", getStateName());
         IDialogue dialogue = getDialogue(event);
@@ -59,7 +62,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
             dialogueId = event.getDialogueId();
             logger.debug("Retrieved dialogId {}", dialogueId);
         } catch (ParameterNotSetException ex) {
-            logger.error("Could not extract dialogue Id");
+            logger.error(NOEXTRACT, ex);
             return null;
         }
         IDialogue dialogue = getContext().getDialogue(dialogueId);
@@ -73,7 +76,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
             dialogueId = event.getDialogueId();
             logger.debug("Retrieved dialogId {}", dialogueId);
         } catch (ParameterNotSetException ex) {
-            logger.error("Could not extract dialogue Id");
+            logger.error(NOEXTRACT, ex);
             return null;
         }
         IDialogue dialogue = getContext().getDialogue(dialogueId);
@@ -86,6 +89,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
      *
      * @param event
      */
+    @Override
     protected void processDialogueIndEvent(final DialogueIndEvent event) {
         logger.debug("DialogueIndEvent event received in state {}", getStateName());
         IDialogue dialogue = getDialogue(event);
@@ -100,7 +104,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
                 getContext().joinDialogue(dialogueId);
                 logger.debug("Retrieved dialogId {} and created new dialogue", dialogueId);
             } catch (ParameterNotSetException ex) {
-                logger.error("Could not extract dialogue Id");
+                logger.error(NOEXTRACT, ex);
             }
         }
     }
@@ -110,6 +114,7 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
      * 
      * @param event
      */
+    @Override
     protected void processVendorIndEvent(final VendorIndEvent event) {
         final int eventType = event.getVendorEventType();
         logger.debug("VendorIndEvent event {} received in state {}", eventType, getStateName());
@@ -171,17 +176,21 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
      * @return True if ready.
      */
     private boolean isReadyForTraffic(final TcStateIndEvent event, final TcapUserAddress addr) {
-        if (!getContext().getConfigProperties().isWaitForReady()) {
+        if (!getContext().getConfigProperties().isWaitForReady()
+         || !checkSpcMatches(event, addr)
+         || !checkSsnMatchesAndUnavailable(event, addr)) {
             return true;
         }
+        return false;
+    }
+
+    private static boolean checkSpcMatches(final TcStateIndEvent event, final TcapUserAddress addr) {
         // extract SPC and SSN from addr
         byte[] addrSpc = null;
-        int addrSsn = -1;
         try {
             addrSpc = addr.getSignalingPointCode();
-            addrSsn = addr.getSubSystemNumber();
         } catch (Exception ex) {
-            logger.error("Failed to extract SPC and/or SSN");
+            logger.error("Failed to extract SPC {}", ex);
             return false;
         }
 
@@ -190,25 +199,36 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
 
         if (affectedSpc.length != addrSpc.length) {
             logger.debug("TcStateIndEvent SPC's don't match");
-            return true;
+            return false;
         }
 
         for (int i = 0; i < affectedSpc.length; i++) {
             if (affectedSpc[i] != addrSpc[i]) {
                 logger.debug("TcStateIndEvent SPC's don't match");
-                return true;
+                return false;
             }
+        }
+        
+        return true;
+    }
+
+    private static boolean checkSsnMatchesAndUnavailable(final TcStateIndEvent event, final TcapUserAddress addr) {
+        int addrSsn = -1;
+        try {
+            addrSsn = addr.getSubSystemNumber();
+        } catch (Exception ex) {
+            logger.error("Failed to extract SSN: {}", ex);
+            return false;
         }
 
         if (event.getUserStatus() == TcStateIndEvent.USER_UNAVAILABLE
                         && event.getAffectedSsn() == addrSsn) {
             logger.debug("TcStateIndEvent.USER_UNAVAILABLE");
-            return false;
+            return true;
         }
-
-        return true;
+        
+        return false;
     }
-
     protected String getStateName() {
         return stateName;
     }

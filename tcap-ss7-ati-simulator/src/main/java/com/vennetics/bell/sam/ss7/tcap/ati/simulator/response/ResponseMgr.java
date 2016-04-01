@@ -24,8 +24,16 @@ public class ResponseMgr implements IResponseMgr {
         return false;
     }
 
+    @Override
+    public boolean delete(final String address) {
+        if (lookUp(address) != null) {
+            responseMap.remove(address);
+            return true;
+        }
+        return false;
+    }
 
-    private String getAddress(final ATIResponseMessage response) {
+    private static String getAddress(final ATIResponseMessage response) {
         if (response.getImsi() != null) {
             return response.getImsi();
         } else if (response.getMsisdn() != null) {

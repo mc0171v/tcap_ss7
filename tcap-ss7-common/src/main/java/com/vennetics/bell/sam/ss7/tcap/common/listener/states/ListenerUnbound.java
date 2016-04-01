@@ -35,6 +35,7 @@ public class ListenerUnbound extends AbstractListenerState implements IListenerS
      * 
      * @param event
      */
+    @Override
     protected void processVendorIndEvent(final VendorIndEvent event) {
         final int eventType = event.getVendorEventType();
         logger.debug("VendorDialogueIndEvent event {} received in state {}",

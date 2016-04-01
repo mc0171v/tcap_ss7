@@ -5,4 +5,6 @@ public interface IResponseMgr {
     ATIResponseMessage lookUp(String address);
     
     boolean create(ATIResponseMessage response);
+    
+    boolean delete(String address);
 }

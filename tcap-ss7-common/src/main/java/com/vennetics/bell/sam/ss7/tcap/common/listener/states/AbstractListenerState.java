@@ -66,7 +66,8 @@ public abstract class AbstractListenerState implements IListenerState {
      * @param tcapError
      */
     protected void handleTcapError(final TcapErrorEvent tcapError) {
-
+        logger.error("Received TCAP Error cleaning up and reinitialising: {}", tcapError.getError().toString());
+        
         // cleanup before calling initAppl again
         context.cleanup();
 
@@ -107,6 +108,7 @@ public abstract class AbstractListenerState implements IListenerState {
         return context;
     }
     
+    @Override
     public void setContext(final IListenerContext context) {
         this.context = context;
     }

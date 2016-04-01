@@ -24,7 +24,6 @@ import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IInitialDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.SS7ConfigException;
-import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.TcapErrorException;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.TcapUserInitialisationException;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState;
@@ -41,6 +40,7 @@ import jain.protocol.ss7.tcap.JainTcapStack;
 import jain.protocol.ss7.tcap.ParameterNotSetException;
 import jain.protocol.ss7.tcap.TcapErrorEvent;
 import jain.protocol.ss7.tcap.TcapUserAddress;
+import jain.protocol.ss7.tcap.UnableToDeleteProviderException;
 
 @Component
 public class SamTcapEventListener implements ISamTcapEventListener {
@@ -67,17 +67,6 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     private final int std;
 
     private Vector<TcapUserAddress> addressVector;
-    
-    @PostConstruct
-    public void init() {
-        setConfiguration();
-        initialise(true);
-    }
-    
-    @PreDestroy
-    public void destroy() {
-        cleanup();
-    }
 
     @Autowired
     SamTcapEventListener(final ISs7ConfigurationProperties configProperties,
@@ -115,6 +104,18 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         logger.debug("Initial Dialogue State Set");
         initialListenerState.setContext(this);
     }
+    
+    
+    @PostConstruct
+    public void init() {
+        setConfiguration();
+        initialise(true);
+    }
+    
+    @PreDestroy
+    public void destroy() {
+        cleanup();
+    }
 
     /**
      * Called both when init and also when re-init after processTcapError.
@@ -123,6 +124,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
      *            True if called at init, false if re-init.
      * @return True if init was successful.
      */
+    @Override
     public void initialise(final boolean isFirst) {
         logger.debug("initAppl called, isFirst: " + isFirst);
         try {
@@ -138,8 +140,10 @@ public class SamTcapEventListener implements ISamTcapEventListener {
             logger.debug("Application initiated, wait for BindIndEvent");
 
         } catch (SS7Exception ex) {
+            logger.error("SS7Exception thrown {}", ex);
             throw new TcapUserInitialisationException(ex.getMessage());
         } catch (VendorException ex) {
+            logger.error("VendorException thrown {}", ex);
             throw new TcapUserInitialisationException(ex.getMessage());
         }
     }
@@ -158,8 +162,8 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         return newStack;
     }
 
+    @Override
     public void setConfiguration() {
-
         try {
 
             String configString = configProperties.getCpConfig();
@@ -167,6 +171,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
             JainTcapConfig.getInstance().setConfigString(configString);
 
         } catch (VendorException vex) {
+            logger.error("Could not set CP config {}", vex);
             throw new SS7ConfigException(vex.getMessage());
         }
     }
@@ -191,6 +196,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         destAddr = addr;
     }
 
+    @Override
     public synchronized TcapUserAddress getDestinationAddress() {
         return destAddr;
     }
@@ -202,13 +208,15 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         // not used by the Ericsson implementation.
     }
 
+    @Override
     public IDialogue startDialogue(final Object request,
                                    final CountDownLatch cDl) {
         final IDialogue dialogue = dialogueSetup(request, cDl);
         dialogue.activate();
         return dialogue;
     }
-    
+   
+    @Override
     public IDialogue joinDialogue(final int dialogueId) {
         final IDialogue dialogue = dialogueSetup(null, null);
         dialogue.setDialogueId(dialogueId);
@@ -221,12 +229,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         dialogue.setDialogueRequestBuilder(dialogueRequestBuilder);
         dialogue.setComponentRequestBuilder(componentRequestBuilder);
         dialogue.setLatch(cDl);
-        IInitialDialogueState startState = null;
-        try {
-            startState = (IInitialDialogueState) initialDialogueState.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new Ss7ServiceException("Failed to start dialogue");
-        }
+        IInitialDialogueState startState = initialDialogueState.newInstance();
         startState.setContext(this);
         startState.setDialogue(dialogue);
         dialogue.setState(startState);
@@ -240,6 +243,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
      * @param stack
      * @exception jain.protocol.ss7.SS7Exception
      */
+    @Override
     public void cleanup() {
         try {
             logger.debug("Cleanup called");
@@ -247,15 +251,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
                 logger.debug("Cleanup: provider is null.");
                 return;
             }
-            try {
-                provider.removeTcapEventListener(this);
-                logger.debug("Removed JainTcapListener");
-            } catch (jain.protocol.ss7.SS7ListenerNotRegisteredException ex) {
-                logger.debug("Cleanup: Listener not registered");
-            } catch (VendorException ex) {
-                logger.debug("Cleanup: Error removing listener");
-            }
-
+            removeListener();
             if (stack == null) {
                 logger.debug("Cleanup: Stack is null.");
                 return;
@@ -264,11 +260,27 @@ public class SamTcapEventListener implements ISamTcapEventListener {
             stack.deleteProvider(provider);
             logger.debug("Deleted Provider");
 
-        } catch (SS7Exception ex) {
+        } catch (UnableToDeleteProviderException ex) {
+            logger.error("Cleanup failed {}", ex);
             throw new TcapErrorException("Cleanup failed");
         }
     }
+    
+    private void removeListener() {
+        try {
+            provider.removeTcapEventListener(this);
+            logger.debug("Removed JainTcapListener");
+        } catch (jain.protocol.ss7.SS7ListenerNotRegisteredException ex) {
+            logger.debug("Cleanup: Listener not registered: {} ", ex);
+        } catch (VendorException ex) {
+            logger.error("Cleanup: Error removing listener: {}", ex);
+        } catch (SS7Exception ex) {
+            logger.error("Cleanup SS7 Error: {}", ex);
+            throw new TcapErrorException("Cleanup SS7 Error: {}" + ex.getMessage());
+        }
+    }
 
+    @Override
     public void clearAllDialogs() {
         // call clear on each Dialogue?
         dialogueMgr.clearAllDialogs();
@@ -294,10 +306,12 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         state.handleEvent(event);
     }
 
+    @Override
     public void setState(final IListenerState state) {
         this.state = state;
     }
 
+    @Override
     public boolean isBound() {
         if (this.state instanceof ListenerBound
          || this.state instanceof ListenerReadyForTraffic) {
@@ -306,6 +320,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         return false;
     }
 
+    @Override
     public boolean isReady() {
         if (this.state instanceof ListenerReadyForTraffic) {
             return true;
@@ -313,54 +328,67 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         return false;
     }
 
+    @Override
     public IDialogueManager getDialogueManager() {
         return this.dialogueMgr;
     }
 
+    @Override
     public void setDialogueManager(final IDialogueManager manager) {
         this.dialogueMgr = manager;
     }
     
+    @Override
     public IDialogue getDialogue(final int dialogueId) {
         return dialogueMgr.lookUpDialogue(dialogueId);
     }
 
+    @Override
     public void deactivateDialogue(final IDialogue dialogue) {
         dialogueMgr.deactivate(dialogue);
     }
 
+    @Override
     public int getSsn() {
         try {
             return origAddr.getSubSystemNumber();
         } catch (ParameterNotSetException ex) {
+            logger.error("SSN not set: {}", ex);
             return 0;
         }
     }
 
+    @Override
     public TcapEventListener getTcapEventListener() {
         return this;
     }
 
+    @Override
     public TcapUserAddress getDestAddr() {
         return destAddr;
     }
 
+    @Override
     public TcapUserAddress getOrigAddr() {
         return origAddr;
     }
 
+    @Override
     public JainTcapProvider getProvider() {
         return provider;
     }
     
+    @Override
     public void setStack(final JainTcapStack stack) {
         this.stack = stack;
     }
 
+    @Override
     public void setProvider(final JainTcapProvider provider) {
         this.provider = provider;
     }
 
+    @Override
     public JainTcapStack getStack() {
         return stack;
     }
@@ -369,6 +397,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         this.configProperties = configProperties;
     }
 
+    @Override
     public ISs7ConfigurationProperties getConfigProperties() {
          return configProperties;
     }

@@ -10,9 +10,10 @@ import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 
 public class DialogueManager implements IDialogueManager {
 
-    private final Map<Integer, IDialogue> dialogueMap = new ConcurrentHashMap<Integer, IDialogue>();
+    private final Map<Integer, IDialogue> dialogueMap;
 
     public DialogueManager() {
+        dialogueMap = new ConcurrentHashMap<Integer, IDialogue>();
     }
 
     /*
@@ -30,9 +31,7 @@ public class DialogueManager implements IDialogueManager {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogueManager#
-     * clearAllDialogs()
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager#clearAllDialogs()
      */
     @Override
     public void clearAllDialogs() {
@@ -42,9 +41,7 @@ public class DialogueManager implements IDialogueManager {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogueManager#
-     * deactivate(com.vennetics.bell.sam.ss7.tcap.enabler.service.Dialogue)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager#deactivate(com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue)
      */
     @Override
     public void deactivate(final IDialogue dialogue) {
@@ -56,14 +53,12 @@ public class DialogueManager implements IDialogueManager {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogueManager#
-     * cleanUpLostDialogues(com.ericsson.einss7.jtcap.TcDialoguesLostIndEvent)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager#cleanUpLostDialogues(com.ericsson.einss7.jtcap.TcDialoguesLostIndEvent)
      */
     @Override
     public void cleanUpLostDialogues(final TcDialoguesLostIndEvent event) {
         final Iterator<IDialogue> iter = dialogueMap.values().iterator();
-        IDialogue dialogue = null;
+        IDialogue dialogue;
         while (iter.hasNext()) {
             dialogue = iter.next();
             if (event.isDialogueIdLost(dialogue.getDialogueId())) {
@@ -74,9 +69,7 @@ public class DialogueManager implements IDialogueManager {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogueManager#
-     * isDialogueLeft()
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager#isDialogueLeft()
      */
     @Override
     public boolean isDialogueLeft() {
@@ -85,9 +78,7 @@ public class DialogueManager implements IDialogueManager {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see com.vennetics.bell.sam.ss7.tcap.enabler.service.IDialogueManager#
-     * lookUpDialogue(int)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager#lookUpDialogue(java.lang.Integer)
      */
     @Override
     public IDialogue lookUpDialogue(final Integer dialogueId) {
