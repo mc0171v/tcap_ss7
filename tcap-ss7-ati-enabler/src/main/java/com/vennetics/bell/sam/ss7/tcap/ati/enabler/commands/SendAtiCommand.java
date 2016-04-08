@@ -54,13 +54,17 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
             logger.error(errorMessage);
             throw new Ss7ServiceException(errorMessage);
         }
+        logger.debug("Dialogue returned with result {}", dialogue.getResult());
         if (dialogue.getResult() != null) {
             OutboundATIMessage obm = (OutboundATIMessage) dialogue.getResult();
             if (obm.getError() == null) {
+            	logger.debug("Dialogue returned with error {}", obm.getError());
                 return obm;
             }
             throw obm.getError();
         }
-        return request;
+        throw new Ss7ServiceException("No result");
     }
+    	
+
 }

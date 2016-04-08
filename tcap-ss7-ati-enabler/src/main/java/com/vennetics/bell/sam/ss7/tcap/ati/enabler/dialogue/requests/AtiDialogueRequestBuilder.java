@@ -39,8 +39,6 @@ public class AtiDialogueRequestBuilder extends AbstractDialogueRequestBuilder {
                                                          context.getOrigAddr(),
                                                          context.getDestAddr());
         beginReq.setQualityOfService((byte) 2); // FIX: constant for qos in JAIN
-        beginReq.setOriginatingAddress(context.getOrigAddr());
-        beginReq.setDestinationAddress(context.getDestAddr());
         final DialoguePortion dialoguePortion = new DialoguePortion();
         dialoguePortion.setAppContextName(ANYTIMEINFOENQUIRYCONTEXT_V3);
         beginReq.setDialoguePortion(dialoguePortion);

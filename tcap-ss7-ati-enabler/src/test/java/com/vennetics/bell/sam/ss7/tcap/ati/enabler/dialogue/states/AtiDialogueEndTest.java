@@ -5,7 +5,9 @@ import jain.protocol.ss7.tcap.JainTcapStack;
 import jain.protocol.ss7.tcap.component.InvokeIndEvent;
 import jain.protocol.ss7.tcap.component.Operation;
 import jain.protocol.ss7.tcap.component.ResultIndEvent;
+import jain.protocol.ss7.tcap.dialogue.EndIndEvent;
 
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -71,14 +73,15 @@ public class AtiDialogueEndTest {
         objectToTest.handleEvent(resultIndEvent);
     }
     
-    @Ignore
     @Test
-    public void shouldTerminate() {
-      when(mockDialogueContext.getDialogueManager()).thenReturn(mockDialogueMgr);
-      when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
-      when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
-      objectToTest.terminate();
-      verify(mockProvider).releaseDialogueId(DIALOGUE_ID);
-      verify(mockDialogueMgr).deactivate(mockDialogue);
+    public void shouldHandleEndIndEvent() {
+        EndIndEvent endEvent = new EndIndEvent(mockTcapListener,
+                                                 DIALOGUE_ID,
+                                                 true);
+        try {
+        objectToTest.handleEvent(endEvent);
+        } catch (UnexpectedPrimitiveException ex) {
+            fail("Expected primitive");
+        }
     }
 }

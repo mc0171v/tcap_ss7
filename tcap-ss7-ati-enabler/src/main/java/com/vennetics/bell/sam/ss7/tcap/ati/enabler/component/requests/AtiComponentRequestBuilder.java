@@ -64,7 +64,7 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
         return invokeReq;
     }
 
-    public byte[] createParameters(final OutboundATIMessage request, final String scfAddress) {
+    private byte[] createParameters(final OutboundATIMessage request, final String scfAddress) {
         final ByteBuffer subscriberInfo = buildSubsciberIdentityElement(request);
         final ByteBuffer requestedInfo = buildRequestInfoElement(request);
         final ByteBuffer gsmScfAddress = EncodingHelper.buildIsdnAddressStringElement(scfAddress,
