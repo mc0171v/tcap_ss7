@@ -149,7 +149,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     }
 
     @SuppressWarnings(value = "deprecation")
-    private JainTcapStack createJainTcapStack() throws jain.protocol.ss7.SS7PeerUnavailableException,
+    public JainTcapStack createJainTcapStack() throws jain.protocol.ss7.SS7PeerUnavailableException,
                                                 jain.protocol.ss7.tcap.TcapException {
         JainSS7Factory.getInstance().setPathName("com.ericsson");
         logger.debug("Creating new JainTcapStack");
@@ -225,7 +225,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     }
     
     private IDialogue dialogueSetup(final Object request, final CountDownLatch cDl) {
-        final IDialogue dialogue = new Dialogue(this, provider, request);
+        final IDialogue dialogue = new Dialogue(this, request);
         dialogue.setDialogueRequestBuilder(dialogueRequestBuilder);
         dialogue.setComponentRequestBuilder(componentRequestBuilder);
         dialogue.setLatch(cDl);

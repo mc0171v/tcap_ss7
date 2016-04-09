@@ -19,6 +19,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.ericsson.einss7.jtcap.TcapEventListener;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
+import com.vennetics.bell.sam.ss7.tcap.common.error.IError;
+import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,12 +41,14 @@ public class DialogueTest {
     private IDialogueManager mockDialogueManager;
     @Mock
     private CountDownLatch mockLatch;
+    @Mock
+    private IError mockErrorHandler;
 
     private IDialogue objectToTest;
 
     @Before
     public void setup() {
-        objectToTest = new Dialogue(mockListener, mockProvider, getRequestObject());
+        objectToTest = new Dialogue(mockListener, getRequestObject());
         objectToTest.setState(mockState);
         objectToTest.setLatch(mockLatch);
     }
@@ -85,8 +89,16 @@ public class DialogueTest {
         verify(mockLatch).countDown();
     }
     
+    @Test
+    public void shouldCountDownLatchWhenErrorSet() throws Exception {
+        final Ss7ServiceException ex = new Ss7ServiceException("test");
+        objectToTest.setError(ex);
+        verify(mockLatch).countDown();
+        verify(mockErrorHandler).setError(ex);
+    }
+    
     private Object getRequestObject() {
-        return new Object();
+        return mockErrorHandler;
     }
 
 }

@@ -87,6 +87,22 @@ public class ListenerReadyForTrafficTest {
         objectToTest.handleEvent(event);
         verify(mockDialogue).handleEvent(event);
     }
+    
+    @Test()
+    public void shouldJoinIfDialogueIndEventAndNoDialogue() throws Exception {
+        byte[] byteString = "address".getBytes("UTF-8");
+        TcapUserAddress sourceAddress = new TcapUserAddress(byteString, SSN);
+        TcapUserAddress destAddress = new TcapUserAddress(byteString, SSN);
+        BeginIndEvent event = new BeginIndEvent(mockTcapListener,
+                                                DIALOGUE_ID,
+                                                sourceAddress,
+                                                destAddress,
+                                                true);
+        event.setDialogueId(DIALOGUE_ID);
+        when(mockListenerContext.getDialogue(DIALOGUE_ID)).thenReturn(null);
+        objectToTest.handleEvent(event);
+        verify(mockListenerContext).joinDialogue(DIALOGUE_ID);
+    }
 
     @Test()
     public void shouldHandleTcapErrorEvent() throws Exception {

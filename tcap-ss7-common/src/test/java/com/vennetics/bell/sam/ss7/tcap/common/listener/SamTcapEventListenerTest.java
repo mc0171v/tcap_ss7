@@ -9,11 +9,17 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.eq;
+
 
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
@@ -45,6 +51,8 @@ import jain.protocol.ss7.tcap.dialogue.BeginIndEvent;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SamTcapEventListenerTest {
+    
+    private static final Logger logger = LoggerFactory.getLogger(SamTcapEventListenerTest.class);
     
     // Object Under Test
     private ISamTcapEventListener objectUnderTest;
@@ -104,8 +112,32 @@ public class SamTcapEventListenerTest {
                                                    mockListenerState,
                                                    mockDialogueRequestBuilder,
                                                    mockComponentRequestBuilder,
-                                                   mockDialogueState);
+                                                   mockDialogueState) {
+            public JainTcapStack createJainTcapStack() throws jain.protocol.ss7.SS7PeerUnavailableException,
+            jain.protocol.ss7.tcap.TcapException {
+                logger.debug("Reutning mock stack");
+                return mockStack;
+            }
+        };
         verify(mockListenerState).setContext(objectUnderTest);
+    }
+    
+    @Test 
+    public void shouldInitialiseSuccessfully() throws Exception {
+        when(mockStack.createAttachedProvider()).thenReturn(mockProvider);
+        objectUnderTest.initialise(true);
+        verify(mockProvider).addTcapEventListener(eq(objectUnderTest), argThat(new ArgumentMatcher<TcapUserAddress>() {
+            @Override
+            public boolean matches(final Object argument) {
+                try {
+              assertArrayEquals(ORIG_SPC, ((TcapUserAddress) argument).getSignalingPointCode());
+              assertEquals(ORIG_SSN, ((TcapUserAddress) argument).getSubSystemNumber());
+              return true;
+                } catch (Exception ex) {
+                    return false;
+                }
+            }
+          }));
     }
     
     @SuppressWarnings("unchecked")
@@ -133,6 +165,18 @@ public class SamTcapEventListenerTest {
         assertEquals(dialogue.getDialogueRequestBuilder(), mockDialogueRequestBuilder);
         assertEquals(dialogue.getState(), mockDialogueState2);
         assertEquals(dialogue.getLatch(), latch);
+    }
+    
+    @Test()
+    public void shouldJoinDialogue() {
+        when(mockDialogueState.newInstance()).thenReturn(mockDialogueState2);
+        IDialogue dialogue = objectUnderTest.joinDialogue(DIALOGUE_ID);
+        verify(mockDialogueState2).setContext(objectUnderTest);
+        verify(mockDialogueState2).setDialogue(dialogue);
+        assertEquals(dialogue.getComponentRequestBuilder(), mockComponentRequestBuilder);
+        assertEquals(dialogue.getDialogueRequestBuilder(), mockDialogueRequestBuilder);
+        assertEquals(dialogue.getState(), mockDialogueState2);
+        assertEquals(dialogue.getDialogueId(), DIALOGUE_ID);
     }
     
     @Test()

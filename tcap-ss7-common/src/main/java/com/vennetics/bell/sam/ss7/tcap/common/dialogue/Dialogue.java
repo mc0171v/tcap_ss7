@@ -20,8 +20,6 @@ public class Dialogue implements IDialogue {
 
     private final IDialogueContext context;
     private int dialogueId;
-
-    private final JainTcapProvider provider;
     
     private IDialogueState state;
 
@@ -40,11 +38,9 @@ public class Dialogue implements IDialogue {
      * @param provider
      */
     public Dialogue(final IDialogueContext context,
-                    final JainTcapProvider provider,
                     final Object request) {
         this.request = request;
         this.context = context;
-        this.provider = provider;
         logger.debug("Started new Dialogue");
     }
 
@@ -62,7 +58,7 @@ public class Dialogue implements IDialogue {
 
     @Override
     public JainTcapProvider getJainTcapProvider() {
-        return provider;
+        return context.getProvider();
     }
 
     @Override

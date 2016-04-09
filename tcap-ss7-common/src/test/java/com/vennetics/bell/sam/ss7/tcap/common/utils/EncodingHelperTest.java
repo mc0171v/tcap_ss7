@@ -38,6 +38,12 @@ public class EncodingHelperTest {
     private static final byte[] LENGTH_255 = { Tools.getLoByteOf2(0x81), Tools.getLoByteOf2(0xFF) };
     private static final byte[] LENGTH_256 = { Tools.getLoByteOf2(0x82), 0x01, Tools.getLoByteOf2(0x0) };
     
+    private static final byte[] NULL_ELEMENT = { Tools.getLoByteOf2(0x80), 0x00 };
+
+    private static final String ADDRESS_EVEN = "12345678";
+    private static final byte[] ADDRESS_EVEN_BYTES = {Tools.getLoByteOf2(0x80), 0x04, 0x21, 0x43, 0x65, Tools.getLoByteOf2(0x87)};
+    private static final String ADDRESS_ODD = "1234567";
+    private static final byte[] ADDRESS_ODD_BYTES = {Tools.getLoByteOf2(0x80), 0x04, 0x21, 0x43, 0x65, Tools.getLoByteOf2(0xF7)};
     @Test
     public void testDecodeOfSingleSequence() {
         List<TagLengthValue> tlvs = EncodingHelper.getTlvs(TEST_ONE_SEQUENCE);
@@ -92,6 +98,24 @@ public class EncodingHelperTest {
         assertEquals(tlvs.get(0).getTag(), TEST_ONE_SEQUENCE_TAG);
         assertArrayEquals(tlvs.get(0).getLength(), LENGTH_256);
         assertEquals(tlvs.get(0).getValue().length, 256);
+    }
+    
+    @Test
+    public void shouldBuildNullElement() {
+        ByteBuffer bb = EncodingHelper.buildNullElement(NULL_ELEMENT[0]);
+        assertArrayEquals(bb.array(), NULL_ELEMENT);
+    }
+    
+    @Test
+    public void shouldBuildIsdnAddressStringEven() {
+        ByteBuffer bb = EncodingHelper.buildIsdnAddressStringElement(ADDRESS_EVEN, ADDRESS_EVEN_BYTES[0]);
+        assertArrayEquals(bb.array(), ADDRESS_EVEN_BYTES);
+    }
+    
+    @Test
+    public void shouldBuildIsdnAddressStringOdd() {
+        ByteBuffer bb = EncodingHelper.buildIsdnAddressStringElement(ADDRESS_ODD, ADDRESS_ODD_BYTES[0]);
+        assertArrayEquals(bb.array(), ADDRESS_ODD_BYTES);
     }
     
     byte[] generateSequenceWithLongLengthTag(final int length) {
