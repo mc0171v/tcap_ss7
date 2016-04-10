@@ -11,7 +11,6 @@ import com.ericsson.einss7.japi.OutOfServiceException;
 import com.ericsson.einss7.japi.VendorException;
 import com.ericsson.einss7.japi.WouldBlockException;
 import com.ericsson.jain.protocol.ss7.tcap.Tools;
-import com.vennetics.bell.sam.ss7.tcap.ati.enabler.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
@@ -19,6 +18,7 @@ import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueSt
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IInitialDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedResultException;
+import com.vennetics.bell.sam.ss7.tcap.common.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.TagLengthValue;
 

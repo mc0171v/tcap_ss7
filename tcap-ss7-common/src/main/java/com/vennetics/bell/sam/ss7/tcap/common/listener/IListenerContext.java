@@ -11,7 +11,7 @@ public interface IListenerContext {
 
     void clearAllDialogs();
 
-    void initialise(boolean isFirst);
+    void initialise();
 
     void setState(IListenerState state);
     

@@ -125,7 +125,7 @@ public class SamTcapEventListenerTest {
     @Test 
     public void shouldInitialiseSuccessfully() throws Exception {
         when(mockStack.createAttachedProvider()).thenReturn(mockProvider);
-        objectUnderTest.initialise(true);
+        objectUnderTest.initialise();
         verify(mockProvider).addTcapEventListener(eq(objectUnderTest), argThat(new ArgumentMatcher<TcapUserAddress>() {
             @Override
             public boolean matches(final Object argument) {

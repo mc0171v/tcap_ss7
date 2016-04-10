@@ -77,7 +77,7 @@ public abstract class AbstractDialogueState {
 
         context.startDialogue(dialogue.getRequest(),
                               dialogue.getLatch());
-        //TODO Possible infinite loop
+        //TODO Possible infinite loop - Need some flow control
     }
 
     /**
@@ -85,10 +85,9 @@ public abstract class AbstractDialogueState {
      * @param hdEx
      */
     protected void handleOutOfServiceException(final OutOfServiceException hdEx) {
-        terminate();
         final String errorMessage = "Out of service: " + hdEx.getMessage();
-        logger.error(errorMessage);
-        dialogue.setError(new Ss7ServiceException(errorMessage));
+        handleTerminatingException(errorMessage);
+
     }
     
     /**
@@ -96,10 +95,8 @@ public abstract class AbstractDialogueState {
      * @param hdEx
      */
     protected void handleSs7Exception(final SS7Exception hdEx) {
-        terminate();
         final String errorMessage = "SS7 exception: " + hdEx.getMessage();
-        logger.error(errorMessage);
-        dialogue.setError(new Ss7ServiceException(errorMessage));
+        handleTerminatingException(errorMessage);
     }
     
     /**
@@ -107,10 +104,14 @@ public abstract class AbstractDialogueState {
      * @param vEx
      */
     protected void handleVendorException(final VendorException vEx) {
-        terminate();
         final String errorMessage = "SS7 Vendor exception: " + vEx.getMessage();
+        handleTerminatingException(errorMessage);
+    }
+    
+    private void handleTerminatingException(final String errorMessage) {
+        terminate();
         logger.error(errorMessage);
-        dialogue.setError(new Ss7ServiceException(errorMessage));
+        dialogue.setError(new Ss7ServiceException(errorMessage));        
     }
 
     /**

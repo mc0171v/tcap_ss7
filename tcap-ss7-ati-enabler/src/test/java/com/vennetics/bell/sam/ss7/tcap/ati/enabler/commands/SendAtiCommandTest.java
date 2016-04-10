@@ -9,13 +9,13 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import com.vennetics.bell.sam.ss7.tcap.ati.enabler.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.service.AtiService;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedPrimitiveException;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.SamTcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.common.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.Ss7ConfigurationProperties;
 

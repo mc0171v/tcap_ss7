@@ -2,10 +2,10 @@ package com.vennetics.bell.sam.ss7.tcap.ati.enabler;
 
 import com.vennetics.bell.sam.model.location.LocationResponse;
 import com.vennetics.bell.sam.model.subscriber.status.SubscriberStatusResponse;
-import com.vennetics.bell.sam.ss7.tcap.ati.enabler.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.service.IAtiService;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
+import com.vennetics.bell.sam.ss7.tcap.common.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
 
 import org.junit.Before;

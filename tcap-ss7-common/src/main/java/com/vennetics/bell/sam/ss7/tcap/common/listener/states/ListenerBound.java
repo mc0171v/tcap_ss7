@@ -111,7 +111,6 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
     }
 
     private static boolean checkSpcMatches(final TcStateIndEvent event, final TcapUserAddress addr) {
-        // extract SPC and SSN from addr
         byte[] addrSpc = null;
         try {
             addrSpc = addr.getSignalingPointCode();
@@ -137,7 +136,6 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
     }
     
     private static boolean checkSsnMatches(final TcStateIndEvent event, final TcapUserAddress addr) {
-        // extract SPC and SSN from addr
         int addrSsn = -1;
         try {
             addrSsn = addr.getSubSystemNumber();

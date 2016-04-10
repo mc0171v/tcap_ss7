@@ -1,7 +1,7 @@
 
 package com.vennetics.bell.sam.ss7.tcap.ati.simulator.response;
 
-import com.vennetics.bell.sam.ss7.tcap.ati.simulator.map.SubscriberState;
+import com.vennetics.bell.sam.ss7.tcap.common.map.SubscriberState;
 
 public class ATIResponseMessage {
     

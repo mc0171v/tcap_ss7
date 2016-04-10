@@ -67,7 +67,7 @@ public class ListenerUnboundTest {
                                                     new RuntimeException("Error")));
         verify(mockListenerContext).cleanup();
         verify(mockListenerContext).clearAllDialogs();
-        verify(mockListenerContext).initialise(false);
+        verify(mockListenerContext).initialise();
     }
 
     @Test(expected = UnexpectedPrimitiveException.class)

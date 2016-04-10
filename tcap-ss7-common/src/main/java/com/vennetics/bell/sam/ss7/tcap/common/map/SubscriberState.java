@@ -1,4 +1,4 @@
-package com.vennetics.bell.sam.ss7.tcap.ati.simulator.map;
+package com.vennetics.bell.sam.ss7.tcap.common.map;
 
 public enum SubscriberState {
     ASSUMED_IDLE,

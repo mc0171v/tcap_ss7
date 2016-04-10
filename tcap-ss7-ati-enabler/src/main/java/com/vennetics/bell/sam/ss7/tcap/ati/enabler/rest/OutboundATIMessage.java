@@ -1,9 +1,9 @@
 
 package com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest;
 
-import com.vennetics.bell.sam.ss7.tcap.ati.enabler.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.common.error.IError;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
+import com.vennetics.bell.sam.ss7.tcap.common.map.SubscriberState;
 
 public class OutboundATIMessage implements IError {
 

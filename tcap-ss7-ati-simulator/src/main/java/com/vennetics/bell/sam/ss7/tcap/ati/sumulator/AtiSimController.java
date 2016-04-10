@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import com.vennetics.bell.sam.rest.controller.ExceptionHandlingSs7RestController;
-import com.vennetics.bell.sam.ss7.tcap.ati.simulator.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.ati.simulator.response.ATIResponseMessage;
 import com.vennetics.bell.sam.ss7.tcap.ati.simulator.response.IResponseMgr;
 import com.vennetics.bell.sam.ss7.tcap.common.address.Address;
 import com.vennetics.bell.sam.ss7.tcap.common.address.IAddressNormalizer;
 import com.vennetics.bell.sam.ss7.tcap.common.listener.ISamTcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.common.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
 
 

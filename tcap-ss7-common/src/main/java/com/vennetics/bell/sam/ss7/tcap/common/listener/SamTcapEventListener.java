@@ -109,7 +109,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     @PostConstruct
     public void init() {
         setConfiguration();
-        initialise(true);
+        initialise();
     }
     
     @PreDestroy
@@ -120,13 +120,11 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     /**
      * Called both when init and also when re-init after processTcapError.
      * 
-     * @param isFirst
-     *            True if called at init, false if re-init.
      * @return True if init was successful.
      */
     @Override
-    public void initialise(final boolean isFirst) {
-        logger.debug("initAppl called, isFirst: " + isFirst);
+    public void initialise() {
+        logger.debug("initialise called");
         try {
             stack = createJainTcapStack();
             logger.debug("Attaching provider to new JainTcapStack");

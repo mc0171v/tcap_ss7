@@ -76,7 +76,7 @@ public abstract class AbstractListenerState implements IListenerState {
         context.clearAllDialogs();
 
         // try to get things going again
-        context.initialise(false);
+        context.initialise();
     }
 
     /**
