@@ -22,7 +22,7 @@ import com.vennetics.bell.sam.rest.controller.ExceptionHandlingSs7RestController
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.service.IAtiService;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
-import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
+import com.vennetics.bell.sam.ss7.tcap.common.map.LocationHelper;
 
 import rx.Observable;
 
@@ -48,15 +48,14 @@ public class AtiController extends ExceptionHandlingSs7RestController {
         UUID uuid = UUID.randomUUID();
         Observable<OutboundATIMessage> observer = atiService.sendAtiMessage(uuid, obm);
         observer.subscribe(outboundATIMessage -> { logger.debug("Controller received {}", outboundATIMessage);
-                           response.setLatitude(EncodingHelper.bytesToHex(outboundATIMessage.getLatitude()));
-                           response.setLongitude(EncodingHelper.bytesToHex(outboundATIMessage.getLongitude()));
-                           response.setUncertainty(EncodingHelper.bytesToHex(outboundATIMessage.getUncertainty()));
+                           response.setLatitude(LocationHelper.getLatitude(outboundATIMessage.getLatitude()).getLowerBound());
+                           response.setLongitude(LocationHelper.getLongitude(outboundATIMessage.getLongitude()).getLowerBound());
+                           response.setUncertainty(LocationHelper.getUncertainty(outboundATIMessage.getUncertainty()));
                            });
         logger.debug("Response {}", response);
         return new ResponseEntity<LocationResponse>(
                         response,
                         HttpStatus.OK);
-
     }
     
     @RequestMapping(value = "/outbound/status/requests", method = RequestMethod.GET)
@@ -88,7 +87,7 @@ public class AtiController extends ExceptionHandlingSs7RestController {
         } else if (params.getFirst("imsi") != null) {
             obm.setImsi(params.getFirst("imsi"));
         } else {
-            throw new Ss7ServiceException("One paramater msisdn or imsi must be supplied");
+            throw new Ss7ServiceException("One parameter msisdn or imsi must be supplied");
         }
         return obm;
     }

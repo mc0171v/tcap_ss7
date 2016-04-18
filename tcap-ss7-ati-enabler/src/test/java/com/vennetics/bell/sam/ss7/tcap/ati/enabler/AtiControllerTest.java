@@ -6,7 +6,6 @@ import com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage;
 import com.vennetics.bell.sam.ss7.tcap.ati.enabler.service.IAtiService;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 import com.vennetics.bell.sam.ss7.tcap.common.map.SubscriberState;
-import com.vennetics.bell.sam.ss7.tcap.common.utils.EncodingHelper;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -125,9 +124,12 @@ public class AtiControllerTest {
       private void checkLocation(final ResponseEntity<LocationResponse> result) {
           assertNotNull(result);
           assertTrue(result.getStatusCode() == HttpStatus.OK);
-          assertEquals(EncodingHelper.bytesToHex(LATITUDE), result.getBody().getLatitude());
-          assertEquals(EncodingHelper.bytesToHex(LONGITUDE), result.getBody().getLongitude());
-          assertEquals(EncodingHelper.bytesToHex(UNCERTAINTY), result.getBody().getUncertainty());
+          final double expectedLatitude = 90.0 * 66051.0 / Math.pow(2, 23);
+          final double expectedLongitude = 360.0 * 1118739.0 / Math.pow(2, 24);
+          final double expectedUncertainty = 222.3;
+          assertEquals(result.getBody().getLatitude(), expectedLatitude, 1 / Math.pow(2, 25));
+          assertEquals(result.getBody().getLongitude(), expectedLongitude, 1 / Math.pow(2, 25));
+          assertEquals(result.getBody().getUncertainty(), expectedUncertainty, expectedUncertainty * 0.01);
       }
       
       private void checkStatus(final ResponseEntity<SubscriberStatusResponse> result) {
