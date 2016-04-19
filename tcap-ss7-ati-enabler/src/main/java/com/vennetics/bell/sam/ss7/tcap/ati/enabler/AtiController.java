@@ -66,8 +66,7 @@ public class AtiController extends ExceptionHandlingSs7RestController {
         UUID uuid = UUID.randomUUID();
         Observable<OutboundATIMessage> observer = atiService.sendAtiMessage(uuid, obm);
         observer.subscribe(outboundATIMessage -> { logger.debug("Controller received {}", outboundATIMessage);
-                           response.setSubscriberStatus(outboundATIMessage.getStatus().name()); 
-                           });
+                           response.setSubscriberStatus(outboundATIMessage.getStatus().name()); });
         logger.debug("Response {}", response);
         return new ResponseEntity<SubscriberStatusResponse>(
                         response,

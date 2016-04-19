@@ -25,10 +25,9 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
         logger.debug("Changing state to {}", getStateName());
     }
 
-    /**
-     * Receive a non-JAIN event (Ericsson Specific event).
-     * 
-     * @param event
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.listener.states.AbstractListenerState#processVendorIndEvent(com.ericsson.einss7.japi.VendorIndEvent)
      */
     @Override
     protected void processVendorIndEvent(final VendorIndEvent event) {
@@ -89,7 +88,9 @@ public class ListenerBound extends AbstractListenerState implements IListenerSta
      * Check if the event indicates that the addr is ready for traffic.
      *
      * @param event
+     *     the {@link TcStateIndEvent}
      * @param addr
+     *     the {@link TcapUserAddress}
      * @return True if ready.
      */
     private boolean isReadyForTraffic(final TcStateIndEvent event, final TcapUserAddress addr) {

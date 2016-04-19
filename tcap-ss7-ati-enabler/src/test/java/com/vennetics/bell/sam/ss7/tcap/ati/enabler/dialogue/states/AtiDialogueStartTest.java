@@ -104,7 +104,7 @@ public class AtiDialogueStartTest {
         final TcapUserAddress destTcapUserAddress = new TcapUserAddress(SPC, SSN);
         BeginReqEvent beginReq = new BeginReqEvent(mockTcapListener, DIALOGUE_ID, origTcapUserAddress, destTcapUserAddress);
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
-        when(mockDialogueContext.getSsn()).thenReturn((int)SSN);
+        when(mockDialogueContext.getSsn()).thenReturn((int) SSN);
         when(mockProvider.getNewDialogueId(SSN)).thenReturn(DIALOGUE_ID);
         when(mockProvider.getNewInvokeId(DIALOGUE_ID)).thenReturn(INVOKE_ID);
         when(mockDialogue.getComponentRequestBuilder()).thenReturn(mockComponentRequestBuilder);
@@ -116,7 +116,7 @@ public class AtiDialogueStartTest {
                                                          message,
                                                          true,
                                                          props,
-                                                         DIALOGUE_ID)).thenReturn(invokeReq);   
+                                                         DIALOGUE_ID)).thenReturn(invokeReq);
         when(mockDialogue.getDialogueRequestBuilder()).thenReturn(mockDialogueRequestBuilder);
         when(mockDialogueRequestBuilder.createBeginReq(mockDialogueContext, DIALOGUE_ID)).thenReturn(beginReq);
         objectToTest.activate();
@@ -198,7 +198,7 @@ public class AtiDialogueStartTest {
     
     @Test
     public void shouldProcessReturnedBytesWithLocationInfo() {
-        final ResultIndEvent resultIndEvent = commonSetup(PARAM_GEO_INFO, (byte)0x00);
+        final ResultIndEvent resultIndEvent = commonSetup(PARAM_GEO_INFO, (byte) 0x00);
         OutboundATIMessage oAtiMessage = getRequestObject();
         commonWhenItu(oAtiMessage);
         objectToTest.handleEvent(resultIndEvent);
@@ -211,7 +211,7 @@ public class AtiDialogueStartTest {
     
     private ResultIndEvent commonSetup(final byte[] bs, final byte state) {
         byte[] newbs = bs;
-        if (state != (byte)0x00) {
+        if (state != (byte) 0x00) {
             newbs[6] = state;
         }
         final ResultIndEvent resultIndEvent = new ResultIndEvent(mockTcapListener,

@@ -64,24 +64,36 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         logger.debug("Changing state to {}", getStateName());
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState#activate()
+     */
     @Override
     public void activate() {
         startDialogue();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState#handleEvent(jain.protocol.ss7.tcap.ComponentIndEvent)
+     */
     @Override
     public void handleEvent(final ComponentIndEvent event) {
         logger.debug("ComponentIndEvent event received in state {}", getStateName());
         processComponentIndEvent(event);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState#handleEvent(jain.protocol.ss7.tcap.DialogueIndEvent)
+     */
     @Override
     public void handleEvent(final DialogueIndEvent event) {
         logger.debug("DialogueIndEvent event received in state {}", getStateName());
         processDialogueIndEvent(event);
     }
 
-    public void startDialogue() {
+    private void startDialogue() {
         InvokeReqEvent invokeReq = null;
         BeginReqEvent beginReq = null;
         int dialogueId = -1;
@@ -112,11 +124,9 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         }
     }
 
-    /**
-     *
-     * @param event
-     *
-     * @exception SS7Exception
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState#processResultIndEvent(jain.protocol.ss7.tcap.component.ResultIndEvent)
      */
     @Override
     public void processResultIndEvent(final ResultIndEvent event) {
@@ -237,7 +247,7 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         }
     }
 
-    byte[] getValueFromSequence(final byte[] bytes) {
+    private byte[] getValueFromSequence(final byte[] bytes) {
         final List<TagLengthValue> tlvs = EncodingHelper.getTlvs(bytes);
         if (!(tlvs.size() == 1 && tlvs.get(0).getTag() == EncodingHelper.SEQUENCE_TAG)) {
             logger.error("Expecting sequence");
@@ -246,24 +256,37 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         return tlvs.get(0).getValue();
     }
     
-    /**
-     * Dialogue event.
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState#processEndIndEvent(jain.protocol.ss7.tcap.dialogue.EndIndEvent)
      */
     @Override
     public void processEndIndEvent(final EndIndEvent event) {
         logger.debug("Expected EndIndEvent received.");
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState#getStateName()
+     */
     @Override
     public String getStateName() {
         return stateName;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState#terminate()
+     */
     @Override
     public void terminate() {
         getDialogue().setState(new AtiDialogueEnd(getContext(), getDialogue()));
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IInitialDialogueState#newInstance()
+     */
     @Override
     public IInitialDialogueState newInstance() {
         return new AtiDialogueStart();

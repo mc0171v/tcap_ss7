@@ -28,9 +28,7 @@ import rx.Observable;
 
 import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -71,11 +69,8 @@ public class AtiApplicationIntegrationTest {
     }
 
     // Concrete Objects
-    private static final String MSISDN_KEY = "msisdn";
-    private static final String MSISDN = "+442890169251";
     private static final String IMSI_KEY = "imsi";
     private static final String IMSI = "123456789012345";
-    private static UUID requestId = UUID.randomUUID();
 
     @Ignore
     @Test

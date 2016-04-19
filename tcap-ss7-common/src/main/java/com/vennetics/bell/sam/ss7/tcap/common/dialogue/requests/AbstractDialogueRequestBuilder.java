@@ -9,6 +9,10 @@ import jain.protocol.ss7.tcap.dialogue.EndReqEvent;
 
 public abstract class AbstractDialogueRequestBuilder implements IDialogueRequestBuilder {
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder#createBeginReq(com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext, int)
+     */
     @Override
     public BeginReqEvent createBeginReq(final IDialogueContext context, final int dialogueId) {
 
@@ -23,6 +27,11 @@ public abstract class AbstractDialogueRequestBuilder implements IDialogueRequest
         return beginReq;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see
+     * com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder#createContinueReq(com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext, int)
+     */
     @Override
     public ContinueReqEvent createContinueReq(final IDialogueContext context, final int dialogueId) {
 
@@ -33,6 +42,10 @@ public abstract class AbstractDialogueRequestBuilder implements IDialogueRequest
         return continueReq;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder#createEndReq(com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext, int)
+     */
     @Override
     public EndReqEvent createEndReq(final IDialogueContext context, final int dialogueId) {
 

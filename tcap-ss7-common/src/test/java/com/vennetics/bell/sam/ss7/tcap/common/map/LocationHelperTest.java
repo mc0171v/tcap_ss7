@@ -12,7 +12,7 @@ import ericsson.ein.ss7.commonparts.util.Tools;
 public class LocationHelperTest {
         
     private static final byte[] TEST_LATITUDE_MIN = { 0x00, 0x00, 0x00 };
-    private static final byte[] TEST_LATITUDE_MIN_NEG = { Tools.getLoByteOf4(0x80), 0x00, 0x00 };    
+    private static final byte[] TEST_LATITUDE_MIN_NEG = { Tools.getLoByteOf4(0x80), 0x00, 0x00 };
     private static final byte[] TEST_LATITUDE_MAX = { 0x7F, Tools.getLoByteOf4(0xFF), Tools.getLoByteOf4(0xFF) };
     private static final byte[] TEST_LATITUDE_MAX_NEG = { Tools.getLoByteOf4(0xFF), Tools.getLoByteOf4(0xFF), Tools.getLoByteOf4(0xFF) };
     private static final byte[] TEST_LONGITUDE_MIN = {  Tools.getLoByteOf4(0x80), 0x00, 0x00 };
@@ -26,18 +26,20 @@ public class LocationHelperTest {
     private static final double MID_UNCERTAINTY = 57.3;
     private static final double MAX_UNCERTAINTY = 1800000;
 
-    private double delta = 1.0/Math.pow(2, 25);
+    private double delta = 1.0 / Math.pow(2, 25);
     private double uncertaintyDelta = 0.01;
-    private static double MIN_LATITUDE = 0;
-    private static double MAX_LATITUDE =  Math.pow(2, 23) - 1;
-    private static double MIN_LONGITUDE = - Math.pow(2, 23);
-    private static double MAX_LONGITUDE = Math.pow(2, 23) - 1;
+    private static final double MIN_LATITUDE = 0;
+    private static final double MAX_LATITUDE =  Math.pow(2, 23) - 1;
+    private static final double LATITUDE_DENOMINATOR = Math.pow(2, 23);
+    private static final double MIN_LONGITUDE = -Math.pow(2, 23);
+    private static final double MAX_LONGITUDE = Math.pow(2, 23) - 1;
+    private static final double LONGITUDE_DENOMINATOR = Math.pow(2, 24);
     
     @Test
     public void testGetLatitudeMin() {
         Bounds expectedBounds = new Bounds();
         expectedBounds.setLowerBound(MIN_LATITUDE);
-        expectedBounds.setUpperBound(90.0 / Math.pow(2, 23));
+        expectedBounds.setUpperBound(90.0 / LATITUDE_DENOMINATOR);
         Bounds bounds = LocationHelper.getLatitude(TEST_LATITUDE_MIN);
         assertEquals(expectedBounds.getLowerBound(), bounds.getLowerBound(), delta);
         assertEquals(expectedBounds.getUpperBound(), bounds.getUpperBound(), delta);
@@ -46,8 +48,8 @@ public class LocationHelperTest {
     @Test
     public void testGetLatitudeMax() {
         Bounds expectedBounds = new Bounds();
-        expectedBounds.setLowerBound(90.0 * (MAX_LATITUDE) / Math.pow(2, 23));
-        expectedBounds.setUpperBound(90.0 * (MAX_LATITUDE + 1) / Math.pow(2, 23));
+        expectedBounds.setLowerBound(90.0 * (MAX_LATITUDE) / LATITUDE_DENOMINATOR);
+        expectedBounds.setUpperBound(90.0 * (MAX_LATITUDE + 1) / LATITUDE_DENOMINATOR);
         Bounds bounds = LocationHelper.getLatitude(TEST_LATITUDE_MAX);
         assertEquals(expectedBounds.getLowerBound(), bounds.getLowerBound(), delta);
         assertEquals(expectedBounds.getUpperBound(), bounds.getUpperBound(), delta);
@@ -57,7 +59,7 @@ public class LocationHelperTest {
     public void testGetLatitudeMinNeg() {
         Bounds expectedBounds = new Bounds();
         expectedBounds.setLowerBound(MIN_LATITUDE);
-        expectedBounds.setUpperBound(- 90.0 / Math.pow(2, 23));
+        expectedBounds.setUpperBound(-90.0 / LATITUDE_DENOMINATOR);
         Bounds bounds = LocationHelper.getLatitude(TEST_LATITUDE_MIN_NEG);
         assertEquals(expectedBounds.getLowerBound(), bounds.getLowerBound(), delta);
         assertEquals(expectedBounds.getUpperBound(), bounds.getUpperBound(), delta);
@@ -66,8 +68,8 @@ public class LocationHelperTest {
     @Test
     public void testGetLatitudeMaxNeg() {
         Bounds expectedBounds = new Bounds();
-        expectedBounds.setLowerBound(- 90.0 * (MAX_LATITUDE) / Math.pow(2, 23));
-        expectedBounds.setUpperBound(- 90.0 * (MAX_LATITUDE + 1) / Math.pow(2, 23));
+        expectedBounds.setLowerBound(-90.0 * (MAX_LATITUDE) / LATITUDE_DENOMINATOR);
+        expectedBounds.setUpperBound(-90.0 * (MAX_LATITUDE + 1) / LATITUDE_DENOMINATOR);
         Bounds bounds = LocationHelper.getLatitude(TEST_LATITUDE_MAX_NEG);
         assertEquals(expectedBounds.getLowerBound(), bounds.getLowerBound(), delta);
         assertEquals(expectedBounds.getUpperBound(), bounds.getUpperBound(), delta);
@@ -76,8 +78,8 @@ public class LocationHelperTest {
     @Test
     public void testGetLongtudeMin() {
         Bounds expectedBounds = new Bounds();
-        expectedBounds.setLowerBound(360.0 * MIN_LONGITUDE/Math.pow(2, 24));
-        expectedBounds.setUpperBound((360.0 * (MIN_LONGITUDE+ 1.0))/Math.pow(2, 24));
+        expectedBounds.setLowerBound(360.0 * MIN_LONGITUDE / LONGITUDE_DENOMINATOR);
+        expectedBounds.setUpperBound((360.0 * (MIN_LONGITUDE + 1.0)) / LONGITUDE_DENOMINATOR);
         Bounds bounds = LocationHelper.getLongitude(TEST_LONGITUDE_MIN);
         assertEquals(expectedBounds.getLowerBound(), bounds.getLowerBound(), delta);
         assertEquals(expectedBounds.getUpperBound(), bounds.getUpperBound(), delta);
@@ -86,8 +88,8 @@ public class LocationHelperTest {
     @Test
     public void testGetLongtudeMax() {
         Bounds expectedBounds = new Bounds();
-        expectedBounds.setLowerBound(360.0 * MAX_LONGITUDE/Math.pow(2, 24));
-        expectedBounds.setUpperBound((360.0 * (MAX_LONGITUDE + 1))/Math.pow(2, 24));
+        expectedBounds.setLowerBound(360.0 * MAX_LONGITUDE / LONGITUDE_DENOMINATOR);
+        expectedBounds.setUpperBound((360.0 * (MAX_LONGITUDE + 1)) / LONGITUDE_DENOMINATOR);
         Bounds bounds = LocationHelper.getLongitude(TEST_LONGITUDE_MAX);
         assertEquals(expectedBounds.getLowerBound(), bounds.getLowerBound(), delta);
         assertEquals(expectedBounds.getUpperBound(), bounds.getUpperBound(), delta);

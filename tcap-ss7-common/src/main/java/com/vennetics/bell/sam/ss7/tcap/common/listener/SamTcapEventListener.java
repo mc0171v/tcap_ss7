@@ -89,7 +89,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
                                                 configProperties.getDestAddress().getSsn());
             logger.debug("Dest Address Set");
         } else {
-            logger.error("Dest address not set");  
+            logger.error("Dest address not set");
             throw new SS7ConfigException("Dest address not set");
         }
         this.dialogueMgr = new DialogueManager();

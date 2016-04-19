@@ -17,6 +17,11 @@ public abstract class AbstractListenerState implements IListenerState {
 
     private IListenerContext context;
 
+    /***
+     * Create a listener state
+     * @param context
+     *     the listener context {@link IListenerContext}
+     */
     public AbstractListenerState(final IListenerContext context) {
         this.context = context;
     }
@@ -24,26 +29,47 @@ public abstract class AbstractListenerState implements IListenerState {
     public AbstractListenerState() {
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState#handleEvent(jain.protocol.ss7.tcap.ComponentIndEvent)
+     */
     @Override
     public void handleEvent(final ComponentIndEvent event) {
         processComponentIndEvent(event);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState#handleEvent(jain.protocol.ss7.tcap.DialogueIndEvent)
+     */
     @Override
     public void handleEvent(final DialogueIndEvent event) {
         processDialogueIndEvent(event);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState#handleEvent(jain.protocol.ss7.tcap.TcapErrorEvent)
+     */
     @Override
     public void handleEvent(final TcapErrorEvent event) {
         processTcapError(event);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState#handleEvent(com.ericsson.einss7.japi.VendorIndEvent)
+     */
     @Override
     public void handleEvent(final VendorIndEvent event) {
         processVendorIndEvent(event);
     }
 
+    /***
+     * Process a {@link ComponentIndEvent}
+     * @param event
+     *     the event to process
+     */
     protected void processComponentIndEvent(final ComponentIndEvent event) {
         logger.debug("ComponentIndEvent event received in state ListenerUnbound");
 
@@ -56,14 +82,16 @@ public abstract class AbstractListenerState implements IListenerState {
      * Clean up and re-create all JTCAP objects.
      * 
      * @param tcapError
+     *     the TCAP error event {@link TcapErrorEvent}
      */
     protected synchronized void processTcapError(final TcapErrorEvent tcapError) {
         handleTcapError(tcapError);
     }
 
     /**
-     * 
+     * Handle a TCAP error
      * @param tcapError
+     *     the TCAP error event {@link TcapErrorEvent}
      */
     protected void handleTcapError(final TcapErrorEvent tcapError) {
         logger.error("Received TCAP Error cleaning up and reinitialising: {}", tcapError.getError().toString());
@@ -80,9 +108,10 @@ public abstract class AbstractListenerState implements IListenerState {
     }
 
     /**
-     * Dialogue Events dispatching.
+     * Process a dialogue indication event event
      *
      * @param event
+     *     the {@link DialogueIndEvent}
      */
     protected void processDialogueIndEvent(final DialogueIndEvent event) {
 
@@ -93,9 +122,10 @@ public abstract class AbstractListenerState implements IListenerState {
     }
 
     /**
-     * Receive a non-JAIN event (Ericsson Specific event).
+     * Receive a non-JAIN vendor indication event (Ericsson Specific event).
      * 
      * @param event
+     *     the {@link VendorIndEvent}
      */
     protected void processVendorIndEvent(final VendorIndEvent event) {
         logger.debug("VendorIndEvent event received in state ListenerUnbound");
@@ -104,10 +134,19 @@ public abstract class AbstractListenerState implements IListenerState {
         throw new UnexpectedPrimitiveException(primitive);
     }
     
+    /***
+     * Get the listener context
+     * @return
+     *     {@link IListenerContext}
+     */
     public IListenerContext getContext() {
         return context;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.listener.states.IListenerState#setContext(com.vennetics.bell.sam.ss7.tcap.common.listener.IListenerContext)
+     */
     @Override
     public void setContext(final IListenerContext context) {
         this.context = context;

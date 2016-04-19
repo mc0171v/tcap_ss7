@@ -88,7 +88,7 @@ public class AtiServiceTest {
             objectUnderTest.sendAtiMessage(externalRequestId, request);
             fail("Test should have encountered exception");
         } catch (final HystrixRuntimeException ex) {
-            logger.debug("cause {}",ex.getCause().getMessage());
+            logger.debug("cause {}", ex.getCause().getMessage());
             assertTrue(ex.getCause().getMessage().equals("SS7_SERVICE_EXCEPTION arg[0]=[No result] "));
         }
     }

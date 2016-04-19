@@ -34,6 +34,13 @@ public final class EncodingHelper {
         
     }
     
+    /***
+     * Get the ASN1 definite representation for a given length
+     * @param paramLength
+     *    the length of the parameter
+     * @return
+     *     a byte array containing the ASN1 definite representation
+     */
     public static byte[] getAsn1Length(final int paramLength) {
         byte[] byteArray;
         if (paramLength <= MAX_SINGLE_OCTET_LENGTH) {
@@ -43,7 +50,7 @@ public final class EncodingHelper {
             byteArray = new byte[2];
             byteArray[0]  = Tools.getLoByteOf2(SINGLE_LENGTH_OCTET_TAG);
             byteArray[1]  = Tools.getLoByteOf2(paramLength);
-        } else { //Assuming Big Endian
+        } else {
             byteArray = new byte[3];
             byteArray[0]  = Tools.getLoByteOf2(DOUBLE_LENGTH_OCTET_TAG);
             byteArray[1]  = Tools.getHiByteOf2(paramLength);
@@ -52,6 +59,15 @@ public final class EncodingHelper {
         return byteArray;
     }
 
+    /***
+     * Get the ASN1 ISDN-Address representation of a given address string
+     * @param addressString
+     *     the supplied address string
+     * @param tag
+     *     the ASN1 tag for the address string as a byte
+     * @return
+     *     a {@link ByteBuffer} containing the ASN1 TLV for the address
+     */
     public static ByteBuffer buildIsdnAddressStringElement(final String addressString, final byte tag) {
         final byte[] element = hexTeleStringToByteArray(addressString);
         final byte[] asn1Length = getAsn1Length(element.length);
@@ -61,6 +77,13 @@ public final class EncodingHelper {
         return bb;
     }
     
+    /***
+     * Get the ASN1 representation for a tagged null element
+     * @param tag
+     *     the ASN1 tag for the null element
+     * @return
+     *     a {@link ByteBuffer} containing the ASN1 TLV for the null element
+     */
     public static ByteBuffer buildNullElement(final byte tag) {
         final byte[] asn1Length = getAsn1Length(NULL_LENGTH);
         ByteBuffer bb = ByteBuffer.allocate(asn1Length.length + TAG_LENGTH);
@@ -69,6 +92,13 @@ public final class EncodingHelper {
         return bb;
     }
 
+    /***
+     * Utility method to print out a array of bytes as hex
+     * @param bytes
+     *     the array of bytes to be displayed
+     * @return
+     *     the hex string
+     */
     public static String bytesToHex(final byte[] bytes) {
         final char[] hexArray = "0123456789ABCDEF".toCharArray();
         char[] hexChars = new char[bytes.length * 2];
@@ -80,12 +110,26 @@ public final class EncodingHelper {
         return new String(hexChars);
     }
    
+    /***
+     * Utility method to print out a byte as hex
+     * @param aByte
+     *     the byte to be displayed
+     * @return
+     *     the hex string
+     */
     public static String bytesToHex(final byte aByte) {
         final byte[] bytes = new byte[1];
         bytes[0] = aByte;
         return bytesToHex(bytes);
     }
     
+    /***
+     * Converts a hex Tele-String to a byte array
+     * @param hexString
+     *     the hex string to be converted
+     * @return
+     *     the byte array representation of the hex string
+     */
     public static byte[] hexTeleStringToByteArray(final String hexString) {
          if (hexString != null && !hexString.isEmpty()) {
              int len = hexString.length();
@@ -104,7 +148,7 @@ public final class EncodingHelper {
          return new byte[0];
      }
      
-    public static int convertToTBCDCharacter(final char character) {
+     private static int convertToTBCDCharacter(final char character) {
          final int val = Character.digit(character, 10);
          if (val >= 0) {
              return val;
@@ -115,7 +159,14 @@ public final class EncodingHelper {
          return 10 + (SPECIAL_BCD_CHARS.indexOf(character) % 6);
      }
     
-    public static List<TagLengthValue> getTlvs(final byte[] bytes) {
+     /***
+      * Return the Outer TLV's for a given ASN1 byte array
+      * @param bytes
+      *     the ASN1 byte array
+      * @return
+      *     the list of {@link TagLengthValue}
+      */
+     public static List<TagLengthValue> getTlvs(final byte[] bytes) {
         ByteBuffer bb = ByteBuffer.wrap(bytes);
         final List<TagLengthValue> tlvs = new ArrayList<TagLengthValue>();
         while (bb.hasRemaining()) {

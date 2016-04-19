@@ -34,6 +34,10 @@ public class AtiService implements IAtiService {
         this.addressNormalizer = addressNormalizer;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.ati.enabler.service.IAtiService#sendAtiMessage(java.util.UUID, com.vennetics.bell.sam.ss7.tcap.ati.enabler.rest.OutboundATIMessage)
+     */
     @Override
     public Observable<OutboundATIMessage> sendAtiMessage(final UUID externalRequestId,
                                                          final OutboundATIMessage atiMessageRequest) {

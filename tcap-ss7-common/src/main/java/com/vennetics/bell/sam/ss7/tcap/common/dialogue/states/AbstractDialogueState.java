@@ -36,6 +36,13 @@ public abstract class AbstractDialogueState {
 
     private IDialogue dialogue;
 
+    /***
+     * Constructor to create a Dialogue state
+     * @param context
+     *     the context of this state
+     * @param dialogue
+     *     the dialogue in this state
+     */
     public AbstractDialogueState(final IDialogueContext context, final IDialogue dialogue) {
         this.context = context;
         this.dialogue = dialogue;
@@ -44,29 +51,60 @@ public abstract class AbstractDialogueState {
     public AbstractDialogueState() {
     }
 
+    /***
+     * Get the context of the dialogue in this state
+     * @return
+     *     {@link IDialogueContext}
+     */
     public IDialogueContext getContext() {
         return context;
     }
 
+    /***
+     * Set the context of the dialogue in this state
+     * @param context
+     *     {@link IDialogueContext}
+     */
     public void setContext(final IDialogueContext context) {
         this.context = context;
     }
 
+    /***
+     * Get the dialogue in this state
+     * @return
+     *     {@link IDialogue}
+     */
     public IDialogue getDialogue() {
         return dialogue;
     }
 
+    /***
+     * Set the dialogue in this state
+     * @param dialogue
+     *     {@link IDialogue}
+     */
     public void setDialogue(final IDialogue dialogue) {
         this.dialogue = dialogue;
     }
 
+    /***
+     * Handle a {@link ComponentIndEvent} in this state
+     * @param event
+     *    the {@link ComponentIndEvent} to be handled
+     */
     public abstract void handleEvent(final ComponentIndEvent event);
 
+    /***
+     * Handle a {@link DialogueIndEvent} in this state
+     * @param event
+     *    the {@link DialogueIndEvent} to be handled
+     */
     public abstract void handleEvent(final DialogueIndEvent event);
 
     /**
-     * 
+     * Handle a dialogue/component request blocking
      * @param vbEx
+     *     the {@link WouldBlockException} thrown
      */
     protected void handleWouldBlock(final WouldBlockException vbEx) {
         logger.debug("Received would block exception {} when starting dialogue, starting again", vbEx.getMessage());
@@ -81,7 +119,7 @@ public abstract class AbstractDialogueState {
     }
 
     /**
-     * 
+     * Handle a TCAP out of service exception
      * @param hdEx
      */
     protected void handleOutOfServiceException(final OutOfServiceException hdEx) {
@@ -91,7 +129,7 @@ public abstract class AbstractDialogueState {
     }
     
     /**
-     * 
+     * Handle a TCAP SS7 exception
      * @param hdEx
      */
     protected void handleSs7Exception(final SS7Exception hdEx) {
@@ -100,7 +138,7 @@ public abstract class AbstractDialogueState {
     }
     
     /**
-     * 
+     * Handle a vendor exception
      * @param vEx
      */
     protected void handleVendorException(final VendorException vEx) {
@@ -111,7 +149,7 @@ public abstract class AbstractDialogueState {
     private void handleTerminatingException(final String errorMessage) {
         terminate();
         logger.error(errorMessage);
-        dialogue.setError(new Ss7ServiceException(errorMessage));        
+        dialogue.setError(new Ss7ServiceException(errorMessage));
     }
 
     /**
@@ -143,8 +181,10 @@ public abstract class AbstractDialogueState {
             }
     }
 
-    /**
-     * Dialogue event.
+    /***
+     * Process a {@link BeginIndEvent}
+     * @param event
+     *     the event to handle
      */
     public void processBeginIndEvent(final BeginIndEvent event) {
 
@@ -152,8 +192,10 @@ public abstract class AbstractDialogueState {
         throw new UnexpectedPrimitiveException(event.getPrimitiveType());
     }
 
-    /**
-     * Dialogue event.
+    /***
+     * Process a {@link ContinueIndEvent}
+     * @param event
+     *     the event to handle
      */
     public void processContinueIndEvent(final ContinueIndEvent event) {
         logger.debug("Continue IndEvent received in state {}", dialogue.getStateName());
@@ -161,7 +203,9 @@ public abstract class AbstractDialogueState {
     }
 
     /**
-     * Dialogue event.
+     * Process a {@link EndIndEvent}
+     * @param event
+     *     the event to handle
      */
     public void processEndIndEvent(final EndIndEvent event) {
         logger.debug("EndIndEvent received in state {}", dialogue.getStateName());
@@ -169,7 +213,9 @@ public abstract class AbstractDialogueState {
     }
 
     /**
-     * Dialogue event.
+     * Process a {@link ProviderAbortIndEvent}
+     * @param event
+     *     the event to handle
      */
     public void processProviderAbortIndEvent(final ProviderAbortIndEvent event) {
         String errorMessage = "Provider abort received";
@@ -189,7 +235,9 @@ public abstract class AbstractDialogueState {
     }
 
     /**
-     * Dialogue event.
+     * Process a {@link NoticeIndEvent}
+     * @param event
+     *     the event to handle
      */
     public void processNoticeIndEvent(final NoticeIndEvent event) {
 
@@ -227,6 +275,11 @@ public abstract class AbstractDialogueState {
                     }
     }
 
+    /***
+     * Process a {@link InvokeIndEvent}
+     * @param event
+     *     the event to handle
+     */
     protected void processInvokeIndEvent(final InvokeIndEvent event) {
         logger.debug("InvokeIndEvent event received in state {}", dialogue.getStateName());
 
@@ -234,6 +287,10 @@ public abstract class AbstractDialogueState {
         throw new UnexpectedPrimitiveException(primitive);
     }
 
+    /***
+     * 
+     * @param event
+     */
     protected void processResultIndEvent(final ResultIndEvent event) {
         logger.debug("ResultIndEvent event received in state {}", dialogue.getStateName());
 
@@ -241,6 +298,10 @@ public abstract class AbstractDialogueState {
         throw new UnexpectedPrimitiveException(primitive);
     }
 
+    /***
+     * 
+     * @param event
+     */
     protected void processErrorIndEvent(final ErrorIndEvent event) {
         try {
             logger.debug("ErrorIndEvent event received in state {} for dialogueId: {}, invokeId: {}",
@@ -250,7 +311,7 @@ public abstract class AbstractDialogueState {
         } catch (Exception ex) {
             logger.error(FAILEDTOEXTRACT, ex);
             logger.debug("ErrorIndEvent event received in state {}",
-                         dialogue.getStateName()); 
+                         dialogue.getStateName());
         }
         String errorMessage;
         try {
@@ -265,6 +326,10 @@ public abstract class AbstractDialogueState {
 
     }
 
+    /***
+     * 
+     * @param event
+     */
     protected void processLocalCancelIndEvent(final LocalCancelIndEvent event) {
         try {
             logger.debug("LocalCancelIndEvent event received in state {} for dialogueId: {}, invokeId: {}",
@@ -282,9 +347,13 @@ public abstract class AbstractDialogueState {
         dialogue.setError(new Ss7ServiceException(errorMessage));
     }
 
+    /***
+     * 
+     * @param event
+     */
     protected void processRejectIndEvent(final RejectIndEvent event) {
         try {
-        logger.debug("RejectIndEvent event received in state {} for dialogueId: {}, invokeId: {}", 
+        logger.debug("RejectIndEvent event received in state {} for dialogueId: {}, invokeId: {}",
                      dialogue.getStateName(),
                      event.getDialogueId(),
                      event.getInvokeId());

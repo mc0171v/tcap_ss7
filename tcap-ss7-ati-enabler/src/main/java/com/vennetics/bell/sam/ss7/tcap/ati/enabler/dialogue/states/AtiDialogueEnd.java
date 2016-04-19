@@ -24,26 +24,40 @@ public class AtiDialogueEnd extends AbstractDialogueState implements IDialogueSt
         terminate();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState#handleEvent(jain.protocol.ss7.tcap.ComponentIndEvent)
+     */
     @Override
     public void handleEvent(final ComponentIndEvent event) {
         logger.debug("ComponentIndEvent event received in state {}", getStateName());
         processComponentIndEvent(event);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState#handleEvent(jain.protocol.ss7.tcap.DialogueIndEvent)
+     */
     @Override
     public void handleEvent(final DialogueIndEvent event) {
         logger.debug("DialogueIndEvent event received in state {}", getStateName());
         processDialogueIndEvent(event);
     }
 
-    /**
-     * Dialogue event.
+
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState#processEndIndEvent(jain.protocol.ss7.tcap.dialogue.EndIndEvent)
      */
     @Override
     public void processEndIndEvent(final EndIndEvent event) {
         logger.debug("Expected EndIndEvent received.");
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState#getStateName()
+     */
     @Override
     public String getStateName() {
         return stateName;

@@ -36,6 +36,16 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
         logger.debug("Constructed ATIComponentRequestBuilder");
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.component.requests.AbstractComponentRequestBuilder
+     * #createInvokeReq(java.lang.Object,
+     *                  int,
+     *                  java.lang.Object,
+     *                  boolean,
+     *                  com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties,
+     *                  int)
+     */
     @Override
     public InvokeReqEvent createInvokeReq(final Object source,
                                           final int invokeId,

@@ -39,8 +39,6 @@ public class LocationServiceTest {
 
     @Mock private LocationAdapterConfig mockTemplateFactory;
     @Mock private RestTemplate mockTemplate;
-//    @Mock
-//    private SimpleClientHttpRequestFactory mockRf;
     
     @Before
     public void setup() throws Exception {
@@ -54,12 +52,8 @@ public class LocationServiceTest {
         final String expectedUrl = "http://tcap-ss7-ati-enabler/outbound/location/requests?imsi=442890269151123";
         final ResponseEntity<LocationResponse> dummyResponse = TestConfiguration.dummyResponse();
         final MultiValueMap<String, String> map = TestConfiguration.createMap();
-//        when(mockTemplate.getRequestFactory()).thenReturn(mockRf);   
-//        when(mockTemplate.getForEntity(eq(expectedUrl), same(LocationResponse.class))).thenReturn(dummyResponse);
         when(mockTemplate.exchange(eq(expectedUrl), eq(HttpMethod.GET), isA(HttpEntity.class), same(LocationResponse.class))).thenReturn(dummyResponse);
         final ResponseEntity<LocationResponse> response = service.sendLocationRequest(TestConfiguration.SERVICE, map);
-//        verify(mockRf).setConnectTimeout(eq(50000));
-//        verify(mockRf).setReadTimeout(eq(50000));
         assertThat(response, is(not(nullValue())));
         assertThat(response, is(sameInstance(dummyResponse)));
     }

@@ -100,7 +100,7 @@ public class SamTcapEventListenerTest {
         origTcapUserAddress = new TcapUserAddress(ORIG_SPC, ORIG_SSN);
         destTcapUserAddress = new TcapUserAddress(DEST_SPC, DEST_SSN);
         configProps = new Ss7ConfigurationProperties();
-        final Ss7Address destAddress = new Ss7Address(); 
+        final Ss7Address destAddress = new Ss7Address();
         destAddress.setSpc(LONG_DEST_SPC);
         destAddress.setSsn(DEST_SSN);
         final Ss7Address origAddress = new Ss7Address();
@@ -122,7 +122,7 @@ public class SamTcapEventListenerTest {
         verify(mockListenerState).setContext(objectUnderTest);
     }
     
-    @Test 
+    @Test
     public void shouldInitialiseSuccessfully() throws Exception {
         when(mockStack.createAttachedProvider()).thenReturn(mockProvider);
         objectUnderTest.initialise();

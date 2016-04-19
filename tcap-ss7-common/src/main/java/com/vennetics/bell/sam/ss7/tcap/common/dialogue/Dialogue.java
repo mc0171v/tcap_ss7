@@ -35,7 +35,9 @@ public class Dialogue implements IDialogue {
      * Dialogue constructor.
      * 
      * @param context
-     * @param provider
+     *     the dialogue context {@link IDialogueContext}
+     * @param request
+     *     the request object associated with this dialogue
      */
     public Dialogue(final IDialogueContext context,
                     final Object request) {
@@ -44,11 +46,19 @@ public class Dialogue implements IDialogue {
         logger.debug("Started new Dialogue");
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getDialogueId()
+     */
     @Override
     public int getDialogueId() {
         return dialogueId;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setDialogueId(int)
+     */
     @Override
     public void setDialogueId(final int dialogueId) {
         this.dialogueId = dialogueId;
@@ -56,27 +66,47 @@ public class Dialogue implements IDialogue {
         logger.debug("Activated Dialogue with ID {}", dialogueId);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getJainTcapProvider()
+     */
     @Override
     public JainTcapProvider getJainTcapProvider() {
         return context.getProvider();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getState()
+     */
     @Override
     public IDialogueState getState() {
         return state;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setState(com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState)
+     */
     @Override
     public void setState(final IDialogueState state) {
         this.state = state;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#handleEvent(jain.protocol.ss7.tcap.ComponentIndEvent)
+     */
     @Override
     public void handleEvent(final ComponentIndEvent event) {
         logger.debug("Handing off event to state {}", state.getStateName());
         state.handleEvent(event);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#handleEvent(jain.protocol.ss7.tcap.DialogueIndEvent)
+     */
     @Override
     public void handleEvent(final DialogueIndEvent event) {
         logger.debug("Handing off event to state {}", state.getStateName());
@@ -89,56 +119,99 @@ public class Dialogue implements IDialogue {
                         + context.getSsn() + "]";
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#activate()
+     */
     @Override
     public void activate() {
         state.activate();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getStateName()
+     */
     @Override
     public String getStateName() {
         return state.getStateName();
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setDialogueRequestBuilder(com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder)
+     */
     @Override
     public void setDialogueRequestBuilder(final IDialogueRequestBuilder dialogueRequestBuilder) {
         this.dialogueRequestBuilder = dialogueRequestBuilder;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setComponentRequestBuilder(com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder)
+     */
     @Override
     public void setComponentRequestBuilder(final IComponentRequestBuilder componentRequestBuilder) {
         this.componentRequestBuilder = componentRequestBuilder;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getDialogueRequestBuilder()
+     */
     @Override
     public IDialogueRequestBuilder getDialogueRequestBuilder() {
         return dialogueRequestBuilder;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getComponentRequestBuilder()
+     */
     @Override
     public IComponentRequestBuilder getComponentRequestBuilder() {
         return componentRequestBuilder;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getRequest()
+     */
     @Override
     public Object getRequest() {
         return request;
     }
 
+    /*
+     * 
+     */
     public void setRequest(final Object request) {
         this.request = request;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getResult()
+     */
     @Override
     public Object getResult() {
         return result;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setResult(java.lang.Object)
+     */
     @Override
     public void setResult(final Object result) {
         this.result = result;
         latch.countDown(); //Inform command that result is now available.
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setError(com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException)
+     */
     @Override
     public void setError(final Ss7ServiceException error) {
         this.result = request;
@@ -146,11 +219,19 @@ public class Dialogue implements IDialogue {
         latch.countDown(); //Inform command that result is now available.
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getLatch()
+     */
     @Override
     public CountDownLatch getLatch() {
         return latch;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setLatch(java.util.concurrent.CountDownLatch)
+     */
     @Override
     public void setLatch(final CountDownLatch latch) {
         this.latch = latch;

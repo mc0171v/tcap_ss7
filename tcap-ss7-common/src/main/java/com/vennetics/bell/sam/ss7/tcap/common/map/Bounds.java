@@ -23,7 +23,7 @@ public class Bounds {
     }
     
     @Override
-    public String toString () {
+    public String toString() {
         return "Upper Bound: " + upperBound + ", Lower Bound: " + lowerBound;
     }
 

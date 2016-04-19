@@ -41,11 +41,11 @@ public class TestConfiguration {
     public static final String MSISDN_KEY = "msisdn";
     public static final String IMSI = "442890269151123";
     public static final String IMSI_KEY = "imsi";
-    public static final String LATITUDE = "latitude";
+    public static final double LATITUDE = 33.3;
     public static final String LATITUDE_KEY = "latitude";
-    public static final String LONGITUDE = "longitude";
+    public static final double LONGITUDE = 66.6;
     public static final String LONGITUDE_KEY = "longitude";
-    public static final String UNCERTAINTY = "uncertainty";
+    public static final double UNCERTAINTY = 1;
     public static final String UNCERTAINTY_KEY = "uncertainty";
     public static final String SERVICE = "tcap-ss7-ati-enabler";
 

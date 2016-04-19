@@ -31,6 +31,12 @@ public class AtiDialogueRequestBuilder extends AbstractDialogueRequestBuilder {
         logger.debug("Constructed DialogueRequestBuilder");
     }
     
+    /*
+     * (non-Javadoc)
+     * @see
+     * com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.AbstractDialogueRequestBuilder#createBeginReq(com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext,
+     *                                                                                                             int)
+     */
     @Override
     public BeginReqEvent createBeginReq(final IDialogueContext context, final int dialogueId) {
 

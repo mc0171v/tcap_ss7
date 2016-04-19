@@ -10,6 +10,10 @@ import ericsson.ein.ss7.commonparts.util.Tools;
 
 public final class LocationHelper {
     
+    private LocationHelper() {
+        
+    }
+    
     private static final Logger logger = LoggerFactory.getLogger(LocationHelper.class);
     
     /**
@@ -23,7 +27,7 @@ public final class LocationHelper {
         final Bounds bounds = new Bounds();
         final int latitude = convert(latitudeBytes, true);
         final double denominator = Math.pow(2, 23);
-        bounds.setLowerBound((getSign(latitudeBytes) * latitude * 90.0 / denominator));
+        bounds.setLowerBound(getSign(latitudeBytes) * latitude * 90.0 / denominator);
         bounds.setUpperBound(getSign(latitudeBytes) * (latitude + 1) * 90.0 / denominator);
         logger.debug("Latitude: " + bounds.toString());
         return bounds;
@@ -40,12 +44,12 @@ public final class LocationHelper {
         final Bounds bounds = new Bounds();
         final BigInteger longitude = convertTwosComplement(longitudeBytes);
         final double denominator = Math.pow(2, 24);
-        bounds.setLowerBound((longitude.intValue() * 360.0 / denominator));
+        bounds.setLowerBound(longitude.intValue() * 360.0 / denominator);
         bounds.setUpperBound((longitude.intValue() + 1) * 360.0 / denominator);
         logger.debug("Longitude: " + bounds.toString());
         return bounds;
     }
-    
+
     /**
      * GSM 03.32
      * r = C*((1+X)**K - 1) Uncertainty
@@ -53,7 +57,7 @@ public final class LocationHelper {
      * @param uncertainty
      * @return uncertainty in meters
      */
-    public static double getUncertainty(final byte uncertaintyByte) {  
+    public static double getUncertainty(final byte uncertaintyByte) {
         final int power = uncertaintyByte & 0x7F;
         final double uncertainty = 10 * (Math.pow(1.1, power) - 1);
         logger.debug("Uncertainty: " + uncertainty);
@@ -61,7 +65,7 @@ public final class LocationHelper {
     }
     
 
-    private static int convert(byte[] latitude, boolean signIncluded) {
+    private static int convert(final byte[] latitude, final boolean signIncluded) {
         byte octet0 = latitude[0];
         if (signIncluded) {
             octet0 = Tools.getLoByteOf4(latitude[0] & 0x7F);
@@ -73,7 +77,7 @@ public final class LocationHelper {
         return new BigInteger(longitude);
     }
     
-    private static int getSign(byte[] latitude) {
+    private static int getSign(final byte[] latitude) {
         byte octet0 = latitude[0];
         final int sign = (octet0 & 0x80) >> 7 > 0 ? -1 : 1;
         return sign;

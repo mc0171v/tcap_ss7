@@ -32,21 +32,37 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
         logger.debug("Changing state to {}", getStateName());
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.listener.states.AbstractListenerState#handleEvent(jain.protocol.ss7.tcap.ComponentIndEvent)
+     */
     @Override
     public void handleEvent(final ComponentIndEvent event) {
         processComponentIndEvent(event);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.listener.states.AbstractListenerState#handleEvent(jain.protocol.ss7.tcap.DialogueIndEvent)
+     */
     @Override
     public void handleEvent(final DialogueIndEvent event) {
         processDialogueIndEvent(event);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.listener.states.AbstractListenerState#handleEvent(com.ericsson.einss7.japi.VendorIndEvent)
+     */
     @Override
     public void handleEvent(final VendorIndEvent event) {
         processVendorIndEvent(event);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.listener.states.AbstractListenerState#processComponentIndEvent(jain.protocol.ss7.tcap.ComponentIndEvent)
+     */
     @Override
     protected void processComponentIndEvent(final ComponentIndEvent event) {
         logger.debug("ComponentIndEvent event received in state {}", getStateName());

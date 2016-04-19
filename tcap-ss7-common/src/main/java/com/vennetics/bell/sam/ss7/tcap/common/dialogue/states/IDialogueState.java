@@ -8,17 +8,50 @@ import jain.protocol.ss7.tcap.DialogueIndEvent;
 
 public interface IDialogueState {
 
+    /***
+     * Handle a {@link ComponentIndEvent} in this state
+     * @param event
+     *    the {@link ComponentIndEvent} to be handled
+     */
     void handleEvent(ComponentIndEvent event);
 
+    /***
+     * Handle a {@link DialogueIndEvent} in this state
+     * @param event
+     *    the {@link DialogueIndEvent} to be handled
+     */
     void handleEvent(DialogueIndEvent event);
     
+    /***
+     * Activate a dialogue in this state
+     */
     void activate();
     
+    
+    /***
+     * Terminate a dialogue in this state
+     */
+    void terminate();
+   
+    /***
+     * Get the state nmae
+     * @return
+     *     state name
+     */
     String getStateName();
     
+    /***
+     * Set the {@link IDialogueContext}
+     * @param context
+     *     the dialogue context
+     */
     void setContext(final IDialogueContext context);
     
+    /***
+     * Set the dialogue {@link IDialogue}
+     * @param dialogue
+     *     the dialogue
+     */
     void setDialogue(final IDialogue dialogue);
-     
-    void terminate();
+
 }

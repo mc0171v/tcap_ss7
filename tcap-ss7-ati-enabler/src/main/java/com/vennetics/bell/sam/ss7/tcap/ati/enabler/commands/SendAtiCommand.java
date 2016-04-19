@@ -40,9 +40,6 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
         logger.debug("Constructed ATI Command");
     }
 
-    /**
-     * 
-     */
     @Override
     protected OutboundATIMessage run() {
         logger.debug("Running Hystrix wrapped send ATI command to return a location or status");
@@ -58,7 +55,7 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
         if (dialogue.getResult() != null) {
             OutboundATIMessage obm = (OutboundATIMessage) dialogue.getResult();
             if (obm.getError() == null) {
-            	logger.debug("Dialogue returned with error {}", obm.getError());
+                logger.debug("Dialogue returned with error {}", obm.getError());
                 return obm;
             }
             throw obm.getError();
