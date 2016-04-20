@@ -32,7 +32,7 @@ public abstract class AbstractDialogueState {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractDialogueState.class);
     private static final String FAILEDTOEXTRACT = "Failed to extract dialogueId or invokeId: {}";
-    private IDialogueContext context;
+//    private IDialogueContext context;
 
     private IDialogue dialogue;
 
@@ -43,8 +43,8 @@ public abstract class AbstractDialogueState {
      * @param dialogue
      *     the dialogue in this state
      */
-    public AbstractDialogueState(final IDialogueContext context, final IDialogue dialogue) {
-        this.context = context;
+    public AbstractDialogueState(final IDialogue dialogue) {
+//        this.context = context;
         this.dialogue = dialogue;
     }
     
@@ -56,18 +56,18 @@ public abstract class AbstractDialogueState {
      * @return
      *     {@link IDialogueContext}
      */
-    public IDialogueContext getContext() {
-        return context;
-    }
+//    public IDialogueContext getContext() {
+//        return dialogue.getContext
+//    }
 
     /***
      * Set the context of the dialogue in this state
      * @param context
      *     {@link IDialogueContext}
      */
-    public void setContext(final IDialogueContext context) {
-        this.context = context;
-    }
+//    public void setContext(final IDialogueContext context) {
+//        this.context = context;
+//    }
 
     /***
      * Get the dialogue in this state
@@ -108,6 +108,7 @@ public abstract class AbstractDialogueState {
      */
     protected void handleWouldBlock(final WouldBlockException vbEx) {
         logger.debug("Received would block exception {} when starting dialogue, starting again", vbEx.getMessage());
+        final IDialogueContext context = dialogue.getContext();
         context.getDialogueManager()
                .deactivate(dialogue);
         // release dialogueId
@@ -382,6 +383,7 @@ public abstract class AbstractDialogueState {
     public void terminate() {
         // Release the dialogue ID
         logger.debug("deactivating");
+        final IDialogueContext context = dialogue.getContext();
         context.getDialogueManager().deactivate(dialogue);
         context.getProvider().releaseDialogueId(dialogue.getDialogueId());
     }

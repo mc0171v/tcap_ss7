@@ -58,7 +58,7 @@ public class AtiDialogueStartTest {
 
     @Before
     public void setup() throws Exception {
-        objectToTest = new AtiSimDialogueStart(mockDialogueContext, mockDialogue);
+        objectToTest = new AtiSimDialogueStart(mockDialogue);
     }
 
     @Test(expected = UnexpectedPrimitiveException.class)
@@ -75,11 +75,12 @@ public class AtiDialogueStartTest {
         invokeIndEvent.setDialogueId(DIALOGUE_ID);
         final ResultReqEvent resultReq = new ResultReqEvent(mockTcapListener, DIALOGUE_ID, true);
         final EndReqEvent endReq = new EndReqEvent(mockTcapListener, DIALOGUE_ID);
+        when(mockDialogue.getContext()).thenReturn(mockDialogueContext);
         when(mockDialogueContext.getTcapEventListener()).thenReturn(mockTcapListener);
-        when(mockDialogue.getComponentRequestBuilder()).thenReturn(mockRequestBuilder);
+        when(mockDialogueContext.getComponentRequestBuilder()).thenReturn(mockRequestBuilder);
         when(mockRequestBuilder.createResultReq(mockTcapListener, DIALOGUE_ID, INVOKE_ID)).thenReturn(resultReq);
-        when(mockDialogue.getJainTcapProvider()).thenReturn(mockProvider);
-        when(mockDialogue.getDialogueRequestBuilder()).thenReturn(mockDialogueRequestBuilder);
+        when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
+        when(mockDialogueContext.getDialogueRequestBuilder()).thenReturn(mockDialogueRequestBuilder);
         when(mockDialogueRequestBuilder.createEndReq(mockDialogueContext, DIALOGUE_ID)).thenReturn(endReq);
         when(mockDialogueContext.getDialogueManager()).thenReturn(mockDialogueMgr);
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);

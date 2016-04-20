@@ -1,5 +1,6 @@
 package com.vennetics.bell.sam.ss7.tcap.common.listener;
 
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -63,7 +64,8 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     private JainTcapStack stack;
     private JainTcapProvider provider;
 
-    private static final String SAM_TCAP = "SAM Project: TCAP statck";
+    private static final String SAM_TCAP = "SAM Project: TCAP stack";
+    private static final String SLICE_IDENTIFIER = "EINSS7_DID_SLICING_ID";
     private final int std;
 
     private Vector<TcapUserAddress> addressVector;
@@ -84,7 +86,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
             logger.error("Orig address not set");
             throw new SS7ConfigException("Orig address not set");
         }
-        if (configProperties.getOrigAddress() != null) {
+        if (configProperties.getDestAddress() != null) {
             this.destAddr = new TcapUserAddress(configProperties.getDestAddress().getSpc(),
                                                 configProperties.getDestAddress().getSsn());
             logger.debug("Dest Address Set");
@@ -163,9 +165,13 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     @Override
     public void setConfiguration() {
         try {
-
             String configString = configProperties.getCpConfig();
-
+            final Map<String, String> env = System.getenv();
+            if (env.containsValue(SLICE_IDENTIFIER)) {
+                final String sliceIdStr = env.get(SLICE_IDENTIFIER);
+                configString = configString + " -D" + SLICE_IDENTIFIER + "=" + sliceIdStr;
+            }
+            logger.debug("Setting config: {}", configString);
             JainTcapConfig.getInstance().setConfigString(configString);
 
         } catch (VendorException vex) {
@@ -224,11 +230,8 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     
     private IDialogue dialogueSetup(final Object request, final CountDownLatch cDl) {
         final IDialogue dialogue = new Dialogue(this, request);
-        dialogue.setDialogueRequestBuilder(dialogueRequestBuilder);
-        dialogue.setComponentRequestBuilder(componentRequestBuilder);
         dialogue.setLatch(cDl);
         IInitialDialogueState startState = initialDialogueState.newInstance();
-        startState.setContext(this);
         startState.setDialogue(dialogue);
         dialogue.setState(startState);
         return dialogue;
@@ -410,6 +413,24 @@ public class SamTcapEventListener implements ISamTcapEventListener {
 
     public void setComponentRequestBuilder(final IComponentRequestBuilder componentRequestBuilder) {
         this.componentRequestBuilder = componentRequestBuilder;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext#getDialogueRequestBuilder()
+     */
+    @Override
+    public IDialogueRequestBuilder getDialogueRequestBuilder() {
+        return dialogueRequestBuilder;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext#getComponentRequestBuilder()
+     */
+    @Override
+    public IComponentRequestBuilder getComponentRequestBuilder() {
+        return componentRequestBuilder;
     }
 
 }

@@ -46,10 +46,11 @@ public class AtiDialogueEndTest {
 
     @Before
     public void setup() throws Exception {
+        when(mockDialogue.getContext()).thenReturn(mockDialogueContext);
         when(mockDialogueContext.getDialogueManager()).thenReturn(mockDialogueMgr);
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
         when(mockDialogue.getDialogueId()).thenReturn(DIALOGUE_ID);
-        objectToTest = new AtiSimDialogueEnd(mockDialogueContext, mockDialogue);
+        objectToTest = new AtiSimDialogueEnd(mockDialogue);
         verify(mockProvider).releaseDialogueId(DIALOGUE_ID);
         verify(mockDialogueMgr).deactivate(mockDialogue);
     }

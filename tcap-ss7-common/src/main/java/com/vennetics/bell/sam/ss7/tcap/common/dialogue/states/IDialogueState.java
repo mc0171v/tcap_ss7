@@ -1,7 +1,6 @@
 package com.vennetics.bell.sam.ss7.tcap.common.dialogue.states;
 
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
@@ -39,13 +38,6 @@ public interface IDialogueState {
      *     state name
      */
     String getStateName();
-    
-    /***
-     * Set the {@link IDialogueContext}
-     * @param context
-     *     the dialogue context
-     */
-    void setContext(final IDialogueContext context);
     
     /***
      * Set the dialogue {@link IDialogue}

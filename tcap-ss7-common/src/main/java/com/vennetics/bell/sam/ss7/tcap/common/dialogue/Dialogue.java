@@ -5,15 +5,12 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.error.IError;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
-import jain.protocol.ss7.tcap.JainTcapProvider;
 
 public class Dialogue implements IDialogue {
     private static final Logger logger = LoggerFactory.getLogger(Dialogue.class);
@@ -27,9 +24,6 @@ public class Dialogue implements IDialogue {
     
     private Object result;
     private CountDownLatch latch;
-
-    private IDialogueRequestBuilder dialogueRequestBuilder;
-    private IComponentRequestBuilder componentRequestBuilder;
 
     /**
      * Dialogue constructor.
@@ -66,15 +60,11 @@ public class Dialogue implements IDialogue {
         logger.debug("Activated Dialogue with ID {}", dialogueId);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getJainTcapProvider()
-     */
     @Override
-    public JainTcapProvider getJainTcapProvider() {
-        return context.getProvider();
+    public IDialogueContext getContext() {
+        return context;
     }
-
+    
     /*
      * (non-Javadoc)
      * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getState()
@@ -137,41 +127,41 @@ public class Dialogue implements IDialogue {
         return state.getStateName();
     }
     
-    /*
-     * (non-Javadoc)
-     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setDialogueRequestBuilder(com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder)
-     */
-    @Override
-    public void setDialogueRequestBuilder(final IDialogueRequestBuilder dialogueRequestBuilder) {
-        this.dialogueRequestBuilder = dialogueRequestBuilder;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setComponentRequestBuilder(com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder)
-     */
-    @Override
-    public void setComponentRequestBuilder(final IComponentRequestBuilder componentRequestBuilder) {
-        this.componentRequestBuilder = componentRequestBuilder;
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getDialogueRequestBuilder()
-     */
-    @Override
-    public IDialogueRequestBuilder getDialogueRequestBuilder() {
-        return dialogueRequestBuilder;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getComponentRequestBuilder()
-     */
-    @Override
-    public IComponentRequestBuilder getComponentRequestBuilder() {
-        return componentRequestBuilder;
-    }
+//    /*
+//     * (non-Javadoc)
+//     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setDialogueRequestBuilder(com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder)
+//     */
+//    @Override
+//    public void setDialogueRequestBuilder(final IDialogueRequestBuilder dialogueRequestBuilder) {
+//        this.dialogueRequestBuilder = dialogueRequestBuilder;
+//    }
+//
+//    /*
+//     * (non-Javadoc)
+//     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setComponentRequestBuilder(com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder)
+//     */
+//    @Override
+//    public void setComponentRequestBuilder(final IComponentRequestBuilder componentRequestBuilder) {
+//        this.componentRequestBuilder = componentRequestBuilder;
+//    }
+//    
+//    /*
+//     * (non-Javadoc)
+//     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getDialogueRequestBuilder()
+//     */
+//    @Override
+//    public IDialogueRequestBuilder getDialogueRequestBuilder() {
+//        return dialogueRequestBuilder;
+//    }
+//
+//    /*
+//     * (non-Javadoc)
+//     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getComponentRequestBuilder()
+//     */
+//    @Override
+//    public IComponentRequestBuilder getComponentRequestBuilder() {
+//        return componentRequestBuilder;
+//    }
 
     /*
      * (non-Javadoc)
@@ -180,13 +170,6 @@ public class Dialogue implements IDialogue {
     @Override
     public Object getRequest() {
         return request;
-    }
-
-    /*
-     * 
-     */
-    public void setRequest(final Object request) {
-        this.request = request;
     }
 
     /*

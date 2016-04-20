@@ -85,7 +85,7 @@ public class AtiDialogueStartTest {
 
     @Before
     public void setup() throws Exception {
-        objectToTest = new AtiDialogueStart(mockDialogueContext, mockDialogue);
+        objectToTest = new AtiDialogueStart(mockDialogue);
     }
 
     @Test(expected = UnexpectedPrimitiveException.class)
@@ -103,11 +103,12 @@ public class AtiDialogueStartTest {
         final TcapUserAddress origTcapUserAddress = new TcapUserAddress(SPC, SSN);
         final TcapUserAddress destTcapUserAddress = new TcapUserAddress(SPC, SSN);
         BeginReqEvent beginReq = new BeginReqEvent(mockTcapListener, DIALOGUE_ID, origTcapUserAddress, destTcapUserAddress);
+        when(mockDialogue.getContext()).thenReturn(mockDialogueContext);
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
         when(mockDialogueContext.getSsn()).thenReturn((int) SSN);
         when(mockProvider.getNewDialogueId(SSN)).thenReturn(DIALOGUE_ID);
         when(mockProvider.getNewInvokeId(DIALOGUE_ID)).thenReturn(INVOKE_ID);
-        when(mockDialogue.getComponentRequestBuilder()).thenReturn(mockComponentRequestBuilder);
+        when(mockDialogueContext.getComponentRequestBuilder()).thenReturn(mockComponentRequestBuilder);
         when(mockDialogueContext.getTcapEventListener()).thenReturn(mockTcapListener);
         when(mockDialogue.getRequest()).thenReturn(message);
         when(mockDialogueContext.getConfigProperties()).thenReturn(props);
@@ -117,7 +118,7 @@ public class AtiDialogueStartTest {
                                                          true,
                                                          props,
                                                          DIALOGUE_ID)).thenReturn(invokeReq);
-        when(mockDialogue.getDialogueRequestBuilder()).thenReturn(mockDialogueRequestBuilder);
+        when(mockDialogueContext.getDialogueRequestBuilder()).thenReturn(mockDialogueRequestBuilder);
         when(mockDialogueRequestBuilder.createBeginReq(mockDialogueContext, DIALOGUE_ID)).thenReturn(beginReq);
         objectToTest.activate();
         verify(mockDialogue).setDialogueId(DIALOGUE_ID);
@@ -238,6 +239,7 @@ public class AtiDialogueStartTest {
     }
     
     private void commonWhen(final OutboundATIMessage oAtiMessage) {
+        when(mockDialogue.getContext()).thenReturn(mockDialogueContext);
         when(mockDialogue.getRequest()).thenReturn(oAtiMessage);
         when(mockDialogueContext.getStack()).thenReturn(mockStack);
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);

@@ -54,8 +54,8 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
     
     private static String stateName = "AtiDialogueStart";
 
-    public AtiDialogueStart(final IDialogueContext context, final IDialogue dialogue) {
-        super(context, dialogue);
+    public AtiDialogueStart(final IDialogue dialogue) {
+        super(dialogue);
         logger.debug("Changing state to {}", getStateName());
     }
     
@@ -97,21 +97,22 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
         InvokeReqEvent invokeReq = null;
         BeginReqEvent beginReq = null;
         int dialogueId = -1;
+        IDialogueContext context = getDialogue().getContext();
         try {
-            JainTcapProvider provider = getContext().getProvider();
-            dialogueId = provider.getNewDialogueId(getContext().getSsn());
+            JainTcapProvider provider = context.getProvider();
+            dialogueId = provider.getNewDialogueId(context.getSsn());
             getDialogue().setDialogueId(dialogueId);
             int invokeId = provider.getNewInvokeId(dialogueId);
             logger.debug("Starting dialogue with dialogueId:{} and invokeId:{}",
                          dialogueId,
                          invokeId);
-            invokeReq = getDialogue().getComponentRequestBuilder().createInvokeReq(getContext().getTcapEventListener(),
+            invokeReq = context.getComponentRequestBuilder().createInvokeReq(context.getTcapEventListener(),
                                                                                    invokeId,
                                                                                    getDialogue().getRequest(),
                                                                                    true,
-                                                                                   getContext().getConfigProperties(), dialogueId);
+                                                                                   context.getConfigProperties(), dialogueId);
             provider.sendComponentReqEventNB(invokeReq);
-            beginReq = getDialogue().getDialogueRequestBuilder().createBeginReq(getContext(), dialogueId);
+            beginReq = context.getDialogueRequestBuilder().createBeginReq(context, dialogueId);
             provider.sendDialogueReqEventNB(beginReq);
         } catch (SS7Exception ex) {
             handleSs7Exception(ex);
@@ -147,8 +148,9 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
             obm.setError(new Ss7ServiceException("No parameters received with component"));
         }
         getDialogue().setResult(obm);
-        final JainTcapProvider provider = getContext().getProvider();
-        final JainTcapStack stack = getContext().getStack();
+        IDialogueContext context = getDialogue().getContext();
+        final JainTcapProvider provider = context.getProvider();
+        final JainTcapStack stack = context.getStack();
         try {
             switch (stack.getProtocolVersion()) {
                 case DialogueConstants.PROTOCOL_VERSION_ANSI_96:
@@ -280,7 +282,7 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
      */
     @Override
     public void terminate() {
-        getDialogue().setState(new AtiDialogueEnd(getContext(), getDialogue()));
+        getDialogue().setState(new AtiDialogueEnd(getDialogue()));
     }
     
     /*

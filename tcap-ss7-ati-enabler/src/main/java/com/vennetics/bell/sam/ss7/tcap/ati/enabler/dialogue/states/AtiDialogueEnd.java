@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.AbstractDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
 
@@ -18,8 +17,8 @@ public class AtiDialogueEnd extends AbstractDialogueState implements IDialogueSt
 
     private static String stateName = "AtiDialogueEnd";
 
-    public AtiDialogueEnd(final IDialogueContext context, final IDialogue dialogue) {
-        super(context, dialogue);
+    public AtiDialogueEnd(final IDialogue dialogue) {
+        super(dialogue);
         logger.debug("Changing state to {}", getStateName());
         terminate();
     }

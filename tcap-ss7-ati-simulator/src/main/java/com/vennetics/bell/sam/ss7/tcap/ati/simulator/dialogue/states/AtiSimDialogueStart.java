@@ -31,8 +31,8 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
     
     private static String stateName = "AtiDialogueStart";
 
-    public AtiSimDialogueStart(final IDialogueContext context, final IDialogue dialogue) {
-        super(context, dialogue);
+    public AtiSimDialogueStart(final IDialogue dialogue) {
+        super(dialogue);
         logger.debug("Changing state to {}", getStateName());
     }
     
@@ -80,14 +80,15 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
             return;
         }
         ResultReqEvent resultReq;
+        final IDialogueContext context = getDialogue().getContext();
         if (operation[0] == ATI[0]) {
-            resultReq = getDialogue().getComponentRequestBuilder()
-                                     .createResultReq(getContext().getTcapEventListener(),
+            resultReq = context.getComponentRequestBuilder()
+                                     .createResultReq(context.getTcapEventListener(),
                                                       dialogueId,
                                                       invokeId);
             logger.debug("Sending result...");
             try {
-                getDialogue().getJainTcapProvider().sendComponentReqEventNB(resultReq);
+                context.getProvider().sendComponentReqEventNB(resultReq);
             } catch (Exception ex) {
                 logger.error("Failed to send component {}", ex);
                 terminate();
@@ -96,10 +97,10 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
 
             // ---Build end request, depending on operation code
 
-            EndReqEvent dialogueReq = getDialogue().getDialogueRequestBuilder()
-                                                   .createEndReq(getContext(), dialogueId);
+            EndReqEvent dialogueReq = context.getDialogueRequestBuilder()
+                                                   .createEndReq(context, dialogueId);
             try {
-                getDialogue().getJainTcapProvider().sendDialogueReqEventNB(dialogueReq);
+                context.getProvider().sendDialogueReqEventNB(dialogueReq);
             } catch (Exception ex) {
                 logger.error("Failed to send component {}", ex);
                 terminate();
@@ -134,7 +135,7 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
     
     @Override
     public void terminate() {
-        getDialogue().setState(new AtiSimDialogueEnd(getContext(), getDialogue()));
+        getDialogue().setState(new AtiSimDialogueEnd(getDialogue()));
     }
     
     @Override

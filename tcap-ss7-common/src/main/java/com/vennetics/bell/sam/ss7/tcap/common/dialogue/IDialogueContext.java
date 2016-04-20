@@ -3,6 +3,8 @@ package com.vennetics.bell.sam.ss7.tcap.common.dialogue;
 import java.util.concurrent.CountDownLatch;
 
 import com.ericsson.einss7.jtcap.TcapEventListener;
+import com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder;
+import com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
 
 import jain.protocol.ss7.tcap.JainTcapProvider;
@@ -50,6 +52,20 @@ public interface IDialogueContext {
      * @return TcapEventListener
      */
     TcapEventListener getTcapEventListener();
+    
+    /***
+     * Get the dialogue request builder associated with this context
+     * 
+     * @return {@link IDialogueRequestBuilder}
+     */
+    IDialogueRequestBuilder getDialogueRequestBuilder();
+
+    /***
+     * Get the component request builder associated with this context
+     * 
+     * @return {@link IComponentRequestBuilder}
+     */
+    IComponentRequestBuilder getComponentRequestBuilder();
     
     /***
      * Get the dialogue manager associated with this dialogue context

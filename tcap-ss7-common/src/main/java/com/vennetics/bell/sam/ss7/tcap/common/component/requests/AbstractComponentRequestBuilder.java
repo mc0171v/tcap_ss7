@@ -12,6 +12,11 @@ public abstract class AbstractComponentRequestBuilder implements IComponentReque
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractComponentRequestBuilder.class);
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder#
+     * createInvokeReq(java.lang.Object, int, java.lang.Object, com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties, int)
+     */
     @Override
     public InvokeReqEvent createInvokeReq(final java.lang.Object source,
                                           final int invokeId,
@@ -25,6 +30,11 @@ public abstract class AbstractComponentRequestBuilder implements IComponentReque
                                configProps, dialogueId);
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder#
+     * createInvokeReq(java.lang.Object, int, java.lang.Object, boolean, com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties, int)
+     */
     @Override
     public InvokeReqEvent createInvokeReq(final Object source,
                                           final int invokeId,
@@ -36,6 +46,11 @@ public abstract class AbstractComponentRequestBuilder implements IComponentReque
         return null;
     }
    
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder#
+     * createResultReq(java.lang.Object, int, int)
+     */
     @Override
     public ResultReqEvent createResultReq(final Object source,
                                           final int dialogueId,

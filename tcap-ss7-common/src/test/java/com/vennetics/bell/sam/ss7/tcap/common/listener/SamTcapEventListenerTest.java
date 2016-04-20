@@ -159,10 +159,7 @@ public class SamTcapEventListenerTest {
         CountDownLatch latch = new CountDownLatch(1);
         when(mockDialogueState.newInstance()).thenReturn(mockDialogueState2);
         IDialogue dialogue = objectUnderTest.startDialogue(message, latch);
-        verify(mockDialogueState2).setContext(objectUnderTest);
         verify(mockDialogueState2).setDialogue(dialogue);
-        assertEquals(dialogue.getComponentRequestBuilder(), mockComponentRequestBuilder);
-        assertEquals(dialogue.getDialogueRequestBuilder(), mockDialogueRequestBuilder);
         assertEquals(dialogue.getState(), mockDialogueState2);
         assertEquals(dialogue.getLatch(), latch);
     }
@@ -171,10 +168,7 @@ public class SamTcapEventListenerTest {
     public void shouldJoinDialogue() {
         when(mockDialogueState.newInstance()).thenReturn(mockDialogueState2);
         IDialogue dialogue = objectUnderTest.joinDialogue(DIALOGUE_ID);
-        verify(mockDialogueState2).setContext(objectUnderTest);
         verify(mockDialogueState2).setDialogue(dialogue);
-        assertEquals(dialogue.getComponentRequestBuilder(), mockComponentRequestBuilder);
-        assertEquals(dialogue.getDialogueRequestBuilder(), mockDialogueRequestBuilder);
         assertEquals(dialogue.getState(), mockDialogueState2);
         assertEquals(dialogue.getDialogueId(), DIALOGUE_ID);
     }

@@ -2,14 +2,11 @@ package com.vennetics.bell.sam.ss7.tcap.common.dialogue;
 
 import java.util.concurrent.CountDownLatch;
 
-import com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.Ss7ServiceException;
 
 import jain.protocol.ss7.tcap.ComponentIndEvent;
 import jain.protocol.ss7.tcap.DialogueIndEvent;
-import jain.protocol.ss7.tcap.JainTcapProvider;
 
 public interface IDialogue {
     
@@ -20,11 +17,11 @@ public interface IDialogue {
     int getDialogueId();
 
     /***
-     * Get the provider associated with this dialogue
-     * @return {@link JainTcapProvider}
+     * Get this dialogues context
+     * @return {@link IDialogueContext}
      */
-    JainTcapProvider getJainTcapProvider();
-
+    IDialogueContext getContext();
+    
     /***
      * get the current state of this dialogue
      * @return {@link IDialogueState}
@@ -68,32 +65,6 @@ public interface IDialogue {
      * @return the name of the dialogues current state
      */
     String getStateName();
-
-    /***
-     * Set the {@link IDialogueRequestBuilder} on the dialogue
-     * @param dialogueRequestBuilder
-     *     the dialogue request builder
-     */
-    void setDialogueRequestBuilder(IDialogueRequestBuilder dialogueRequestBuilder);
-
-    /***
-     * Set the {@link IComponentRequestBuilder} on the dialogue
-     * @param componentRequestBuilder
-     *     the component request builder
-     */
-    void setComponentRequestBuilder(IComponentRequestBuilder componentRequestBuilder);
-
-    /***
-     * Get the dialogue request builder associated with this dialogue
-     * @return {@link IDialogueRequestBuilder}
-     */
-    IDialogueRequestBuilder getDialogueRequestBuilder();
-
-    /***
-     * Get the component request builder associated with this dialogue
-     * @return {@link IComponentRequestBuilder}
-     */
-    IComponentRequestBuilder getComponentRequestBuilder();
     
     /***
      * Set the result object on this dialogue
