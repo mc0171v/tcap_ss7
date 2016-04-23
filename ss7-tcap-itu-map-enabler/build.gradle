@@ -1,0 +1,24 @@
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'bell-sam-ss7-tcap-itu-map-enabler'
+}
+
+dependencies {
+    compile project(':rest-config')
+    compile project(':core-commands')
+    compile project(':ss7-tcap-common')
+    runtime libraries.springBoot
+    compile("org.apache.commons:commons-lang3")
+    compile('org.springframework.cloud:spring-cloud-config-client')
+    compile('org.springframework.boot:spring-boot-devtools')
+    compile('org.springframework.cloud:spring-cloud-starter-eureka')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('com.h2database:h2')
+    compile('com.netflix.rxjava:rxjava-core')
+    compile('org.springframework.cloud:spring-cloud-starter-hystrix')
+    testCompile('com.jayway.jsonpath:json-path')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
