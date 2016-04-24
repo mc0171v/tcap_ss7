@@ -66,4 +66,11 @@ public interface IComponentRequestBuilder {
     ResultReqEvent createResultReq(Object source,
                                    int dialogueId,
                                    int invokeId);
+    
+    /***
+     * Retrieve the builder type name
+     * @return
+     *     the name of the builder type
+     */
+    String getBuilderType();
 }

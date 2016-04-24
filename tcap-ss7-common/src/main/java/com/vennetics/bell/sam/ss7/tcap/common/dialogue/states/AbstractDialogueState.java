@@ -33,6 +33,8 @@ public abstract class AbstractDialogueState {
     private static final Logger logger = LoggerFactory.getLogger(AbstractDialogueState.class);
     private static final String FAILEDTOEXTRACT = "Failed to extract dialogueId or invokeId: {}";
 //    private IDialogueContext context;
+    
+    private final String stateName;
 
     private IDialogue dialogue;
 
@@ -43,12 +45,19 @@ public abstract class AbstractDialogueState {
      * @param dialogue
      *     the dialogue in this state
      */
-    public AbstractDialogueState(final IDialogue dialogue) {
+    public AbstractDialogueState(final String stateName,
+                                 final IDialogue dialogue) {
 //        this.context = context;
         this.dialogue = dialogue;
+        this.stateName = stateName;
     }
     
-    public AbstractDialogueState() {
+    public AbstractDialogueState(final String stateName) {
+        this.stateName = stateName;
+    }
+    
+    public String getStateName() {
+        return stateName;
     }
 
     /***
@@ -115,7 +124,8 @@ public abstract class AbstractDialogueState {
         context.getProvider().releaseDialogueId(dialogue.getDialogueId());
 
         context.startDialogue(dialogue.getRequest(),
-                              dialogue.getLatch());
+                              dialogue.getLatch(),
+                              dialogue.getType());
         //TODO Possible infinite loop - Need some flow control
     }
 
@@ -189,7 +199,7 @@ public abstract class AbstractDialogueState {
      */
     public void processBeginIndEvent(final BeginIndEvent event) {
 
-        logger.debug("BeginIndEvent received in state {}", dialogue.getStateName());
+        logger.debug("BeginIndEvent received in state {}", getStateName());
         throw new UnexpectedPrimitiveException(event.getPrimitiveType());
     }
 
@@ -199,7 +209,7 @@ public abstract class AbstractDialogueState {
      *     the event to handle
      */
     public void processContinueIndEvent(final ContinueIndEvent event) {
-        logger.debug("Continue IndEvent received in state {}", dialogue.getStateName());
+        logger.debug("Continue IndEvent received in state {}", getStateName());
         throw new UnexpectedPrimitiveException(event.getPrimitiveType());
     }
 
@@ -209,7 +219,7 @@ public abstract class AbstractDialogueState {
      *     the event to handle
      */
     public void processEndIndEvent(final EndIndEvent event) {
-        logger.debug("EndIndEvent received in state {}", dialogue.getStateName());
+        logger.debug("EndIndEvent received in state {}", getStateName());
         throw new UnexpectedPrimitiveException(event.getPrimitiveType());
     }
 
@@ -223,12 +233,12 @@ public abstract class AbstractDialogueState {
         try {
             errorMessage = errorMessage + ", abort reason is " + event.getPAbort();
             logger.debug("ProviderAbortIndEvent received in state {} for dialogue {}",
-                     dialogue.getStateName(),
+                     getStateName(),
                      event.getDialogueId());
         } catch (ParameterNotSetException ex) {
             logger.error("Parameter not set exception {}", ex);
             logger.debug("ProviderAbortIndEvent received in state {}",
-                         dialogue.getStateName());
+                         getStateName());
         }
         logger.error(errorMessage);
         terminate();
@@ -242,7 +252,7 @@ public abstract class AbstractDialogueState {
      */
     public void processNoticeIndEvent(final NoticeIndEvent event) {
 
-        logger.debug("processNoticeIndEvent received in state {}", dialogue.getStateName());
+        logger.debug("processNoticeIndEvent received in state {}", getStateName());
         throw new UnexpectedPrimitiveException(event.getPrimitiveType());
     }
 
@@ -282,7 +292,7 @@ public abstract class AbstractDialogueState {
      *     the event to handle
      */
     protected void processInvokeIndEvent(final InvokeIndEvent event) {
-        logger.debug("InvokeIndEvent event received in state {}", dialogue.getStateName());
+        logger.debug("InvokeIndEvent event received in state {}", getStateName());
 
         final int primitive = event.getPrimitiveType();
         throw new UnexpectedPrimitiveException(primitive);
@@ -293,7 +303,7 @@ public abstract class AbstractDialogueState {
      * @param event
      */
     protected void processResultIndEvent(final ResultIndEvent event) {
-        logger.debug("ResultIndEvent event received in state {}", dialogue.getStateName());
+        logger.debug("ResultIndEvent event received in state {}", getStateName());
 
         final int primitive = event.getPrimitiveType();
         throw new UnexpectedPrimitiveException(primitive);
@@ -306,13 +316,13 @@ public abstract class AbstractDialogueState {
     protected void processErrorIndEvent(final ErrorIndEvent event) {
         try {
             logger.debug("ErrorIndEvent event received in state {} for dialogueId: {}, invokeId: {}",
-                         dialogue.getStateName(),
+                         getStateName(),
                          event.getDialogueId(),
                          event.getInvokeId());
         } catch (Exception ex) {
             logger.error(FAILEDTOEXTRACT, ex);
             logger.debug("ErrorIndEvent event received in state {}",
-                         dialogue.getStateName());
+                         getStateName());
         }
         String errorMessage;
         try {
@@ -334,13 +344,13 @@ public abstract class AbstractDialogueState {
     protected void processLocalCancelIndEvent(final LocalCancelIndEvent event) {
         try {
             logger.debug("LocalCancelIndEvent event received in state {} for dialogueId: {}, invokeId: {}",
-                         dialogue.getStateName(),
+                         getStateName(),
                          event.getDialogueId(),
                          event.getInvokeId());
         } catch (Exception ex) {
             logger.error(FAILEDTOEXTRACT, ex);
             logger.debug("LocalCancelIndEvent event received in state {} for dialogueId: {}, invokeId: {}",
-                         dialogue.getStateName());
+                         getStateName());
         }
         final String errorMessage = "Local cancel returned";
         logger.error(errorMessage);
@@ -355,13 +365,13 @@ public abstract class AbstractDialogueState {
     protected void processRejectIndEvent(final RejectIndEvent event) {
         try {
         logger.debug("RejectIndEvent event received in state {} for dialogueId: {}, invokeId: {}",
-                     dialogue.getStateName(),
+                     getStateName(),
                      event.getDialogueId(),
                      event.getInvokeId());
         } catch (Exception ex) {
             logger.error(FAILEDTOEXTRACT, ex);
             logger.debug("RejectIndEvent event received in state {}",
-                         dialogue.getStateName());
+                         getStateName());
         }
         String errorMessage;
         try {

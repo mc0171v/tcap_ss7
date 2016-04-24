@@ -55,17 +55,21 @@ public interface IDialogueContext {
     
     /***
      * Get the dialogue request builder associated with this context
+     * @param type
+     *     the type name of the {@link IDialogueRequestBuilder} to retrieve
      * 
      * @return {@link IDialogueRequestBuilder}
      */
-    IDialogueRequestBuilder getDialogueRequestBuilder();
+    IDialogueRequestBuilder getDialogueRequestBuilder(String type);
 
     /***
      * Get the component request builder associated with this context
+     * @param type
+     *     the type name of the {@link IComponentRequestBuilder} to retrieve
      * 
      * @return {@link IComponentRequestBuilder}
      */
-    IComponentRequestBuilder getComponentRequestBuilder();
+    IComponentRequestBuilder getComponentRequestBuilder(String type);
     
     /***
      * Get the dialogue manager associated with this dialogue context
@@ -76,6 +80,7 @@ public interface IDialogueContext {
     /***
      * Get a dialogue associated with this dialogue context
      * @param dialogueId
+     *     the dialogue identifier of the dialogue to retrieve
      * @return {@link IDialogue}
      */
     IDialogue getDialogue(int dialogueId);
@@ -83,15 +88,21 @@ public interface IDialogueContext {
     /***
      * Deactivate a dialogue associated with this dialogue context
      * @param dialogueId
+     *     the dialogue identifier of the dialogue to deactivate
      */
     void deactivateDialogue(IDialogue dialogueId);
 
     /***
      * Start a dialogue associated with this dialogue context
-     * @param dialogueId
+     * @param request
+     *     the request object from which to construct the dialogue
+     * @param latch
+     *     the latch to use to wait on a result
+     * @param type
+     *     the type name of the dialogue to start
      * @return {@link IDialogue}
      */
-    IDialogue startDialogue(Object request, CountDownLatch latch);
+    IDialogue startDialogue(Object request, CountDownLatch latch, String type);
     
     /***
      * Get the configuration properties associated with this dialogue context

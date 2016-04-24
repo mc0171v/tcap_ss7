@@ -15,10 +15,10 @@ public class AtiDialogueEnd extends AbstractDialogueState implements IDialogueSt
 
     private static final Logger logger = LoggerFactory.getLogger(AtiDialogueEnd.class);
 
-    private static String stateName = "AtiDialogueEnd";
+    private static String STATE_NAME = "AtiDialogueEnd";
 
     public AtiDialogueEnd(final IDialogue dialogue) {
-        super(dialogue);
+        super(STATE_NAME);
         logger.debug("Changing state to {}", getStateName());
         terminate();
     }
@@ -51,14 +51,5 @@ public class AtiDialogueEnd extends AbstractDialogueState implements IDialogueSt
     @Override
     public void processEndIndEvent(final EndIndEvent event) {
         logger.debug("Expected EndIndEvent received.");
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState#getStateName()
-     */
-    @Override
-    public String getStateName() {
-        return stateName;
     }
 }

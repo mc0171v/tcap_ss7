@@ -15,10 +15,10 @@ public class AtiSimDialogueEnd extends AbstractDialogueState implements IDialogu
 
     private static final Logger logger = LoggerFactory.getLogger(AtiSimDialogueEnd.class);
 
-    private static String stateName = "AtiDialogueEnd";
+    private static String STATE_NAME = "AtiDialogueEnd";
 
     public AtiSimDialogueEnd(final IDialogue dialogue) {
-        super(dialogue);
+        super(STATE_NAME, dialogue);
         logger.debug("Changing state to {}", getStateName());
         terminate();
     }
@@ -38,10 +38,5 @@ public class AtiSimDialogueEnd extends AbstractDialogueState implements IDialogu
     @Override
     public void processEndIndEvent(final EndIndEvent event) {
         logger.debug("Expected EndIndEvent received.");
-    }
-
-    @Override
-    public String getStateName() {
-        return stateName;
     }
 }

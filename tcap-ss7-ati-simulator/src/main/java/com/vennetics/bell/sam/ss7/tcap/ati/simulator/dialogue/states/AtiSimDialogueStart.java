@@ -29,15 +29,17 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
 
     private static final byte[] ATI  = { 0x47 };
     
-    private static String stateName = "AtiDialogueStart";
+    private static final String STATE_NAME = "AtiDialogueStart";
+    
+    private static final String STATE_TYPE = "ATI";
 
     public AtiSimDialogueStart(final IDialogue dialogue) {
-        super(dialogue);
+        super(STATE_NAME, dialogue);
         logger.debug("Changing state to {}", getStateName());
     }
     
     public AtiSimDialogueStart() {
-        super();
+        super(STATE_NAME);
         logger.debug("Changing state to {}", getStateName());
     }
 
@@ -82,7 +84,7 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
         ResultReqEvent resultReq;
         final IDialogueContext context = getDialogue().getContext();
         if (operation[0] == ATI[0]) {
-            resultReq = context.getComponentRequestBuilder()
+            resultReq = context.getComponentRequestBuilder(getStateType())
                                      .createResultReq(context.getTcapEventListener(),
                                                       dialogueId,
                                                       invokeId);
@@ -97,7 +99,7 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
 
             // ---Build end request, depending on operation code
 
-            EndReqEvent dialogueReq = context.getDialogueRequestBuilder()
+            EndReqEvent dialogueReq = context.getDialogueRequestBuilder(null)
                                                    .createEndReq(context, dialogueId);
             try {
                 context.getProvider().sendDialogueReqEventNB(dialogueReq);
@@ -129,11 +131,6 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
     }
 
     @Override
-    public String getStateName() {
-        return stateName;
-    }
-    
-    @Override
     public void terminate() {
         getDialogue().setState(new AtiSimDialogueEnd(getDialogue()));
     }
@@ -142,5 +139,9 @@ public class AtiSimDialogueStart extends AbstractDialogueState implements IIniti
     public IInitialDialogueState newInstance() {
           return new AtiSimDialogueStart();
   
+    }
+
+    public String getStateType() {
+        return STATE_TYPE;
     }
 }

@@ -115,9 +115,10 @@ public class ListenerReadyForTraffic extends AbstractListenerState implements IL
         }
         if (event.getPrimitiveType() == TcapConstants.PRIMITIVE_BEGIN) {
             int dialogueId = 0;
+            
             try {
                 dialogueId = event.getDialogueId();
-                getContext().joinDialogue(dialogueId);
+                getContext().joinDialogue(dialogueId, getContext().getConfigProperties().getSimulatorOperation());
                 logger.debug("Retrieved dialogId {} and created new dialogue", dialogueId);
             } catch (ParameterNotSetException ex) {
                 logger.error(NOEXTRACT, ex);

@@ -25,6 +25,8 @@ public class Dialogue implements IDialogue {
     private Object result;
     private CountDownLatch latch;
 
+    private String type;
+
     /**
      * Dialogue constructor.
      * 
@@ -126,42 +128,6 @@ public class Dialogue implements IDialogue {
     public String getStateName() {
         return state.getStateName();
     }
-    
-//    /*
-//     * (non-Javadoc)
-//     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setDialogueRequestBuilder(com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder)
-//     */
-//    @Override
-//    public void setDialogueRequestBuilder(final IDialogueRequestBuilder dialogueRequestBuilder) {
-//        this.dialogueRequestBuilder = dialogueRequestBuilder;
-//    }
-//
-//    /*
-//     * (non-Javadoc)
-//     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#setComponentRequestBuilder(com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder)
-//     */
-//    @Override
-//    public void setComponentRequestBuilder(final IComponentRequestBuilder componentRequestBuilder) {
-//        this.componentRequestBuilder = componentRequestBuilder;
-//    }
-//    
-//    /*
-//     * (non-Javadoc)
-//     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getDialogueRequestBuilder()
-//     */
-//    @Override
-//    public IDialogueRequestBuilder getDialogueRequestBuilder() {
-//        return dialogueRequestBuilder;
-//    }
-//
-//    /*
-//     * (non-Javadoc)
-//     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue#getComponentRequestBuilder()
-//     */
-//    @Override
-//    public IComponentRequestBuilder getComponentRequestBuilder() {
-//        return componentRequestBuilder;
-//    }
 
     /*
      * (non-Javadoc)
@@ -218,5 +184,13 @@ public class Dialogue implements IDialogue {
     @Override
     public void setLatch(final CountDownLatch latch) {
         this.latch = latch;
+    }
+    
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

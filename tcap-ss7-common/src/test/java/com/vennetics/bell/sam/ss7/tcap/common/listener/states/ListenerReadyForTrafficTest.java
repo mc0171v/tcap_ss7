@@ -55,6 +55,8 @@ public class ListenerReadyForTrafficTest {
     private IListenerState objectToTest;
     
     private TcapUserAddress userAddress;
+    
+    private static final String TYPE1 = "dialogueType1";
 
     @Before
     public void setup() throws Exception {
@@ -99,9 +101,12 @@ public class ListenerReadyForTrafficTest {
                                                 destAddress,
                                                 true);
         event.setDialogueId(DIALOGUE_ID);
+        ISs7ConfigurationProperties props = new Ss7ConfigurationProperties();
+        props.setSimulatorOperation(TYPE1);
+        when(mockListenerContext.getConfigProperties()).thenReturn(props);
         when(mockListenerContext.getDialogue(DIALOGUE_ID)).thenReturn(null);
         objectToTest.handleEvent(event);
-        verify(mockListenerContext).joinDialogue(DIALOGUE_ID);
+        verify(mockListenerContext).joinDialogue(DIALOGUE_ID, TYPE1);
     }
 
     @Test()

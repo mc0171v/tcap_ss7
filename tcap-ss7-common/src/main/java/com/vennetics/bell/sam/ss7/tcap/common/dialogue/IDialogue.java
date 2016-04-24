@@ -105,4 +105,18 @@ public interface IDialogue {
      * @return
      */
     CountDownLatch getLatch();
+    
+    /***
+     * Get the type of dialogue
+     * @return
+     *     the dialogue type
+     */
+    public String getType();
+    
+    /***
+     * Set the type of dialogue
+     * @param type
+     *     the dialogue type
+     */
+    void setType(String type);
 }

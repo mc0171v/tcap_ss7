@@ -12,6 +12,12 @@ public abstract class AbstractComponentRequestBuilder implements IComponentReque
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractComponentRequestBuilder.class);
     
+    private String builderType;
+    
+    protected AbstractComponentRequestBuilder(final String builderType) {
+        this.builderType = builderType;
+    }
+
     /*
      * (non-Javadoc)
      * @see com.vennetics.bell.sam.ss7.tcap.common.component.requests.IComponentRequestBuilder#
@@ -57,5 +63,9 @@ public abstract class AbstractComponentRequestBuilder implements IComponentReque
                                           final int invokeId) {
         logger.error("Unexpected createResultReq");
         return null;
+    }
+    
+    public String getBuilderType() {
+        return builderType;
     }
 }

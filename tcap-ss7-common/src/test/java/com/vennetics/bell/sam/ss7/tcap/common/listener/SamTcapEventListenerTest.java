@@ -20,7 +20,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.eq;
 
-
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -67,13 +68,20 @@ public class SamTcapEventListenerTest {
     @Mock
     private IDialogueRequestBuilder mockDialogueRequestBuilder;
     @Mock
+    private IDialogueRequestBuilder mockDialogueRequestBuilder2;
+    @Mock
     private IComponentRequestBuilder mockComponentRequestBuilder;
+    @Mock
+    private IComponentRequestBuilder mockComponentRequestBuilder2;
     @Mock
     private IListenerState mockListenerState;
     @Mock
     private JainTcapProvider mockProvider;
     @Mock
     private JainTcapStack mockStack;
+    
+    private static final String TYPE1 = "dialogueType1";
+    private static final String TYPE2 = "dialogueType2";
     
     private static final short ORIG_SSN = 99;
     private static final short DEST_SSN = 9;
@@ -108,14 +116,23 @@ public class SamTcapEventListenerTest {
         origAddress.setSsn(ORIG_SSN);
         configProps.setDestAddress(destAddress);
         configProps.setOrigAddress(origAddress);
+        Set<IInitialDialogueState> initialDialogueStates = new HashSet<IInitialDialogueState>();
+        initialDialogueStates.add(mockDialogueState);
+        initialDialogueStates.add(mockDialogueState2);
+        Set<IDialogueRequestBuilder> dialogueRequestBuilders = new HashSet<IDialogueRequestBuilder>();
+        dialogueRequestBuilders.add(mockDialogueRequestBuilder);
+        dialogueRequestBuilders.add(mockDialogueRequestBuilder2);
+        Set<IComponentRequestBuilder> componentRequestBuilders = new HashSet<IComponentRequestBuilder>();
+        componentRequestBuilders.add(mockComponentRequestBuilder);
+        componentRequestBuilders.add(mockComponentRequestBuilder2);
         objectUnderTest = new SamTcapEventListener(configProps,
                                                    mockListenerState,
-                                                   mockDialogueRequestBuilder,
-                                                   mockComponentRequestBuilder,
-                                                   mockDialogueState) {
+                                                   initialDialogueStates,
+                                                   dialogueRequestBuilders,
+                                                   componentRequestBuilders) {
             public JainTcapStack createJainTcapStack() throws jain.protocol.ss7.SS7PeerUnavailableException,
             jain.protocol.ss7.tcap.TcapException {
-                logger.debug("Reutning mock stack");
+                logger.debug("Returning mock stack");
                 return mockStack;
             }
         };
@@ -157,17 +174,23 @@ public class SamTcapEventListenerTest {
     public void shouldStartDialogue() {
         final Object message = new Object();
         CountDownLatch latch = new CountDownLatch(1);
-        when(mockDialogueState.newInstance()).thenReturn(mockDialogueState2);
-        IDialogue dialogue = objectUnderTest.startDialogue(message, latch);
-        verify(mockDialogueState2).setDialogue(dialogue);
-        assertEquals(dialogue.getState(), mockDialogueState2);
+        when(mockDialogueState.getStateType()).thenReturn(TYPE1);
+        when(mockDialogueState2.getStateType()).thenReturn(TYPE2);
+        when(mockDialogueState.newInstance()).thenReturn(mockDialogueState);
+        IDialogue dialogue = objectUnderTest.startDialogue(message, latch, TYPE1);
+        verify(mockDialogueState).setDialogue(dialogue);
+        assertEquals(dialogue.getState(), mockDialogueState);
         assertEquals(dialogue.getLatch(), latch);
     }
     
     @Test()
     public void shouldJoinDialogue() {
+        logger.debug("state = {}", mockDialogueState);
+        logger.debug("state = {}", mockDialogueState2);
+        when(mockDialogueState.getStateType()).thenReturn(TYPE1);
+        when(mockDialogueState2.getStateType()).thenReturn(TYPE2);
         when(mockDialogueState.newInstance()).thenReturn(mockDialogueState2);
-        IDialogue dialogue = objectUnderTest.joinDialogue(DIALOGUE_ID);
+        IDialogue dialogue = objectUnderTest.joinDialogue(DIALOGUE_ID, TYPE1);
         verify(mockDialogueState2).setDialogue(dialogue);
         assertEquals(dialogue.getState(), mockDialogueState2);
         assertEquals(dialogue.getDialogueId(), DIALOGUE_ID);

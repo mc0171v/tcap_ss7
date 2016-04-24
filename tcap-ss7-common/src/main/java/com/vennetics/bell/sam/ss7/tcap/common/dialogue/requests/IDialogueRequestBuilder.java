@@ -43,4 +43,11 @@ public interface IDialogueRequestBuilder {
      */
     EndReqEvent createEndReq(IDialogueContext context,
                              final int dialogueId);
+    
+    /***
+     * Retrieve the builder type name
+     * @return
+     *     the name of the builder type
+     */
+    String getBuilderType();
 }

@@ -31,7 +31,7 @@ import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
+import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IInitialDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedPrimitiveException;
 import com.vennetics.bell.sam.ss7.tcap.common.map.SubscriberState;
 import com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties;
@@ -81,7 +81,7 @@ public class AtiDialogueStartTest {
     @Mock
     private IDialogueRequestBuilder mockDialogueRequestBuilder;
     
-    private IDialogueState objectToTest;
+    private IInitialDialogueState objectToTest;
 
     @Before
     public void setup() throws Exception {
@@ -108,7 +108,7 @@ public class AtiDialogueStartTest {
         when(mockDialogueContext.getSsn()).thenReturn((int) SSN);
         when(mockProvider.getNewDialogueId(SSN)).thenReturn(DIALOGUE_ID);
         when(mockProvider.getNewInvokeId(DIALOGUE_ID)).thenReturn(INVOKE_ID);
-        when(mockDialogueContext.getComponentRequestBuilder()).thenReturn(mockComponentRequestBuilder);
+        when(mockDialogueContext.getComponentRequestBuilder(objectToTest.getStateType())).thenReturn(mockComponentRequestBuilder);
         when(mockDialogueContext.getTcapEventListener()).thenReturn(mockTcapListener);
         when(mockDialogue.getRequest()).thenReturn(message);
         when(mockDialogueContext.getConfigProperties()).thenReturn(props);
@@ -118,7 +118,7 @@ public class AtiDialogueStartTest {
                                                          true,
                                                          props,
                                                          DIALOGUE_ID)).thenReturn(invokeReq);
-        when(mockDialogueContext.getDialogueRequestBuilder()).thenReturn(mockDialogueRequestBuilder);
+        when(mockDialogueContext.getDialogueRequestBuilder(null)).thenReturn(mockDialogueRequestBuilder);
         when(mockDialogueRequestBuilder.createBeginReq(mockDialogueContext, DIALOGUE_ID)).thenReturn(beginReq);
         objectToTest.activate();
         verify(mockDialogue).setDialogueId(DIALOGUE_ID);

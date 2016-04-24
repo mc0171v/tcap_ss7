@@ -28,7 +28,10 @@ public class AtiDialogueRequestBuilder extends AbstractDialogueRequestBuilder {
             0x03        /* version 3 */
           };
     
+    private static final String STATE_TYPE = "ATI";
+    
     AtiDialogueRequestBuilder() {
+        super(STATE_TYPE);
         logger.debug("Constructed DialogueRequestBuilder");
     }
    

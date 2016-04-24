@@ -171,4 +171,18 @@ public interface ISs7ConfigurationProperties {
      *     the common parts configuration
      */
     void setCpConfig(String cpConfig);
+    
+    /***
+     * Get the simulator operation type
+     * @return
+     *     the simulator operation type
+     */
+    public String getSimulatorOperation();
+    
+    /***
+     * Set the simulator operation type
+     * @param simulatorOperation
+     *     the simulator operation type
+     */
+    void setSimulatorOperation(final String simulatorOperation);
 }

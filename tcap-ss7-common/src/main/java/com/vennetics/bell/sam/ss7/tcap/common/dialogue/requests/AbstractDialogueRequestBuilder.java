@@ -9,6 +9,12 @@ import jain.protocol.ss7.tcap.dialogue.EndReqEvent;
 
 public abstract class AbstractDialogueRequestBuilder implements IDialogueRequestBuilder {
     
+    private String builderType;
+    
+    protected AbstractDialogueRequestBuilder(final String builderName) {
+        this.builderType = builderName;
+    }
+    
     /*
      * (non-Javadoc)
      * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder#createBeginReq(com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext, int)
@@ -54,5 +60,9 @@ public abstract class AbstractDialogueRequestBuilder implements IDialogueRequest
         endReq.setQualityOfService((byte) 2); // FIX: constant for qos in JAIN
         endReq.setDialoguePortion(new DialoguePortion());
         return endReq;
+    }
+     
+    public String getBuilderType() {
+        return builderType;
     }
 }

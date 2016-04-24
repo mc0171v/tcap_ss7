@@ -52,15 +52,16 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
     private static final byte VLR_NUMBER_TAG = Tools.getLoByteOf2(0x82);
     private static final byte LOCATION_NUMBER_TAG = Tools.getLoByteOf2(0x83);
     
-    private static String stateName = "AtiDialogueStart";
+    private static final String STATE_NAME = "AtiDialogueStart";
+    private static final String STATE_TYPE = "ATI";
 
     public AtiDialogueStart(final IDialogue dialogue) {
-        super(dialogue);
+        super(STATE_NAME, dialogue);
         logger.debug("Changing state to {}", getStateName());
     }
     
     public AtiDialogueStart() {
-        super();
+        super(STATE_NAME);
         logger.debug("Changing state to {}", getStateName());
     }
 
@@ -106,13 +107,13 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
             logger.debug("Starting dialogue with dialogueId:{} and invokeId:{}",
                          dialogueId,
                          invokeId);
-            invokeReq = context.getComponentRequestBuilder().createInvokeReq(context.getTcapEventListener(),
+            invokeReq = context.getComponentRequestBuilder(getStateType()).createInvokeReq(context.getTcapEventListener(),
                                                                                    invokeId,
                                                                                    getDialogue().getRequest(),
                                                                                    true,
                                                                                    context.getConfigProperties(), dialogueId);
             provider.sendComponentReqEventNB(invokeReq);
-            beginReq = context.getDialogueRequestBuilder().createBeginReq(context, dialogueId);
+            beginReq = context.getDialogueRequestBuilder(null).createBeginReq(context, dialogueId);
             provider.sendDialogueReqEventNB(beginReq);
         } catch (SS7Exception ex) {
             handleSs7Exception(ex);
@@ -266,15 +267,6 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
     public void processEndIndEvent(final EndIndEvent event) {
         logger.debug("Expected EndIndEvent received.");
     }
-
-    /*
-     * (non-Javadoc)
-     * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState#getStateName()
-     */
-    @Override
-    public String getStateName() {
-        return stateName;
-    }
     
     /*
      * (non-Javadoc)
@@ -292,5 +284,9 @@ public class AtiDialogueStart extends AbstractDialogueState implements IInitialD
     @Override
     public IInitialDialogueState newInstance() {
         return new AtiDialogueStart();
+    }
+    
+    public String getStateType() {
+        return STATE_TYPE;
     }
 }

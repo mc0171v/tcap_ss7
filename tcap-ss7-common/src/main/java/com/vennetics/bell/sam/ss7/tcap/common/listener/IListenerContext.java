@@ -55,8 +55,10 @@ public interface IListenerContext {
      * Join a dialogue initiated in another TCAP
      * @param dialogueId
      *     the dialogueId of the dialogue to join
+     * @param type
+     *     the type name of the dialogue
      * @return
      *     the dialogue {@link IDialogue}
      */
-    IDialogue joinDialogue(int dialogueId);
+    IDialogue joinDialogue(int dialogueId, String type);
 }

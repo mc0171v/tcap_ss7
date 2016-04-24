@@ -50,6 +50,8 @@ public class AtiServiceTest {
     private final UUID externalRequestId = UUID.randomUUID();
     private final Address address = new Address();
     private ISs7ConfigurationProperties props;
+    
+    private static final String TYPE = "ATI";
 
     @Before public void setUp() {
         objectUnderTest = new AtiService(mockListener,
@@ -83,7 +85,7 @@ public class AtiServiceTest {
         when(mockListener.getConfigProperties()).thenReturn(props);
         when(mockListener.isBound()).thenReturn(true);
         when(mockListener.isReady()).thenReturn(true);
-        when(mockListener.startDialogue(eq(request), isA(CountDownLatch.class))).thenReturn(mockDialogue);
+        when(mockListener.startDialogue(eq(request), isA(CountDownLatch.class), eq(TYPE))).thenReturn(mockDialogue);
         try {
             objectUnderTest.sendAtiMessage(externalRequestId, request);
             fail("Test should have encountered exception");

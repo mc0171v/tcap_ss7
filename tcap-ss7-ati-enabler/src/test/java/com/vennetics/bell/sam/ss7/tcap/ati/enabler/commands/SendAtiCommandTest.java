@@ -33,6 +33,7 @@ public class SendAtiCommandTest {
     private IDialogue mockDialogue;
 
     private CountDownLatch latch;
+    private final static String TYPE = "ATI";
 
     @Before
     public void setup() throws Exception {
@@ -87,7 +88,7 @@ public class SendAtiCommandTest {
         final ISs7ConfigurationProperties props = new Ss7ConfigurationProperties();
         props.setLatchTimeout(1000);
         latch = new CountDownLatch(1);
-        when(mockListener.startDialogue(eq(oBAtiMessage), eq(latch))).thenReturn(mockDialogue);
+        when(mockListener.startDialogue(eq(oBAtiMessage), eq(latch), eq(TYPE))).thenReturn(mockDialogue);
         when(mockListener.getConfigProperties()).thenReturn(props);
         latch.countDown();
     }

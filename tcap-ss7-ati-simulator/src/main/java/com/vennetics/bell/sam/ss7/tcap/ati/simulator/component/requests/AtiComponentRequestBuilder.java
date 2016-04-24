@@ -19,8 +19,10 @@ public class AtiComponentRequestBuilder extends AbstractComponentRequestBuilder 
     
     private static final byte[] ATI  = { 0x47 };
     
+    private static final String STATE_TYPE = "ATI";
+    
     AtiComponentRequestBuilder() {
-        super();
+        super(STATE_TYPE);
         logger.debug("Constructed ATIComponentResultBuilder");
     }
 

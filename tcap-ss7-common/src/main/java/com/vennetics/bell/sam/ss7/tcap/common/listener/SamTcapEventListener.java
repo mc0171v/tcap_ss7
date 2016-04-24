@@ -1,6 +1,7 @@
 package com.vennetics.bell.sam.ss7.tcap.common.listener;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -50,11 +51,11 @@ public class SamTcapEventListener implements ISamTcapEventListener {
 
     private ISs7ConfigurationProperties configProperties;
         
-    private IInitialDialogueState initialDialogueState;
+    private Set<IInitialDialogueState> initialDialogueStates;
 
-    private IDialogueRequestBuilder dialogueRequestBuilder;
+    private Set<IDialogueRequestBuilder> dialogueRequestBuilders;
     
-    private IComponentRequestBuilder componentRequestBuilder;
+    private Set<IComponentRequestBuilder> componentRequestBuilders;
     
     private IListenerState state;
     private final TcapUserAddress origAddr;
@@ -73,9 +74,9 @@ public class SamTcapEventListener implements ISamTcapEventListener {
     @Autowired
     SamTcapEventListener(final ISs7ConfigurationProperties configProperties,
                          @Qualifier("listenerUnbound") final IListenerState initialListenerState,
-                         final IDialogueRequestBuilder dialogueRequestBuilder,
-                         final IComponentRequestBuilder componentRequestBuilder,
-                         final IInitialDialogueState initialDialogueState) {
+                         final Set<IInitialDialogueState> initialDialogueState,
+                         final Set<IDialogueRequestBuilder> dialogueRequestBuilder,
+                         final Set<IComponentRequestBuilder> componentRequestBuilder) {
         this.configProperties = configProperties;
         logger.debug("Configuration Properties:" + configProperties.toString());
         if (configProperties.getOrigAddress() != null) {
@@ -98,12 +99,12 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         this.state = initialListenerState;
         logger.debug("Initial Listener State Set");
         std = configProperties.getStd();
-        this.componentRequestBuilder = componentRequestBuilder;
-        logger.debug("Component Request Builder Set");
-        this.dialogueRequestBuilder = dialogueRequestBuilder;
-        logger.debug("Dialogue Request Builder Set");
-        this.initialDialogueState = initialDialogueState;
-        logger.debug("Initial Dialogue State Set");
+        this.componentRequestBuilders = componentRequestBuilder;
+        logger.debug("Component Request Builders Set");
+        this.dialogueRequestBuilders = dialogueRequestBuilder;
+        logger.debug("Dialogue Request Builders Set");
+        this.initialDialogueStates = initialDialogueState;
+        logger.debug("Initial Dialogue States Set");
         initialListenerState.setContext(this);
     }
     
@@ -167,7 +168,7 @@ public class SamTcapEventListener implements ISamTcapEventListener {
         try {
             String configString = configProperties.getCpConfig();
             final Map<String, String> env = System.getenv();
-            if (env.containsValue(SLICE_IDENTIFIER)) {
+            if (env.containsKey(SLICE_IDENTIFIER)) {
                 final String sliceIdStr = env.get(SLICE_IDENTIFIER);
                 configString = configString + " -D" + SLICE_IDENTIFIER + "=" + sliceIdStr;
             }
@@ -214,27 +215,41 @@ public class SamTcapEventListener implements ISamTcapEventListener {
 
     @Override
     public IDialogue startDialogue(final Object request,
-                                   final CountDownLatch cDl) {
-        final IDialogue dialogue = dialogueSetup(request, cDl);
+                                   final CountDownLatch cDl,
+                                   String type) {
+        final IDialogue dialogue = dialogueSetup(request, cDl, type);
         dialogue.activate();
         return dialogue;
     }
    
     @Override
-    public IDialogue joinDialogue(final int dialogueId) {
-        final IDialogue dialogue = dialogueSetup(null, null);
+    public IDialogue joinDialogue(final int dialogueId, String type) {
+        final IDialogue dialogue = dialogueSetup(null, null, type);
         dialogue.setDialogueId(dialogueId);
         dialogue.activate();
         return dialogue;
     }
     
-    private IDialogue dialogueSetup(final Object request, final CountDownLatch cDl) {
+    private IDialogue dialogueSetup(final Object request, final CountDownLatch cDl, String type) {
         final IDialogue dialogue = new Dialogue(this, request);
         dialogue.setLatch(cDl);
-        IInitialDialogueState startState = initialDialogueState.newInstance();
+        IInitialDialogueState startState = getInitialDialogueState(type).newInstance();
         startState.setDialogue(dialogue);
         dialogue.setState(startState);
+        dialogue.setType(type);
         return dialogue;
+    }
+    
+    public IInitialDialogueState getInitialDialogueState(final String type) {
+        for (final IInitialDialogueState state : initialDialogueStates) {
+            logger.debug("check equals state = {}", state);
+            if (state.getStateType().equals(type)) {
+                logger.debug("equals state = {}", state);
+                return state;
+            }
+        }
+        logger.error("No maching initial dialogue state");
+        return null;
     }
 
     /**
@@ -403,16 +418,16 @@ public class SamTcapEventListener implements ISamTcapEventListener {
          return configProperties;
     }
     
-    public void setInitialDialogueState(final IInitialDialogueState initialDialogueState) {
-        this.initialDialogueState = initialDialogueState;
+    public void setInitialDialogueState(final Set<IInitialDialogueState> initialDialogueStates) {
+        this.initialDialogueStates = initialDialogueStates;
     }
 
-    public void setDialogueRequestBuilder(final IDialogueRequestBuilder dialogueRequestBuilder) {
-        this.dialogueRequestBuilder = dialogueRequestBuilder;
+    public void setDialogueRequestBuilder(final Set<IDialogueRequestBuilder> dialogueRequestBuilders) {
+        this.dialogueRequestBuilders = dialogueRequestBuilders;
     }
 
-    public void setComponentRequestBuilder(final IComponentRequestBuilder componentRequestBuilder) {
-        this.componentRequestBuilder = componentRequestBuilder;
+    public void setComponentRequestBuilder(final Set<IComponentRequestBuilder> componentRequestBuilders) {
+        this.componentRequestBuilders = componentRequestBuilders;
     }
     
     /*
@@ -420,8 +435,14 @@ public class SamTcapEventListener implements ISamTcapEventListener {
      * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext#getDialogueRequestBuilder()
      */
     @Override
-    public IDialogueRequestBuilder getDialogueRequestBuilder() {
-        return dialogueRequestBuilder;
+    public IDialogueRequestBuilder getDialogueRequestBuilder(String type) {
+        for (final IDialogueRequestBuilder builder : dialogueRequestBuilders) {
+            if (builder.getBuilderType().equals(type)) {
+                return builder;
+            }
+        }
+        logger.error("No maching dialogue request builder");
+        return null;
     }
 
     /*
@@ -429,8 +450,14 @@ public class SamTcapEventListener implements ISamTcapEventListener {
      * @see com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext#getComponentRequestBuilder()
      */
     @Override
-    public IComponentRequestBuilder getComponentRequestBuilder() {
-        return componentRequestBuilder;
+    public IComponentRequestBuilder getComponentRequestBuilder(String type) {
+        for (final IComponentRequestBuilder builder : componentRequestBuilders) {
+            if (builder.getBuilderType().equals(type)) {
+                return builder;
+            }
+        }
+        logger.error("No maching component request builder");
+        return null;
     }
 
 }

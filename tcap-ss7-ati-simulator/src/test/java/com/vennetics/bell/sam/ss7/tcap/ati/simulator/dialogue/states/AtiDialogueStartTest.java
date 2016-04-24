@@ -24,7 +24,7 @@ import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogue;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueContext;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.IDialogueManager;
 import com.vennetics.bell.sam.ss7.tcap.common.dialogue.requests.IDialogueRequestBuilder;
-import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IDialogueState;
+import com.vennetics.bell.sam.ss7.tcap.common.dialogue.states.IInitialDialogueState;
 import com.vennetics.bell.sam.ss7.tcap.common.exceptions.UnexpectedPrimitiveException;
 
 
@@ -54,7 +54,7 @@ public class AtiDialogueStartTest {
     @Mock
     private IDialogueRequestBuilder mockDialogueRequestBuilder;
 
-    private IDialogueState objectToTest;
+    private IInitialDialogueState objectToTest;
 
     @Before
     public void setup() throws Exception {
@@ -77,10 +77,10 @@ public class AtiDialogueStartTest {
         final EndReqEvent endReq = new EndReqEvent(mockTcapListener, DIALOGUE_ID);
         when(mockDialogue.getContext()).thenReturn(mockDialogueContext);
         when(mockDialogueContext.getTcapEventListener()).thenReturn(mockTcapListener);
-        when(mockDialogueContext.getComponentRequestBuilder()).thenReturn(mockRequestBuilder);
+        when(mockDialogueContext.getComponentRequestBuilder(objectToTest.getStateType())).thenReturn(mockRequestBuilder);
         when(mockRequestBuilder.createResultReq(mockTcapListener, DIALOGUE_ID, INVOKE_ID)).thenReturn(resultReq);
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);
-        when(mockDialogueContext.getDialogueRequestBuilder()).thenReturn(mockDialogueRequestBuilder);
+        when(mockDialogueContext.getDialogueRequestBuilder(null)).thenReturn(mockDialogueRequestBuilder);
         when(mockDialogueRequestBuilder.createEndReq(mockDialogueContext, DIALOGUE_ID)).thenReturn(endReq);
         when(mockDialogueContext.getDialogueManager()).thenReturn(mockDialogueMgr);
         when(mockDialogueContext.getProvider()).thenReturn(mockProvider);

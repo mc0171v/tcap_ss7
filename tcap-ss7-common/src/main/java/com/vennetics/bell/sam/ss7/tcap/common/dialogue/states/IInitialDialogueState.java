@@ -8,4 +8,11 @@ public interface IInitialDialogueState extends IDialogueState {
      *     a new instance of a start dialogue state
      */
     IInitialDialogueState newInstance();
+    
+    /***
+     * Retrieve the state type
+     * @return
+     *     the state type
+     */
+    String getStateType();
 }

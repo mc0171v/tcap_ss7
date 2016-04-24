@@ -24,6 +24,8 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
     private OutboundATIMessage request;
     private CountDownLatch cDl;
     
+    private static final String TYPE = "ATI";
+    
     /**
      * Send an anyTimeInterrogationReq
      * @param listener
@@ -43,7 +45,7 @@ public class SendAtiCommand extends HystrixCommand<OutboundATIMessage> {
     @Override
     protected OutboundATIMessage run() {
         logger.debug("Running Hystrix wrapped send ATI command to return a location or status");
-        final IDialogue dialogue = listener.startDialogue(request, cDl);
+        final IDialogue dialogue = listener.startDialogue(request, cDl, TYPE);
         try {
             cDl.await(listener.getConfigProperties().getLatchTimeout(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {

@@ -20,7 +20,8 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
     private long waitBeforeReadyRetry;
     private boolean waitForReady;
     private String cpConfig;
-    
+    private String simulatorOperation;
+
     /*
      * (non-Javadoc)
      * @see com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties#getOrigAddress()
@@ -237,6 +238,22 @@ public class Ss7ConfigurationProperties implements ISs7ConfigurationProperties {
     @Override
     public void setCpConfig(final String cpConfig) {
         this.cpConfig = cpConfig;
+    } 
+    
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties#getSimulatorOperation()
+     */
+    public String getSimulatorOperation() {
+        return simulatorOperation;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.vennetics.bell.sam.ss7.tcap.common.support.autoconfig.ISs7ConfigurationProperties#setSimulatorOperation(java.lang.String)
+     */
+    public void setSimulatorOperation(final String simulatorOperation) {
+        this.simulatorOperation = simulatorOperation;
     }
 
     @Override
